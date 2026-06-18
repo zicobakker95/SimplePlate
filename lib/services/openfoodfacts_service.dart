@@ -5,9 +5,11 @@ import 'package:http/http.dart' as http;
 import '../models/food_item.dart';
 
 /// Fetches food data from the Open Food Facts API.
-/// Docs: https://world.openfoodfacts.org/data
+/// Search uses world.openfoodfacts.net (CGI endpoint — stable).
+/// Barcode lookup uses world.openfoodfacts.org (v2 — reliable).
 class OpenFoodFactsService {
-  static const _baseUrl = 'https://world.openfoodfacts.org';
+  static const _searchBase = 'https://world.openfoodfacts.net';
+  static const _barcodeBase = 'https://world.openfoodfacts.org';
   static const _userAgent =
       'SimplePlate/1.0 (com.zibaentertainment.simple_plate; contact@zibaentertainment.com)';
 
@@ -16,8 +18,8 @@ class OpenFoodFactsService {
 
   /// Look up a product by barcode. Returns null if not found.
   Future<FoodItem?> fetchByBarcode(String barcode) async {
-    final uri =
-        Uri.parse('$_baseUrl/api/v2/product/$barcode?fields=product_name,brands,nutriments,image_front_url');
+    final uri = Uri.parse(
+        '$_barcodeBase/api/v2/product/$barcode?fields=product_name,brands,nutriments,image_front_url');
     try {
       final resp = await http
           .get(uri, headers: {'User-Agent': _userAgent})
@@ -35,19 +37,19 @@ class OpenFoodFactsService {
   Future<List<FoodItem>> search(String query, {int limit = 25}) async {
     final encoded = Uri.encodeComponent(query);
     final uri = Uri.parse(
-        '$_baseUrl/cgi/search.pl?search_terms=$encoded&search_simple=1&action=process&json=1&page_size=$limit&fields=code,product_name,brands,nutriments,image_front_url');
+        '$_searchBase/cgi/search.pl?search_terms=$encoded&search_simple=1&action=process&json=1&page_size=$limit&fields=code,product_name,brands,nutriments,image_front_url');
     try {
       final resp = await http
           .get(uri, headers: {'User-Agent': _userAgent})
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 15));
       if (resp.statusCode != 200) return const [];
       final body = jsonDecode(resp.body) as Map<String, dynamic>;
       final products = (body['products'] as List<dynamic>?) ?? const [];
       return products
           .cast<Map<String, dynamic>>()
-          .map((p) => _parseProduct(
-              (p['code'] as String?) ?? '', p))
-          .where((item) => item.name.isNotEmpty && item.caloriesPer100 > 0)
+          .map((p) => _parseProduct((p['code'] as String?) ?? '', p))
+          // Only require a non-empty name; calorie data may be missing for many valid items
+          .where((item) => item.name.isNotEmpty && item.name != 'Unknown')
           .toList();
     } catch (_) {
       return const [];

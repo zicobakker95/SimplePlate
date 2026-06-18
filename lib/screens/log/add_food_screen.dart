@@ -48,7 +48,9 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     setState(() {
       _loading = false;
       _results = items;
-      if (items.isEmpty) _error = 'No results found for "$query".';
+      if (items.isEmpty) {
+        _error = 'No results found for "$query".\nTry a more specific term or scan the barcode.';
+      }
     });
   }
 
