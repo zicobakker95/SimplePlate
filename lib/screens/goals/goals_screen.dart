@@ -5,6 +5,8 @@ import '../../models/nutrition_goals.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
 
+enum _GoalMode { manual, percentages, macrosToCalories }
+
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
 
@@ -13,38 +15,123 @@ class GoalsScreen extends StatefulWidget {
 }
 
 class _GoalsScreenState extends State<GoalsScreen> {
+  // Manual mode controllers
   late TextEditingController _calCtrl;
   late TextEditingController _proCtrl;
   late TextEditingController _carbCtrl;
   late TextEditingController _fatCtrl;
+
+  // Percentage mode controllers
+  late TextEditingController _calPctCtrl;
+  late TextEditingController _proPctCtrl;
+  late TextEditingController _carbPctCtrl;
+  late TextEditingController _fatPctCtrl;
+
+  // Macros → calories mode controllers
+  late TextEditingController _proGCtrl;
+  late TextEditingController _carbGCtrl;
+  late TextEditingController _fatGCtrl;
+
+  _GoalMode _mode = _GoalMode.manual;
   bool _saving = false;
+  bool _initialised = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_initialised) return;
+    _initialised = true;
+
     final g = context.read<FoodStore>().goals;
+
+    // Manual
     _calCtrl = TextEditingController(text: g.dailyCalories.toString());
     _proCtrl = TextEditingController(text: g.proteinGrams.toString());
     _carbCtrl = TextEditingController(text: g.carbsGrams.toString());
     _fatCtrl = TextEditingController(text: g.fatGrams.toString());
+
+    // Percentage mode — derive starting percentages from current goals
+    final totalKcal = g.dailyCalories > 0 ? g.dailyCalories : 2000;
+    final proPct = ((g.proteinGrams * 4 / totalKcal) * 100).round();
+    final carbPct = ((g.carbsGrams * 4 / totalKcal) * 100).round();
+    final fatPct = ((g.fatGrams * 9 / totalKcal) * 100).round();
+    _calPctCtrl = TextEditingController(text: g.dailyCalories.toString());
+    _proPctCtrl = TextEditingController(text: proPct.toString());
+    _carbPctCtrl = TextEditingController(text: carbPct.toString());
+    _fatPctCtrl = TextEditingController(text: fatPct.toString());
+
+    // Macros → calories
+    _proGCtrl = TextEditingController(text: g.proteinGrams.toString());
+    _carbGCtrl = TextEditingController(text: g.carbsGrams.toString());
+    _fatGCtrl = TextEditingController(text: g.fatGrams.toString());
+
+    // Rebuild when any field changes so live calculations update
+    for (final c in [
+      _calPctCtrl, _proPctCtrl, _carbPctCtrl, _fatPctCtrl,
+      _proGCtrl, _carbGCtrl, _fatGCtrl,
+    ]) {
+      c.addListener(() => setState(() {}));
+    }
   }
 
   @override
   void dispose() {
-    _calCtrl.dispose();
-    _proCtrl.dispose();
-    _carbCtrl.dispose();
-    _fatCtrl.dispose();
+    for (final c in [
+      _calCtrl, _proCtrl, _carbCtrl, _fatCtrl,
+      _calPctCtrl, _proPctCtrl, _carbPctCtrl, _fatPctCtrl,
+      _proGCtrl, _carbGCtrl, _fatGCtrl,
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
+  // ── Derived values ──────────────────────────────────────────────────────────
+
+  /// Calories entered in percentage mode.
+  int get _pctCalories => int.tryParse(_calPctCtrl.text) ?? 0;
+  double get _proPct => double.tryParse(_proPctCtrl.text) ?? 0;
+  double get _carbPct => double.tryParse(_carbPctCtrl.text) ?? 0;
+  double get _fatPct => double.tryParse(_fatPctCtrl.text) ?? 0;
+  double get _pctSum => _proPct + _carbPct + _fatPct;
+
+  int get _calcProteinG => ((_pctCalories * _proPct / 100) / 4).round();
+  int get _calcCarbsG => ((_pctCalories * _carbPct / 100) / 4).round();
+  int get _calcFatG => ((_pctCalories * _fatPct / 100) / 9).round();
+
+  int get _macroProteinG => int.tryParse(_proGCtrl.text) ?? 0;
+  int get _macroCarbsG => int.tryParse(_carbGCtrl.text) ?? 0;
+  int get _macroFatG => int.tryParse(_fatGCtrl.text) ?? 0;
+  int get _calcCalories =>
+      _macroProteinG * 4 + _macroCarbsG * 4 + _macroFatG * 9;
+
+  // ── Save ────────────────────────────────────────────────────────────────────
+
   Future<void> _save() async {
-    final goals = NutritionGoals(
-      dailyCalories: int.tryParse(_calCtrl.text) ?? 2000,
-      proteinGrams: int.tryParse(_proCtrl.text) ?? 150,
-      carbsGrams: int.tryParse(_carbCtrl.text) ?? 200,
-      fatGrams: int.tryParse(_fatCtrl.text) ?? 65,
-    );
+    late NutritionGoals goals;
+    switch (_mode) {
+      case _GoalMode.manual:
+        goals = NutritionGoals(
+          dailyCalories: int.tryParse(_calCtrl.text) ?? 2000,
+          proteinGrams: int.tryParse(_proCtrl.text) ?? 150,
+          carbsGrams: int.tryParse(_carbCtrl.text) ?? 200,
+          fatGrams: int.tryParse(_fatCtrl.text) ?? 65,
+        );
+      case _GoalMode.percentages:
+        goals = NutritionGoals(
+          dailyCalories: _pctCalories,
+          proteinGrams: _calcProteinG,
+          carbsGrams: _calcCarbsG,
+          fatGrams: _calcFatG,
+        );
+      case _GoalMode.macrosToCalories:
+        goals = NutritionGoals(
+          dailyCalories: _calcCalories,
+          proteinGrams: _macroProteinG,
+          carbsGrams: _macroCarbsG,
+          fatGrams: _macroFatG,
+        );
+    }
     setState(() => _saving = true);
     await context.read<FoodStore>().saveGoals(goals);
     if (!mounted) return;
@@ -53,13 +140,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
         .showSnackBar(const SnackBar(content: Text('Goals saved!')));
   }
 
+  // ── Widgets ─────────────────────────────────────────────────────────────────
+
   Widget _field(String label, TextEditingController ctrl, Color accent,
       String suffix) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextField(
         controller: ctrl,
-        keyboardType: TextInputType.number,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: accent),
@@ -73,6 +162,108 @@ class _GoalsScreenState extends State<GoalsScreen> {
     );
   }
 
+  Widget _readonlyCard(String label, String value, Color accent) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accent.withOpacity(0.35)),
+      ),
+      child: Row(
+        children: [
+          Text(label,
+              style: TextStyle(color: accent, fontWeight: FontWeight.w600)),
+          const Spacer(),
+          Text(value,
+              style: TextStyle(
+                  color: accent,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+
+  Widget _pctHint(String macro, int grams, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 4),
+      child: Text(
+        '  → $grams g $macro',
+        style: TextStyle(
+            color: color.withOpacity(0.8),
+            fontSize: 12,
+            fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
+  Widget _pctSumIndicator() {
+    final sum = _pctSum.round();
+    final ok = sum == 100;
+    final color = ok ? AppColors.primary : AppColors.fat;
+    return Container(
+      margin: const EdgeInsets.only(top: 8, bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.4)),
+      ),
+      child: Row(
+        children: [
+          Icon(ok ? Icons.check_circle_outline : Icons.warning_amber_rounded,
+              color: color, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            ok
+                ? 'Percentages add up to 100% ✓'
+                : 'Percentages add up to $sum% (should be 100%)',
+            style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _manualMode() {
+    return Column(children: [
+      _field('Calories', _calCtrl, AppColors.calories, 'kcal'),
+      _field('Protein', _proCtrl, AppColors.protein, 'g'),
+      _field('Carbohydrates', _carbCtrl, AppColors.carbs, 'g'),
+      _field('Fat', _fatCtrl, AppColors.fat, 'g'),
+    ]);
+  }
+
+  Widget _percentagesMode() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _field('Daily calories', _calPctCtrl, AppColors.calories, 'kcal'),
+      const SizedBox(height: 4),
+      _field('Protein %', _proPctCtrl, AppColors.protein, '%'),
+      _pctHint('protein', _calcProteinG, AppColors.protein),
+      _field('Carbohydrates %', _carbPctCtrl, AppColors.carbs, '%'),
+      _pctHint('carbs', _calcCarbsG, AppColors.carbs),
+      _field('Fat %', _fatPctCtrl, AppColors.fat, '%'),
+      _pctHint('fat', _calcFatG, AppColors.fat),
+      _pctSumIndicator(),
+    ]);
+  }
+
+  Widget _macrosToCaloriesMode() {
+    return Column(children: [
+      _field('Protein', _proGCtrl, AppColors.protein, 'g'),
+      _field('Carbohydrates', _carbGCtrl, AppColors.carbs, 'g'),
+      _field('Fat', _fatGCtrl, AppColors.fat, 'g'),
+      const SizedBox(height: 8),
+      _readonlyCard('Calculated calories', '$_calcCalories kcal',
+          AppColors.calories),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
@@ -84,14 +275,77 @@ class _GoalsScreenState extends State<GoalsScreen> {
           Text('Daily nutrition targets',
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          Text('Set your daily calorie and macro goals.',
-              style:
-                  tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          Text('Choose how you want to set your goals.',
+              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
-          _field('Calories', _calCtrl, AppColors.calories, 'kcal'),
-          _field('Protein', _proCtrl, AppColors.protein, 'g'),
-          _field('Carbohydrates', _carbCtrl, AppColors.carbs, 'g'),
-          _field('Fat', _fatCtrl, AppColors.fat, 'g'),
+
+          // ── Mode toggle ────────────────────────────────────────────────────
+          SegmentedButton<_GoalMode>(
+            style: SegmentedButton.styleFrom(
+              selectedBackgroundColor: AppColors.primary.withOpacity(0.2),
+              selectedForegroundColor: AppColors.primary,
+              foregroundColor: AppColors.textSecondary,
+              side: const BorderSide(color: AppColors.border),
+            ),
+            segments: const [
+              ButtonSegment(
+                value: _GoalMode.manual,
+                icon: Icon(Icons.edit_outlined, size: 16),
+                label: Text('Manual'),
+              ),
+              ButtonSegment(
+                value: _GoalMode.percentages,
+                icon: Icon(Icons.percent, size: 16),
+                label: Text('% → Macros'),
+              ),
+              ButtonSegment(
+                value: _GoalMode.macrosToCalories,
+                icon: Icon(Icons.calculate_outlined, size: 16),
+                label: Text('Macros → kcal'),
+              ),
+            ],
+            selected: {_mode},
+            onSelectionChanged: (s) => setState(() => _mode = s.first),
+          ),
+          const SizedBox(height: 6),
+
+          // ── Mode description ───────────────────────────────────────────────
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Padding(
+              key: ValueKey(_mode),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                switch (_mode) {
+                  _GoalMode.manual =>
+                    'Enter your calories and macro grams directly.',
+                  _GoalMode.percentages =>
+                    'Enter total calories and the % split — grams are calculated live.',
+                  _GoalMode.macrosToCalories =>
+                    'Enter your macro grams — total calories are calculated live.',
+                },
+                style:
+                    tt.bodySmall?.copyWith(color: AppColors.textMuted),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // ── Mode content ───────────────────────────────────────────────────
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            transitionBuilder: (child, anim) =>
+                FadeTransition(opacity: anim, child: child),
+            child: KeyedSubtree(
+              key: ValueKey(_mode),
+              child: switch (_mode) {
+                _GoalMode.manual => _manualMode(),
+                _GoalMode.percentages => _percentagesMode(),
+                _GoalMode.macrosToCalories => _macrosToCaloriesMode(),
+              },
+            ),
+          ),
+
           const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
@@ -117,8 +371,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
             'Version 1.0.0\n'
             'Food data provided by Open Food Facts (openfoodfacts.org) — '
             'open database, open data, made by everyone.',
-            style:
-                tt.bodySmall?.copyWith(color: AppColors.textMuted, height: 1.6),
+            style: tt.bodySmall
+                ?.copyWith(color: AppColors.textMuted, height: 1.6),
           ),
         ],
       ),
