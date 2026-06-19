@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/food_entry.dart';
+import '../services/food_store.dart';
 import '../theme/app_colors.dart';
 
 /// Collapsible meal section card (Breakfast / Lunch / Dinner / Snack).
@@ -75,9 +77,30 @@ class MealSection extends StatelessWidget {
                   child: const Icon(Icons.delete_rounded,
                       color: Colors.white),
                 ),
+                confirmDismiss: (_) => showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Delete entry?'),
+                    content: Text(
+                        'Remove "${entry.foodName}" from ${entry.meal.label}?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                            foregroundColor: AppColors.danger),
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                ),
                 onDismissed: (_) => onDelete(entry.id),
                 child: ListTile(
                   dense: true,
+                  onLongPress: () => _showEditSheet(context, entry),
                   title: Text(entry.foodName,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: Text(
@@ -88,11 +111,21 @@ class MealSection extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 11, color: AppColors.textSecondary),
                   ),
-                  trailing: Text('${entry.calories.round()} kcal',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.calories,
-                          fontWeight: FontWeight.w600)),
+                  trailing: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('${entry.calories.round()} kcal',
+                          style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.calories,
+                              fontWeight: FontWeight.w600)),
+                      const Text('hold to edit',
+                          style: TextStyle(
+                              fontSize: 9,
+                              color: AppColors.textMuted)),
+                    ],
+                  ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                 ),
@@ -102,4 +135,77 @@ class MealSection extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showEditSheet(BuildContext context, FoodEntry entry) {
+  final ctrl =
+      TextEditingController(text: entry.servingGrams.round().toString());
+
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppColors.surface,
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (sheetCtx) => Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(entry.foodName,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700, fontSize: 16),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
+          if (entry.foodBrand.isNotEmpty)
+            Text(entry.foodBrand,
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 12)),
+          const SizedBox(height: 16),
+          TextField(
+            controller: ctrl,
+            autofocus: true,
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(
+              labelText: 'Serving size',
+              suffixText: 'g',
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(sheetCtx),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    final grams = double.tryParse(ctrl.text);
+                    if (grams != null && grams > 0) {
+                      context
+                          .read<FoodStore>()
+                          .updateEntryServing(entry.id, grams);
+                      Navigator.pop(sheetCtx);
+                    }
+                  },
+                  child: const Text('Update'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }

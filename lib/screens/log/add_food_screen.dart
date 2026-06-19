@@ -215,17 +215,31 @@ class _FoodTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Text(
-        item.brand.isNotEmpty ? item.brand : 'per 100 g',
+        item.brand.isNotEmpty
+            ? '${item.brand}  ·  ${item.caloriesPer100.round()} kcal/100g'
+            : '${item.caloriesPer100.round()} kcal / 100 g',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
       ),
-      trailing: Text(
-        '${item.caloriesPer100.round()} kcal / 100 g',
-        style: const TextStyle(
-            color: AppColors.calories,
-            fontSize: 12,
-            fontWeight: FontWeight.w600),
+      trailing: Consumer<FoodStore>(
+        builder: (_, store, __) => IconButton(
+          icon: Icon(
+            store.isFavourite(item.id)
+                ? Icons.star_rounded
+                : Icons.star_border_rounded,
+            color: store.isFavourite(item.id)
+                ? Colors.amber
+                : AppColors.textMuted,
+            size: 22,
+          ),
+          onPressed: () => store.toggleFavourite(item),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          tooltip: store.isFavourite(item.id)
+              ? 'Remove from favourites'
+              : 'Add to favourites',
+        ),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );

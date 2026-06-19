@@ -18,6 +18,14 @@ class FoodStore extends ChangeNotifier {
     _recents = _storage.loadRecents();
     _streak = _storage.streak;
     _lastLoggedDate = _storage.lastLoggedDate;
+
+    // Water — reset if stored date != today
+    final todayKey = _dayKey(DateTime.now());
+    if (_storage.waterDate == todayKey) {
+      _waterGlasses = _storage.waterGlasses;
+    } else {
+      _waterGlasses = 0;
+    }
   }
 
   final StorageService _storage;
@@ -29,12 +37,19 @@ class FoodStore extends ChangeNotifier {
   late List<FoodItem> _recents;
   late int _streak;
   String? _lastLoggedDate;
+  int _waterGlasses = 0;
 
   // --- Public getters ---
   NutritionGoals get goals => _goals;
   List<FoodItem> get favourites => List.unmodifiable(_favourites);
   List<FoodItem> get recents => List.unmodifiable(_recents);
   int get streak => _streak;
+  int get waterGlasses => _waterGlasses;
+  bool get waterEnabled => _storage.waterEnabled;
+  int get waterGoal => _storage.waterGoal;
+  bool get reminderEnabled => _storage.reminderEnabled;
+  int get reminderHour => _storage.reminderHour;
+  int get reminderMinute => _storage.reminderMinute;
 
   /// All entries for [date] (local calendar day).
   List<FoodEntry> entriesForDay(DateTime date) {
@@ -105,6 +120,27 @@ class FoodStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateEntryServing(String entryId, double newGrams) async {
+    _allEntries = _allEntries.map((e) {
+      if (e.id != entryId) return e;
+      return FoodEntry(
+        id: e.id,
+        foodItemId: e.foodItemId,
+        foodName: e.foodName,
+        foodBrand: e.foodBrand,
+        servingGrams: newGrams,
+        caloriesPer100: e.caloriesPer100,
+        proteinPer100: e.proteinPer100,
+        carbsPer100: e.carbsPer100,
+        fatPer100: e.fatPer100,
+        meal: e.meal,
+        loggedAt: e.loggedAt,
+      );
+    }).toList();
+    await _storage.saveEntries(_allEntries);
+    notifyListeners();
+  }
+
   Future<void> toggleFavourite(FoodItem item) async {
     final exists = _favourites.any((f) => f.id == item.id);
     if (exists) {
@@ -118,9 +154,73 @@ class FoodStore extends ChangeNotifier {
 
   bool isFavourite(String foodId) => _favourites.any((f) => f.id == foodId);
 
+  // --- Water intake ---
+  Future<void> addWater() async {
+    _waterGlasses += 1;
+    await _storage.setWater(_dayKey(DateTime.now()), _waterGlasses);
+    notifyListeners();
+  }
+
+  Future<void> removeWater() async {
+    if (_waterGlasses > 0) _waterGlasses -= 1;
+    await _storage.setWater(_dayKey(DateTime.now()), _waterGlasses);
+    notifyListeners();
+  }
+
+  Future<void> resetWater() async {
+    _waterGlasses = 0;
+    await _storage.setWater(_dayKey(DateTime.now()), 0);
+    notifyListeners();
+  }
+
+  Future<void> setWaterSettings(
+      {required bool enabled, required int goal}) async {
+    await _storage.setWaterSettings(enabled, goal);
+    notifyListeners();
+  }
+
+  // --- Copy yesterday ---
+  Future<int> copyYesterdayEntries() async {
+    final yesterday =
+        DateTime.now().subtract(const Duration(days: 1));
+    final src = entriesForDay(yesterday);
+    if (src.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final newEntries = src.map((e) => FoodEntry(
+          id: _uuid.v4(),
+          foodItemId: e.foodItemId,
+          foodName: e.foodName,
+          foodBrand: e.foodBrand,
+          servingGrams: e.servingGrams,
+          caloriesPer100: e.caloriesPer100,
+          proteinPer100: e.proteinPer100,
+          carbsPer100: e.carbsPer100,
+          fatPer100: e.fatPer100,
+          meal: e.meal,
+          loggedAt: DateTime(
+              now.year, now.month, now.day,
+              e.loggedAt.hour, e.loggedAt.minute),
+        )).toList();
+
+    _allEntries = [..._allEntries, ...newEntries];
+    await _storage.saveEntries(_allEntries);
+    await _updateStreak();
+    notifyListeners();
+    return newEntries.length;
+  }
+
   Future<void> saveGoals(NutritionGoals goals) async {
     _goals = goals;
     await _storage.saveGoals(goals);
+    notifyListeners();
+  }
+
+  Future<void> setReminder(
+      {required bool enabled,
+      required int hour,
+      required int minute}) async {
+    await _storage.setReminder(enabled, hour, minute);
     notifyListeners();
   }
 

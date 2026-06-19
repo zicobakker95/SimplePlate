@@ -8,6 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../widgets/calorie_ring.dart';
 import '../../widgets/macro_bar.dart';
 import '../../widgets/meal_section.dart';
+import '../../widgets/water_card.dart';
 import '../log/add_food_screen.dart';
 
 class TodayScreen extends StatelessWidget {
@@ -40,7 +41,7 @@ class TodayScreen extends StatelessWidget {
         actions: [
           if (store.streak > 0)
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: 4),
               child: Chip(
                 avatar: const Icon(Icons.local_fire_department_rounded,
                     color: Colors.orange, size: 16),
@@ -52,6 +53,11 @@ class TodayScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.copy_all_rounded, size: 20),
+            tooltip: 'Copy yesterday\'s meals',
+            onPressed: () => _copyYesterday(context),
+          ),
         ],
       ),
       body: ListView(
@@ -104,6 +110,12 @@ class TodayScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
+          // Water tracker (only if enabled in Goals)
+          if (store.waterEnabled) ...[
+            WaterCard(goal: store.waterGoal),
+            const SizedBox(height: 4),
+          ],
+
           // Meal sections
           for (final meal in MealType.values)
             MealSection(
@@ -127,6 +139,41 @@ class TodayScreen extends StatelessWidget {
   void _addFood(BuildContext context, MealType meal) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => AddFoodScreen(defaultMeal: meal)),
+    );
+  }
+
+  Future<void> _copyYesterday(BuildContext context) async {
+    final store = context.read<FoodStore>();
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final count = store.entriesForDay(yesterday).length;
+    if (count == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No entries logged yesterday.')),
+      );
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Copy yesterday?'),
+        content: Text('Copy $count item${count == 1 ? '' : 's'} from yesterday to today?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Copy'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final added = await store.copyYesterdayEntries();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Copied $added item${added == 1 ? '' : 's'} from yesterday.')),
     );
   }
 }

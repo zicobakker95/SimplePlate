@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/nutrition_goals.dart';
 import '../../services/food_store.dart';
+import '../../services/notification_service.dart';
 import '../../theme/app_colors.dart';
 
 enum _GoalMode { manual, percentages, macrosToCalories }
@@ -36,6 +37,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
   bool _saving = false;
   bool _initialised = false;
 
+  // Reminder state
+  bool _reminderEnabled = false;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
+
+  // Water state
+  bool _waterEnabled = false;
+  final TextEditingController _waterGoalCtrl = TextEditingController(text: '8');
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -43,6 +52,16 @@ class _GoalsScreenState extends State<GoalsScreen> {
     _initialised = true;
 
     final g = context.read<FoodStore>().goals;
+
+    // Load reminder prefs
+    final store = context.read<FoodStore>();
+    _reminderEnabled = store.reminderEnabled;
+    _reminderTime =
+        TimeOfDay(hour: store.reminderHour, minute: store.reminderMinute);
+
+    // Load water prefs
+    _waterEnabled = store.waterEnabled;
+    _waterGoalCtrl.text = store.waterGoal.toString();
 
     // Manual
     _calCtrl = TextEditingController(text: g.dailyCalories.toString());
@@ -80,6 +99,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
       _calCtrl, _proCtrl, _carbCtrl, _fatCtrl,
       _calPctCtrl, _proPctCtrl, _carbPctCtrl, _fatPctCtrl,
       _proGCtrl, _carbGCtrl, _fatGCtrl,
+      _waterGoalCtrl,
     ]) {
       c.dispose();
     }
@@ -360,6 +380,68 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   : const Text('Save goals'),
             ),
           ),
+
+          // ── Water tracking ─────────────────────────────────────────────────
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          Text('Water tracking',
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text('Track your daily water intake on the home screen.',
+              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              children: [
+                SwitchListTile(
+                  value: _waterEnabled,
+                  onChanged: (v) {
+                    setState(() => _waterEnabled = v);
+                    _saveWaterSettings();
+                  },
+                  title: const Text('Show water tracker',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Displays water card on Today screen'),
+                  activeColor: AppColors.primary,
+                ),
+                if (_waterEnabled) ...[
+                  const Divider(height: 1, color: AppColors.border),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    child: TextField(
+                      controller: _waterGoalCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Daily goal',
+                        suffixText: 'glasses',
+                        prefixIcon: Icon(Icons.water_drop_rounded,
+                            color: Colors.lightBlue),
+                      ),
+                      onChanged: (_) => _saveWaterSettings(),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // ── Reminders ──────────────────────────────────────────────────────
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          Text('Daily reminder',
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text('Get a daily nudge to log your meals.',
+              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+          _ReminderSection(
+            enabled: _reminderEnabled,
+            time: _reminderTime,
+            onToggle: (v) => _setReminder(enabled: v),
+            onTimeTap: _pickReminderTime,
+          ),
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 16),
@@ -374,6 +456,99 @@ class _GoalsScreenState extends State<GoalsScreen> {
             style: tt.bodySmall
                 ?.copyWith(color: AppColors.textMuted, height: 1.6),
           ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveWaterSettings() async {
+    final goal = int.tryParse(_waterGoalCtrl.text) ?? 8;
+    await context
+        .read<FoodStore>()
+        .setWaterSettings(enabled: _waterEnabled, goal: goal.clamp(1, 30));
+  }
+
+  Future<void> _setReminder({required bool enabled}) async {
+    await NotificationService.instance
+        .requestPermissions(context);
+    if (!mounted) return;
+
+    setState(() => _reminderEnabled = enabled);
+    final store = context.read<FoodStore>();
+    await store.setReminder(
+        enabled: enabled,
+        hour: _reminderTime.hour,
+        minute: _reminderTime.minute);
+
+    if (enabled) {
+      await NotificationService.instance.scheduleDaily(
+          hour: _reminderTime.hour, minute: _reminderTime.minute);
+    } else {
+      await NotificationService.instance.cancelReminder();
+    }
+  }
+
+  Future<void> _pickReminderTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _reminderTime = picked);
+    final store = context.read<FoodStore>();
+    await store.setReminder(
+        enabled: _reminderEnabled,
+        hour: picked.hour,
+        minute: picked.minute);
+    if (_reminderEnabled) {
+      await NotificationService.instance
+          .scheduleDaily(hour: picked.hour, minute: picked.minute);
+    }
+  }
+}
+
+class _ReminderSection extends StatelessWidget {
+  const _ReminderSection({
+    required this.enabled,
+    required this.time,
+    required this.onToggle,
+    required this.onTimeTap,
+  });
+
+  final bool enabled;
+  final TimeOfDay time;
+  final ValueChanged<bool> onToggle;
+  final VoidCallback onTimeTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: [
+          SwitchListTile(
+            value: enabled,
+            onChanged: onToggle,
+            title: const Text('Enable reminder',
+                style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text('Sends a daily notification'),
+            activeColor: AppColors.primary,
+          ),
+          if (enabled) ...[
+            const Divider(height: 1, color: AppColors.border),
+            ListTile(
+              leading: const Icon(Icons.access_time_rounded,
+                  color: AppColors.primary),
+              title: const Text('Reminder time'),
+              trailing: Text(
+                time.format(context),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                    fontSize: 16),
+              ),
+              onTap: onTimeTap,
+            ),
+          ],
         ],
       ),
     );

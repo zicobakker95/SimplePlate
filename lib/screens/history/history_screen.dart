@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/food_entry.dart';
+import '../../models/nutrition_goals.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
 
@@ -17,15 +20,23 @@ class HistoryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('History')),
-      body: dates.isEmpty
-          ? const Center(
-              child: Text('No logged days yet.',
-                  style: TextStyle(color: AppColors.textMuted)))
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: dates.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
-              itemBuilder: (_, i) {
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: _WeeklySummaryCard(store: store, goals: goals),
+          ),
+          Expanded(
+            child: dates.isEmpty
+                ? const Center(
+                    child: Text('No logged days yet.',
+                        style: TextStyle(color: AppColors.textMuted)))
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: dates.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (_, i) {
                 final date = dates[i];
                 final entries = store.entriesForDay(date);
                 final cals =
@@ -92,7 +103,10 @@ class HistoryScreen extends StatelessWidget {
                   ),
                 );
               },
-            ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -200,6 +214,112 @@ class _Stat extends StatelessWidget {
             style: const TextStyle(
                 color: AppColors.textSecondary, fontSize: 11)),
       ],
+    );
+  }
+}
+
+class _WeeklySummaryCard extends StatelessWidget {
+  const _WeeklySummaryCard({required this.store, required this.goals});
+  final FoodStore store;
+  final NutritionGoals goals;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final days = List.generate(
+      7,
+      (i) {
+        final d = now.subtract(Duration(days: 6 - i));
+        return DateTime(d.year, d.month, d.day);
+      },
+    );
+    final cals = days.map((d) => store.caloriesTotalsForDay(d)).toList();
+    final avg = cals.reduce((a, b) => a + b) / 7;
+    final maxCals = cals.reduce(max);
+    final goal = goals.dailyCalories.toDouble();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('7-Day Average',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+                const Spacer(),
+                Text(
+                  '${avg.round()} kcal avg',
+                  style: const TextStyle(
+                      color: AppColors.calories,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 64,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(7, (i) {
+                  final barHeight = maxCals > 0
+                      ? (40.0 * cals[i] / maxCals).clamp(2.0, 40.0)
+                      : 2.0;
+                  final hasData = cals[i] > 0;
+                  final isToday = i == 6;
+                  Color barColor;
+                  if (!hasData) {
+                    barColor = AppColors.border;
+                  } else if (cals[i] > goal * 1.1) {
+                    barColor = AppColors.danger;
+                  } else if (cals[i] >= goal * 0.85) {
+                    barColor = AppColors.primary;
+                  } else {
+                    barColor = AppColors.primary.withValues(alpha: 0.45);
+                  }
+
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: i > 0 ? 4 : 0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            height: barHeight,
+                            decoration: BoxDecoration(
+                              color: barColor,
+                              borderRadius: BorderRadius.circular(3),
+                              border: isToday
+                                  ? Border.all(
+                                      color: AppColors.primary, width: 1.5)
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('E').format(days[i]).substring(0, 1),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: isToday
+                                  ? AppColors.primary
+                                  : AppColors.textMuted,
+                              fontWeight: isToday
+                                  ? FontWeight.w700
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
