@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 
 import '../../models/food_entry.dart';
 import '../../models/nutrition_goals.dart';
+import '../../screens/premium/premium_screen.dart';
 import '../../services/food_store.dart';
+import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -24,7 +26,16 @@ class HistoryScreen extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _WeeklySummaryCard(store: store, goals: goals),
+            child: ListenableBuilder(
+              listenable: SubscriptionService.instance,
+              builder: (context, _) {
+                final isPremium = SubscriptionService.instance.isPremium;
+                if (isPremium) {
+                  return _WeeklySummaryCard(store: store, goals: goals);
+                }
+                return _WeeklyInsightsTeaser();
+              },
+            ),
           ),
           Expanded(
             child: dates.isEmpty
@@ -214,6 +225,115 @@ class _Stat extends StatelessWidget {
             style: const TextStyle(
                 color: AppColors.textSecondary, fontSize: 11)),
       ],
+    );
+  }
+}
+
+class _WeeklyInsightsTeaser extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.hardEdge,
+      child: Stack(
+        children: [
+          // Dimmed fake chart behind the lock
+          Opacity(
+            opacity: 0.15,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Text('7-Day Average',
+                          style: TextStyle(fontWeight: FontWeight.w700)),
+                      Spacer(),
+                      Text('— kcal avg',
+                          style: TextStyle(
+                              color: AppColors.calories,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 64,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: List.generate(7, (i) {
+                        final heights = [20.0, 30.0, 15.0, 35.0, 28.0, 40.0, 22.0];
+                        return Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: i > 0 ? 4 : 0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  height: heights[i],
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Lock overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.workspace_premium_rounded,
+                        color: AppColors.primary, size: 28),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Weekly Insights',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15)),
+                  const SizedBox(height: 4),
+                  const Text('Premium feature',
+                      style: TextStyle(
+                          color: Colors.white60, fontSize: 12)),
+                  const SizedBox(height: 14),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.workspace_premium_rounded, size: 16),
+                    label: const Text('Upgrade to Premium'),
+                    onPressed: () => PremiumScreen.show(context),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

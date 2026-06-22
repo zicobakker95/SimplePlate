@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/nutrition_goals.dart';
+import '../../screens/premium/premium_screen.dart';
 import '../../services/food_store.dart';
 import '../../services/notification_service.dart';
+import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 
 enum _GoalMode { manual, percentages, macrosToCalories }
@@ -292,6 +295,78 @@ class _GoalsScreenState extends State<GoalsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          // ── Premium banner ────────────────────────────────────────────────
+          ListenableBuilder(
+            listenable: SubscriptionService.instance,
+            builder: (context, _) {
+              final isPremium = SubscriptionService.instance.isPremium;
+              return GestureDetector(
+                onTap: isPremium ? null : () => PremiumScreen.show(context),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: isPremium
+                          ? [const Color(0xFF1A2E1A), const Color(0xFF1B3A1B)]
+                          : [const Color(0xFF1A1A2E), const Color(0xFF2D1B69)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isPremium
+                          ? Colors.greenAccent.withValues(alpha: 0.4)
+                          : AppColors.primary.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isPremium
+                            ? Icons.verified_rounded
+                            : Icons.workspace_premium_rounded,
+                        color: isPremium
+                            ? Colors.greenAccent
+                            : AppColors.primary,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isPremium
+                                  ? 'You\'re a Premium member'
+                                  : 'Upgrade to Premium',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: isPremium
+                                      ? Colors.greenAccent
+                                      : Colors.white),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              isPremium
+                                  ? 'Weekly insights unlocked · No ads'
+                                  : 'Weekly insights · No ads · Support dev',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: isPremium
+                                      ? Colors.greenAccent.withValues(alpha: 0.8)
+                                      : Colors.white60),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (!isPremium)
+                        const Icon(Icons.chevron_right_rounded,
+                            color: Colors.white54),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
           Text('Daily nutrition targets',
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
@@ -441,6 +516,32 @@ class _GoalsScreenState extends State<GoalsScreen> {
             time: _reminderTime,
             onToggle: (v) => _setReminder(enabled: v),
             onTimeTap: _pickReminderTime,
+          ),
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          Text('Feedback',
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(
+            "I'm a solo developer and your feedback helps make PlateSimple better. "
+            'Takes less than a minute!',
+            style: tt.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.feedback_rounded,
+                  color: AppColors.primary),
+              title: const Text('Share feedback',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('zibaentertainment.com/feedback'),
+              trailing: const Icon(Icons.open_in_new_rounded, size: 18),
+              onTap: () => launchUrl(
+                Uri.parse('https://zibaentertainment.com/feedback/'),
+                mode: LaunchMode.externalApplication,
+              ),
+            ),
           ),
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),

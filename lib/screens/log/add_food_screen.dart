@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
+import '../../services/ad_service.dart';
 import '../../services/food_store.dart';
 import '../../services/openfoodfacts_service.dart';
 import '../../theme/app_colors.dart';
@@ -55,6 +56,44 @@ class _AddFoodScreenState extends State<AddFoodScreen>
   }
 
   Future<void> _scanBarcode() async {
+    // Check if scanner is already unlocked for today.
+    final unlocked = await AdService.instance.isScannerUnlockedToday();
+    if (!mounted) return;
+
+    if (!unlocked) {
+      // Show unlock dialog.
+      final watch = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Unlock barcode scanner'),
+          content: const Text(
+              'Watch a short ad to unlock the barcode scanner for the rest of the day.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.play_circle_outline_rounded, size: 18),
+              label: const Text('Watch ad'),
+              onPressed: () => Navigator.pop(ctx, true),
+            ),
+          ],
+        ),
+      );
+      if (watch != true || !mounted) return;
+
+      // Show rewarded ad.
+      bool scannerReady = false;
+      await AdService.instance.showScannerRewardedAd(
+        onUnlocked: () => scannerReady = true,
+        onCancelled: () => scannerReady = false,
+      );
+      if (!scannerReady || !mounted) return;
+    }
+
+    // Proceed with scan.
     final barcode = await Navigator.of(context).push<String>(
         MaterialPageRoute(builder: (_) => const BarcodeScreen()));
     if (barcode == null || !mounted) return;

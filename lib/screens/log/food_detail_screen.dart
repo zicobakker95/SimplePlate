@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
+import '../../services/ad_service.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
 
@@ -39,9 +40,13 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
     final store = context.read<FoodStore>();
     await store.logFood(widget.item, _grams, _meal);
     if (!mounted) return;
+
+    // Pop navigation first, then show interstitial (once per session).
     Navigator.of(context)
       ..pop() // detail
       ..pop(); // add food
+
+    await AdService.instance.showPostLogInterstitial(onComplete: () {});
   }
 
   @override
