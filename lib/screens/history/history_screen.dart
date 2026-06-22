@@ -232,7 +232,9 @@ class _Stat extends StatelessWidget {
 class _WeeklyInsightsTeaser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 180),
+      child: Card(
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
@@ -333,10 +335,11 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
+      ),   // Stack
+    ),     // Card
+    );     // ConstrainedBox
   }
-}
+} // _WeeklyInsightsTeaser
 
 class _WeeklySummaryCard extends StatelessWidget {
   const _WeeklySummaryCard({required this.store, required this.goals});
