@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:uuid/uuid.dart';
@@ -6,9 +8,11 @@ import '../models/activity_entry.dart';
 import '../models/food_entry.dart';
 import '../models/food_item.dart';
 import '../models/nutrition_goals.dart';
+import '../models/recipe.dart';
 import '../models/user_profile.dart';
 import '../models/weight_entry.dart';
 import 'storage_service.dart';
+import 'widget_service.dart';
 
 /// Central app state. Exposes today's entries, macros, streak, and goals.
 /// ChangeNotifier so it works with [Provider].
@@ -21,6 +25,7 @@ class FoodStore extends ChangeNotifier {
     _customFoods = _storage.loadCustomFoods();
     _weightLog = _storage.loadWeightLog();
     _activities = _storage.loadActivities();
+    _recipes = _storage.loadRecipes();
     _userProfile = _storage.loadUserProfile();
     _streak = _storage.streak;
     _lastLoggedDate = _storage.lastLoggedDate;
@@ -44,6 +49,7 @@ class FoodStore extends ChangeNotifier {
   late List<FoodItem> _customFoods;
   late List<WeightEntry> _weightLog;
   late List<ActivityEntry> _activities;
+  late List<Recipe> _recipes;
   UserProfile? _userProfile;
   late int _streak;
   String? _lastLoggedDate;
@@ -51,11 +57,13 @@ class FoodStore extends ChangeNotifier {
 
   // --- Public getters ---
   NutritionGoals get goals => _goals;
+  List<FoodEntry> get allEntries => List.unmodifiable(_allEntries);
   List<FoodItem> get favourites => List.unmodifiable(_favourites);
   List<FoodItem> get recents => List.unmodifiable(_recents);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   List<WeightEntry> get weightLog => List.unmodifiable(_weightLog);
   List<ActivityEntry> get activities => List.unmodifiable(_activities);
+  List<Recipe> get recipes => List.unmodifiable(_recipes);
   UserProfile? get userProfile => _userProfile;
   int get streak => _streak;
   int get waterGlasses => _waterGlasses;
@@ -152,6 +160,15 @@ class FoodStore extends ChangeNotifier {
 
     // Prompt for a review after 3+ day streak, at most once every 60 days.
     await _maybeRequestReview();
+
+    // Push updated totals to home screen widget.
+    unawaited(WidgetService.instance.updateCalories(
+      calories: todayCalories(),
+      goalCalories: _goals.dailyCalories,
+      protein: todayProtein(),
+      carbs: todayCarbs(),
+      fat: todayFat(),
+    ));
 
     notifyListeners();
   }
@@ -302,6 +319,31 @@ class FoodStore extends ChangeNotifier {
     _customFoods = _customFoods.where((f) => f.id != id).toList();
     await _storage.saveCustomFoods(_customFoods);
     notifyListeners();
+  }
+
+  // --- Recipes ---
+  Future<void> saveRecipe(Recipe recipe) async {
+    final idx = _recipes.indexWhere((r) => r.id == recipe.id);
+    if (idx >= 0) {
+      _recipes = [..._recipes.sublist(0, idx), recipe, ..._recipes.sublist(idx + 1)];
+    } else {
+      _recipes = [recipe, ..._recipes];
+    }
+    await _storage.saveRecipes(_recipes);
+    notifyListeners();
+  }
+
+  Future<void> deleteRecipe(String id) async {
+    _recipes = _recipes.where((r) => r.id != id).toList();
+    await _storage.saveRecipes(_recipes);
+    notifyListeners();
+  }
+
+  Future<int> logRecipe(Recipe recipe, int servingCount, MealType meal) async {
+    final item = recipe.toFoodItem();
+    final grams = recipe.gramsPerServing * servingCount;
+    await logFood(item, grams, meal);
+    return servingCount;
   }
 
   // --- User profile ---

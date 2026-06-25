@@ -47,18 +47,32 @@ dependencies:
   # Links
   url_launcher: ^6.3.1
 
-  # Sharing
+  # Sharing / export
   share_plus: ^10.1.2
   path_provider: ^2.1.5
+  csv: ^6.0.0
 
   # App store review prompt
   in_app_review: ^2.0.10
+
+  # Health integration
+  health: ^13.3.1
+
+  # Home screen widget
+  home_widget: ^0.7.0
+
+  # SQLite database
+  drift: ^2.21.0
+  drift_flutter: ^0.2.2
+  sqlite3_flutter_libs: ^0.5.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
+  build_runner: ^2.4.14
+  drift_dev: ^2.21.0
 
 flutter_launcher_icons:
   android: true

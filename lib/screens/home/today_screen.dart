@@ -7,6 +7,7 @@ import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/activity_section.dart';
 import '../../widgets/calorie_ring.dart';
+import '../../widgets/health_card.dart';
 import '../../widgets/macro_bar.dart';
 import '../../widgets/meal_section.dart';
 import '../../widgets/share_card.dart';
@@ -141,6 +142,10 @@ class TodayScreen extends StatelessWidget {
 
           // Activity section
           const ActivitySection(),
+          const SizedBox(height: 4),
+
+          // Health sync card
+          const HealthSyncCard(),
           const SizedBox(height: 4),
 
           if (today.isEmpty) _EmptyTodayState(onLogFood: () => _addFood(context, MealType.snack)),

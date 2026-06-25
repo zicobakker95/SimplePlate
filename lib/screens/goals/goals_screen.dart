@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/nutrition_goals.dart';
 import '../../screens/goals/tdee_calculator_sheet.dart';
 import '../../screens/premium/premium_screen.dart';
+import '../../services/export_service.dart';
 import '../../services/food_store.dart';
 import '../../services/notification_service.dart';
 import '../../services/subscription_service.dart';
@@ -554,6 +555,55 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 Uri.parse('https://zibaentertainment.com/feedback/'),
                 mode: LaunchMode.externalApplication,
               ),
+            ),
+          ),
+          // ── Data export ────────────────────────────────────────────────────
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          Text('Data export',
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text('Export your food log, weight, and activity data.',
+              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.table_chart_outlined,
+                      color: AppColors.primary),
+                  title: const Text('Export as CSV',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Spreadsheet-compatible format'),
+                  trailing: const Icon(Icons.chevron_right_rounded, size: 18),
+                  onTap: () async {
+                    final store = context.read<FoodStore>();
+                    await ExportService.exportCsv(
+                      entries: store.allEntries,
+                      weightLog: store.weightLog.toList(),
+                      activities: store.activities.toList(),
+                    );
+                  },
+                ),
+                const Divider(height: 1, color: AppColors.border),
+                ListTile(
+                  leading: const Icon(Icons.data_object_rounded,
+                      color: AppColors.primary),
+                  title: const Text('Export as JSON',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Full data backup'),
+                  trailing: const Icon(Icons.chevron_right_rounded, size: 18),
+                  onTap: () async {
+                    final store = context.read<FoodStore>();
+                    await ExportService.exportJson(
+                      entries: store.allEntries,
+                      weightLog: store.weightLog.toList(),
+                      activities: store.activities.toList(),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 32),

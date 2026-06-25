@@ -32,6 +32,10 @@
 	<string>PlateSimple needs camera access to scan food barcodes.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>PlateSimple can read barcodes from photos in your library.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>PlateSimple reads your activity and workout data to show net calories and accurate energy burn.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>PlateSimple can write your logged nutrition data to Apple Health so all your health data stays in one place.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

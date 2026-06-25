@@ -7,6 +7,7 @@ import '../models/activity_entry.dart';
 import '../models/food_entry.dart';
 import '../models/food_item.dart';
 import '../models/nutrition_goals.dart';
+import '../models/recipe.dart';
 import '../models/user_profile.dart';
 import '../models/weight_entry.dart';
 
@@ -34,6 +35,7 @@ class StorageService {
   static const _kActivities = 'sp.activities.v1';
   static const _kCustomFoods = 'sp.customFoods.v1';
   static const _kLastReviewDate = 'sp.lastReviewDate.v1';
+  static const _kRecipes = 'sp.recipes.v1';
 
   final SharedPreferences _prefs;
 
@@ -157,6 +159,13 @@ class StorageService {
   Future<void> saveCustomFoods(List<FoodItem> items) =>
       _prefs.setStringList(
           _kCustomFoods, items.map((i) => jsonEncode(i.toJson())).toList());
+
+  // --- Recipes ---
+  List<Recipe> loadRecipes() => _loadJsonList(_kRecipes, Recipe.fromJson);
+
+  Future<void> saveRecipes(List<Recipe> recipes) =>
+      _prefs.setStringList(
+          _kRecipes, recipes.map((r) => jsonEncode(r.toJson())).toList());
 
   /// Decodes a stored JSON string list, skipping any entries that fail to
   /// parse (e.g. corrupted or malformed data) instead of losing the whole list.
