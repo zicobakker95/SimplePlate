@@ -9,6 +9,7 @@ import '../../widgets/activity_section.dart';
 import '../../widgets/calorie_ring.dart';
 import '../../widgets/macro_bar.dart';
 import '../../widgets/meal_section.dart';
+import '../../widgets/share_card.dart';
 import '../../widgets/water_card.dart';
 import '../../widgets/weight_card.dart';
 import '../log/add_food_screen.dart';
@@ -56,6 +57,20 @@ class TodayScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.share_rounded, size: 20),
+            tooltip: 'Share your day',
+            onPressed: () => ShareCard.show(
+              context,
+              date: DateTime.now(),
+              calories: cals,
+              goalCalories: goals.dailyCalories,
+              protein: protein,
+              carbs: carbs,
+              fat: fat,
+              streak: store.streak,
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.copy_all_rounded, size: 20),
             tooltip: 'Copy yesterday\'s meals',
