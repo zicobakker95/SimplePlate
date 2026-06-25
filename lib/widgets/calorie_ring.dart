@@ -21,7 +21,8 @@ class CalorieRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final net = consumed - burned;
+    // Clamp net to zero so a big burn day never shows a negative calorie count.
+    final net = (consumed - burned).clamp(0.0, double.infinity);
     final pct = goal > 0 ? (net / goal).clamp(0.0, 1.0) : 0.0;
     final remaining = (goal - net).clamp(0, double.infinity);
     final over = net > goal;

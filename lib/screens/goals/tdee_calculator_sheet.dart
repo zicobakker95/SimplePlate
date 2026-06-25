@@ -101,8 +101,10 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
     ));
 
     if (!mounted) return;
+    // Capture messenger before pop so the context is still valid.
+    final messenger = ScaffoldMessenger.of(context);
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       const SnackBar(content: Text('Goals updated from TDEE calculator!')),
     );
   }
@@ -267,18 +269,14 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
                           color: AppColors.primary,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
-                  _GoalPreviewRow(
-                      'Calories', '${_result!.suggestedCalories} kcal',
-                      AppColors.calories),
-                  _GoalPreviewRow(
-                      'Protein', '${_result!.suggestedProtein} g',
-                      AppColors.protein),
-                  _GoalPreviewRow(
-                      'Carbs', '${_result!.suggestedCarbs} g',
-                      AppColors.carbs),
-                  _GoalPreviewRow(
-                      'Fat', '${_result!.suggestedFat} g',
-                      AppColors.fat),
+                  _ResultRow('Calories',
+                      '${_result!.suggestedCalories} kcal', AppColors.calories),
+                  _ResultRow('Protein',
+                      '${_result!.suggestedProtein} g', AppColors.protein),
+                  _ResultRow('Carbs',
+                      '${_result!.suggestedCarbs} g', AppColors.carbs),
+                  _ResultRow('Fat',
+                      '${_result!.suggestedFat} g', AppColors.fat),
                 ],
               ),
             ),
@@ -337,28 +335,3 @@ class _ResultRow extends StatelessWidget {
   }
 }
 
-class _GoalPreviewRow extends StatelessWidget {
-  const _GoalPreviewRow(this.label, this.value, this.color);
-  final String label, value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 13)),
-          const Spacer(),
-          Text(value,
-              style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}

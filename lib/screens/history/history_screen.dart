@@ -571,7 +571,9 @@ class _WeightLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WeightLinePainter old) =>
-      old.entries != entries;
+      old.entries.length != entries.length ||
+      old.minKg != minKg ||
+      old.maxKg != maxKg;
 }
 
 /// Monthly calendar grid colour-coded by calorie adherence.
@@ -600,6 +602,16 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
     final daysInMonth = DateUtils.getDaysInMonth(_month.year, _month.month);
     final startWeekday = firstDay.weekday % 7; // 0=Sun, 1=Mon…
     final goal = widget.goals.dailyCalories.toDouble();
+
+    // Pre-compute all calorie totals once — avoids 42 × O(n) scans inside
+    // the GridView itemBuilder on every rebuild.
+    final calsByDay = <int, double>{};
+    for (var d = 1; d <= daysInMonth; d++) {
+      final date = DateTime(_month.year, _month.month, d);
+      if (!date.isAfter(DateTime.now())) {
+        calsByDay[d] = widget.store.caloriesTotalsForDay(date);
+      }
+    }
 
     return Card(
       child: Padding(
@@ -667,7 +679,7 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
                 final day = idx - startWeekday + 1;
                 final date = DateTime(_month.year, _month.month, day);
                 final isFuture = date.isAfter(DateTime.now());
-                final cals = widget.store.caloriesTotalsForDay(date);
+                final cals = calsByDay[day] ?? 0.0;
                 final isToday = DateUtils.isSameDay(date, DateTime.now());
 
                 Color cellColor;

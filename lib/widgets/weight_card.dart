@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../models/weight_entry.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
 
@@ -20,6 +22,18 @@ class _WeightCardState extends State<WeightCard> {
   void dispose() {
     _ctrl.dispose();
     super.dispose();
+  }
+
+  String _weightSubtitle(WeightEntry entry) {
+    final today = DateTime.now();
+    final logged = entry.loggedAt;
+    final isToday = logged.year == today.year &&
+        logged.month == today.month &&
+        logged.day == today.day;
+    final dateStr = isToday
+        ? 'today'
+        : DateFormat('MMM d').format(logged);
+    return '${entry.kg} kg  ·  logged $dateStr';
   }
 
   Future<void> _log() async {
@@ -73,7 +87,7 @@ class _WeightCardState extends State<WeightCard> {
                                 fontWeight: FontWeight.w600, fontSize: 13)),
                         if (latest != null)
                           Text(
-                            '${latest.kg} kg  ·  last logged today',
+                            _weightSubtitle(latest),
                             style: const TextStyle(
                                 color: AppColors.textSecondary, fontSize: 11),
                           )

@@ -111,12 +111,14 @@ class FoodStore extends ChangeNotifier {
   double todayNet() => todayCalories() - todayBurned();
 
   // --- Weight log ---
+  List<WeightEntry> get _sortedWeightLog =>
+      ([..._weightLog]..sort((a, b) => a.loggedAt.compareTo(b.loggedAt)));
+
   WeightEntry? get latestWeight =>
-      _weightLog.isEmpty ? null : _weightLog.last;
+      _weightLog.isEmpty ? null : _sortedWeightLog.last;
 
   List<WeightEntry> get recentWeightEntries {
-    final sorted = [..._weightLog]
-      ..sort((a, b) => a.loggedAt.compareTo(b.loggedAt));
+    final sorted = _sortedWeightLog;
     return sorted.length > 30 ? sorted.sublist(sorted.length - 30) : sorted;
   }
 
@@ -326,8 +328,10 @@ class FoodStore extends ChangeNotifier {
     final review = InAppReview.instance;
     if (!await review.isAvailable()) return;
 
-    await _storage.setLastReviewDate(DateTime.now().toIso8601String());
     await review.requestReview();
+    // Record the date only after a successful call so a platform failure
+    // doesn't silently burn the 60-day cooldown.
+    await _storage.setLastReviewDate(DateTime.now().toIso8601String());
   }
 
   // --- Internal ---
