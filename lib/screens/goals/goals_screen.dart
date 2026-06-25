@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/nutrition_goals.dart';
+import '../../screens/goals/tdee_calculator_sheet.dart';
 import '../../screens/premium/premium_screen.dart';
 import '../../services/food_store.dart';
 import '../../services/notification_service.dart';
@@ -372,7 +373,19 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 4),
           Text('Choose how you want to set your goals.',
               style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+
+          // TDEE calculator shortcut
+          OutlinedButton.icon(
+            icon: const Icon(Icons.calculate_outlined, size: 18),
+            label: const Text('Calculate with TDEE / BMI'),
+            onPressed: () => TdeeCalculatorSheet.show(context),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+            ),
+          ),
+          const SizedBox(height: 16),
 
           // ── Mode toggle ────────────────────────────────────────────────────
           SegmentedButton<_GoalMode>(

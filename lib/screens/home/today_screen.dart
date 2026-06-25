@@ -5,10 +5,12 @@ import 'package:provider/provider.dart';
 import '../../models/food_entry.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/activity_section.dart';
 import '../../widgets/calorie_ring.dart';
 import '../../widgets/macro_bar.dart';
 import '../../widgets/meal_section.dart';
 import '../../widgets/water_card.dart';
+import '../../widgets/weight_card.dart';
 import '../log/add_food_screen.dart';
 
 class TodayScreen extends StatelessWidget {
@@ -20,6 +22,7 @@ class TodayScreen extends StatelessWidget {
     final goals = store.goals;
     final today = store.todayEntries;
     final cals = store.todayCalories();
+    final burned = store.todayBurned();
     final protein = store.todayProtein();
     final carbs = store.todayCarbs();
     final fat = store.todayFat();
@@ -72,6 +75,7 @@ class TodayScreen extends StatelessWidget {
                   CalorieRing(
                     consumed: cals,
                     goal: goals.dailyCalories.toDouble(),
+                    burned: burned,
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -115,6 +119,14 @@ class TodayScreen extends StatelessWidget {
             WaterCard(goal: store.waterGoal),
             const SizedBox(height: 4),
           ],
+
+          // Weight card
+          const WeightCard(),
+          const SizedBox(height: 4),
+
+          // Activity section
+          const ActivitySection(),
+          const SizedBox(height: 4),
 
           if (today.isEmpty) _EmptyTodayState(onLogFood: () => _addFood(context, MealType.snack)),
 

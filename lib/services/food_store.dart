@@ -1,11 +1,12 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/activity_entry.dart';
 import '../models/food_entry.dart';
 import '../models/food_item.dart';
 import '../models/nutrition_goals.dart';
+import '../models/user_profile.dart';
+import '../models/weight_entry.dart';
 import 'storage_service.dart';
 
 /// Central app state. Exposes today's entries, macros, streak, and goals.
@@ -16,6 +17,10 @@ class FoodStore extends ChangeNotifier {
     _allEntries = _storage.loadEntries();
     _favourites = _storage.loadFavourites();
     _recents = _storage.loadRecents();
+    _customFoods = _storage.loadCustomFoods();
+    _weightLog = _storage.loadWeightLog();
+    _activities = _storage.loadActivities();
+    _userProfile = _storage.loadUserProfile();
     _streak = _storage.streak;
     _lastLoggedDate = _storage.lastLoggedDate;
 
@@ -35,6 +40,10 @@ class FoodStore extends ChangeNotifier {
   late List<FoodEntry> _allEntries;
   late List<FoodItem> _favourites;
   late List<FoodItem> _recents;
+  late List<FoodItem> _customFoods;
+  late List<WeightEntry> _weightLog;
+  late List<ActivityEntry> _activities;
+  UserProfile? _userProfile;
   late int _streak;
   String? _lastLoggedDate;
   int _waterGlasses = 0;
@@ -43,6 +52,10 @@ class FoodStore extends ChangeNotifier {
   NutritionGoals get goals => _goals;
   List<FoodItem> get favourites => List.unmodifiable(_favourites);
   List<FoodItem> get recents => List.unmodifiable(_recents);
+  List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
+  List<WeightEntry> get weightLog => List.unmodifiable(_weightLog);
+  List<ActivityEntry> get activities => List.unmodifiable(_activities);
+  UserProfile? get userProfile => _userProfile;
   int get streak => _streak;
   int get waterGlasses => _waterGlasses;
   bool get waterEnabled => _storage.waterEnabled;
@@ -82,6 +95,29 @@ class FoodStore extends ChangeNotifier {
 
   double caloriesTotalsForDay(DateTime d) =>
       entriesForDay(d).fold(0, (s, e) => s + e.calories);
+
+  // --- Activity ---
+  List<ActivityEntry> activitiesForDay(DateTime date) {
+    final key = _dayKey(date);
+    return _activities.where((a) => _dayKey(a.loggedAt) == key).toList();
+  }
+
+  List<ActivityEntry> get todayActivities => activitiesForDay(DateTime.now());
+
+  double todayBurned() =>
+      todayActivities.fold(0, (s, a) => s + a.caloriesBurned);
+
+  double todayNet() => todayCalories() - todayBurned();
+
+  // --- Weight log ---
+  WeightEntry? get latestWeight =>
+      _weightLog.isEmpty ? null : _weightLog.last;
+
+  List<WeightEntry> get recentWeightEntries {
+    final sorted = [..._weightLog]
+      ..sort((a, b) => a.loggedAt.compareTo(b.loggedAt));
+    return sorted.length > 30 ? sorted.sublist(sorted.length - 30) : sorted;
+  }
 
   // --- Mutators ---
   Future<void> logFood(FoodItem item, double grams, MealType meal) async {
@@ -221,6 +257,51 @@ class FoodStore extends ChangeNotifier {
       required int hour,
       required int minute}) async {
     await _storage.setReminder(enabled, hour, minute);
+    notifyListeners();
+  }
+
+  // --- Activity logging ---
+  Future<void> logActivity(ActivityEntry entry) async {
+    _activities = [..._activities, entry];
+    await _storage.saveActivities(_activities);
+    notifyListeners();
+  }
+
+  Future<void> deleteActivity(String id) async {
+    _activities = _activities.where((a) => a.id != id).toList();
+    await _storage.saveActivities(_activities);
+    notifyListeners();
+  }
+
+  // --- Weight logging ---
+  Future<void> logWeight(double kg) async {
+    final entry = WeightEntry(
+      id: _uuid.v4(),
+      kg: kg,
+      loggedAt: DateTime.now(),
+    );
+    _weightLog = [..._weightLog, entry];
+    await _storage.saveWeightLog(_weightLog);
+    notifyListeners();
+  }
+
+  // --- Custom foods ---
+  Future<void> addCustomFood(FoodItem item) async {
+    _customFoods = [item, ..._customFoods];
+    await _storage.saveCustomFoods(_customFoods);
+    notifyListeners();
+  }
+
+  Future<void> deleteCustomFood(String id) async {
+    _customFoods = _customFoods.where((f) => f.id != id).toList();
+    await _storage.saveCustomFoods(_customFoods);
+    notifyListeners();
+  }
+
+  // --- User profile ---
+  Future<void> saveUserProfile(UserProfile profile) async {
+    _userProfile = profile;
+    await _storage.saveUserProfile(profile);
     notifyListeners();
   }
 

@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/activity_entry.dart';
 import '../models/food_entry.dart';
 import '../models/food_item.dart';
 import '../models/nutrition_goals.dart';
+import '../models/user_profile.dart';
+import '../models/weight_entry.dart';
 
 /// Local persistence using SharedPreferences (JSON-encoded).
 /// All keys are namespaced under `sp.` to avoid collisions.
@@ -26,6 +29,10 @@ class StorageService {
   static const _kReminderEnabled = 'sp.reminder.enabled.v1';
   static const _kReminderHour = 'sp.reminder.hour.v1';
   static const _kReminderMinute = 'sp.reminder.minute.v1';
+  static const _kUserProfile = 'sp.userProfile.v1';
+  static const _kWeightLog = 'sp.weightLog.v1';
+  static const _kActivities = 'sp.activities.v1';
+  static const _kCustomFoods = 'sp.customFoods.v1';
 
   final SharedPreferences _prefs;
 
@@ -105,6 +112,45 @@ class StorageService {
     await _prefs.setInt(_kReminderHour, hour);
     await _prefs.setInt(_kReminderMinute, minute);
   }
+
+  // --- User profile (TDEE calculator) ---
+  UserProfile? loadUserProfile() {
+    final raw = _prefs.getString(_kUserProfile);
+    if (raw == null) return null;
+    try {
+      return UserProfile.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (e) {
+      debugPrint('StorageService.loadUserProfile: corrupted data ($e)');
+      return null;
+    }
+  }
+
+  Future<void> saveUserProfile(UserProfile profile) =>
+      _prefs.setString(_kUserProfile, jsonEncode(profile.toJson()));
+
+  // --- Weight log ---
+  List<WeightEntry> loadWeightLog() =>
+      _loadJsonList(_kWeightLog, WeightEntry.fromJson);
+
+  Future<void> saveWeightLog(List<WeightEntry> entries) =>
+      _prefs.setStringList(
+          _kWeightLog, entries.map((e) => jsonEncode(e.toJson())).toList());
+
+  // --- Activity entries ---
+  List<ActivityEntry> loadActivities() =>
+      _loadJsonList(_kActivities, ActivityEntry.fromJson);
+
+  Future<void> saveActivities(List<ActivityEntry> entries) =>
+      _prefs.setStringList(
+          _kActivities, entries.map((e) => jsonEncode(e.toJson())).toList());
+
+  // --- Custom foods ---
+  List<FoodItem> loadCustomFoods() =>
+      _loadJsonList(_kCustomFoods, FoodItem.fromJson);
+
+  Future<void> saveCustomFoods(List<FoodItem> items) =>
+      _prefs.setStringList(
+          _kCustomFoods, items.map((i) => jsonEncode(i.toJson())).toList());
 
   /// Decodes a stored JSON string list, skipping any entries that fail to
   /// parse (e.g. corrupted or malformed data) instead of losing the whole list.

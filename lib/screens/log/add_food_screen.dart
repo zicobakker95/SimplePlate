@@ -8,6 +8,7 @@ import '../../services/food_store.dart';
 import '../../services/openfoodfacts_service.dart';
 import '../../theme/app_colors.dart';
 import 'barcode_screen.dart';
+import 'create_custom_food_screen.dart';
 import 'food_detail_screen.dart';
 
 class AddFoodScreen extends StatefulWidget {
@@ -228,6 +229,29 @@ class _AddFoodScreenState extends State<AddFoodScreen>
           // ── Recent & Favourites tab ──
           ListView(
             children: [
+              // Create custom food button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                  label: const Text('Create custom food'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => CreateCustomFoodScreen(
+                          defaultMeal: widget.defaultMeal),
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+              ),
+              if (store.customFoods.isNotEmpty) ...[
+                _sectionHeader('My Foods'),
+                for (final item in store.customFoods)
+                  _FoodTile(item: item, onTap: _openDetail),
+              ],
               if (store.favourites.isNotEmpty) ...[
                 _sectionHeader('Favourites ⭐'),
                 for (final item in store.favourites)
@@ -238,7 +262,9 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                 for (final item in store.recents)
                   _FoodTile(item: item, onTap: _openDetail),
               ],
-              if (store.favourites.isEmpty && store.recents.isEmpty)
+              if (store.customFoods.isEmpty &&
+                  store.favourites.isEmpty &&
+                  store.recents.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(48),
                   child: Text('No recent foods yet.',
