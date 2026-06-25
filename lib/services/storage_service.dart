@@ -33,6 +33,7 @@ class StorageService {
   static const _kWeightLog = 'sp.weightLog.v1';
   static const _kActivities = 'sp.activities.v1';
   static const _kCustomFoods = 'sp.customFoods.v1';
+  static const _kLastReviewDate = 'sp.lastReviewDate.v1';
 
   final SharedPreferences _prefs;
 
@@ -112,6 +113,11 @@ class StorageService {
     await _prefs.setInt(_kReminderHour, hour);
     await _prefs.setInt(_kReminderMinute, minute);
   }
+
+  // --- Review prompt ---
+  String? get lastReviewDate => _prefs.getString(_kLastReviewDate);
+  Future<void> setLastReviewDate(String date) =>
+      _prefs.setString(_kLastReviewDate, date);
 
   // --- User profile (TDEE calculator) ---
   UserProfile? loadUserProfile() {

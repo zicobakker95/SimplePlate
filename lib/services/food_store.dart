@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/activity_entry.dart';
@@ -146,6 +147,9 @@ class FoodStore extends ChangeNotifier {
 
     // Update streak.
     await _updateStreak();
+
+    // Prompt for a review after 3+ day streak, at most once every 60 days.
+    await _maybeRequestReview();
 
     notifyListeners();
   }
@@ -307,6 +311,24 @@ class FoodStore extends ChangeNotifier {
 
   bool get onboardingDone => _storage.onboardingDone;
   Future<void> markOnboardingDone() => _storage.setOnboardingDone(true);
+
+  // --- Review prompt ---
+  Future<void> _maybeRequestReview() async {
+    if (_streak < 3) return;
+
+    final lastRaw = _storage.lastReviewDate;
+    if (lastRaw != null) {
+      final last = DateTime.tryParse(lastRaw);
+      if (last != null &&
+          DateTime.now().difference(last).inDays < 60) return;
+    }
+
+    final review = InAppReview.instance;
+    if (!await review.isAvailable()) return;
+
+    await _storage.setLastReviewDate(DateTime.now().toIso8601String());
+    await review.requestReview();
+  }
 
   // --- Internal ---
   String _dayKey(DateTime dt) =>

@@ -9,6 +9,14 @@ import 'package:share_plus/share_plus.dart';
 
 import '../theme/app_colors.dart';
 
+// Update these once the app is live in the stores.
+const _androidStoreUrl =
+    'https://play.google.com/store/apps/details?id=com.zibaentertainment.simple_plate';
+// ignore: unused_element
+const _iosStoreUrl =
+    'https://apps.apple.com/app/platesimple/id0000000000'; // replace id
+const _shareStoreUrl = _androidStoreUrl; // switch to _iosStoreUrl on iOS builds
+
 /// Renders a summary card of the day's nutrition, captures it as a PNG,
 /// and shares it via the OS share sheet.
 ///
@@ -298,7 +306,7 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
 
       await Share.shareXFiles(
         [XFile(file.path, mimeType: 'image/png')],
-        text: 'My nutrition today — tracked with PlateSimple 🥗',
+        text: 'My nutrition today — tracked with PlateSimple 🥗\n$_shareStoreUrl',
       );
     } finally {
       if (mounted) setState(() => _sharing = false);
