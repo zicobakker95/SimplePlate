@@ -116,6 +116,8 @@ class TodayScreen extends StatelessWidget {
             const SizedBox(height: 4),
           ],
 
+          if (today.isEmpty) _EmptyTodayState(onLogFood: () => _addFood(context, MealType.snack)),
+
           // Meal sections
           for (final meal in MealType.values)
             MealSection(
@@ -174,6 +176,45 @@ class TodayScreen extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Copied $added item${added == 1 ? '' : 's'} from yesterday.')),
+    );
+  }
+}
+
+/// Shown on [TodayScreen] when no food has been logged yet today, so the
+/// page doesn't look broken with everything sitting at zero.
+class _EmptyTodayState extends StatelessWidget {
+  const _EmptyTodayState({required this.onLogFood});
+  final VoidCallback onLogFood;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+        child: Column(
+          children: [
+            const Text('🍽️', style: TextStyle(fontSize: 36)),
+            const SizedBox(height: 12),
+            const Text(
+              'Nothing logged yet today',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Log your first meal to start tracking calories and macros.',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onLogFood,
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text('Log food'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

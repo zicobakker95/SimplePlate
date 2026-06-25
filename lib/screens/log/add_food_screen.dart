@@ -44,15 +44,24 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       _loading = true;
       _error = null;
     });
-    final items = await OpenFoodFactsService.instance.search(query.trim());
-    if (!mounted) return;
-    setState(() {
-      _loading = false;
-      _results = items;
-      if (items.isEmpty) {
-        _error = 'No results found for "$query".\nTry a more specific term or scan the barcode.';
-      }
-    });
+    try {
+      final items = await OpenFoodFactsService.instance.search(query.trim());
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _results = items;
+        if (items.isEmpty) {
+          _error = 'No results found for "$query".\nTry a more specific term or scan the barcode.';
+        }
+      });
+    } on OpenFoodFactsException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _results = [];
+        _error = '$e\nPull down to retry.';
+      });
+    }
   }
 
   Future<void> _scanBarcode() async {
@@ -84,13 +93,19 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       );
       if (watch != true || !mounted) return;
 
-      // Show rewarded ad.
+      // Show rewarded ad (loading the ad itself can take a moment).
+      setState(() => _loading = true);
       bool scannerReady = false;
       await AdService.instance.showScannerRewardedAd(
         onUnlocked: () => scannerReady = true,
         onCancelled: () => scannerReady = false,
       );
-      if (!scannerReady || !mounted) return;
+      if (!mounted) return;
+      setState(() => _loading = false);
+      if (!scannerReady) {
+        setState(() => _error = 'Ad unavailable right now. Try again in a moment.');
+        return;
+      }
     }
 
     // Proceed with scan.
@@ -101,14 +116,22 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       _loading = true;
       _error = null;
     });
-    final item = await OpenFoodFactsService.instance.fetchByBarcode(barcode);
-    if (!mounted) return;
-    setState(() => _loading = false);
-    if (item == null) {
-      setState(() => _error = 'Product not found in database.');
-      return;
+    try {
+      final item = await OpenFoodFactsService.instance.fetchByBarcode(barcode);
+      if (!mounted) return;
+      setState(() => _loading = false);
+      if (item == null) {
+        setState(() => _error = 'Product not found in database.');
+        return;
+      }
+      _openDetail(item);
+    } on OpenFoodFactsException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = '$e';
+      });
     }
-    _openDetail(item);
   }
 
   void _openDetail(FoodItem item) {

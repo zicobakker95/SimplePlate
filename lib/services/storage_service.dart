@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/food_entry.dart';
@@ -41,43 +42,33 @@ class StorageService {
   NutritionGoals loadGoals() {
     final raw = _prefs.getString(_kGoals);
     if (raw == null) return const NutritionGoals.defaults();
-    return NutritionGoals.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    try {
+      return NutritionGoals.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (e) {
+      debugPrint('StorageService.loadGoals: corrupted data, using defaults ($e)');
+      return const NutritionGoals.defaults();
+    }
   }
 
   Future<void> saveGoals(NutritionGoals goals) =>
       _prefs.setString(_kGoals, jsonEncode(goals.toJson()));
 
   // --- Food entries ---
-  List<FoodEntry> loadEntries() {
-    final raw = _prefs.getStringList(_kEntries) ?? const [];
-    return raw
-        .map((s) => FoodEntry.fromJson(jsonDecode(s) as Map<String, dynamic>))
-        .toList();
-  }
+  List<FoodEntry> loadEntries() => _loadJsonList(_kEntries, FoodEntry.fromJson);
 
   Future<void> saveEntries(List<FoodEntry> entries) =>
       _prefs.setStringList(
           _kEntries, entries.map((e) => jsonEncode(e.toJson())).toList());
 
   // --- Favourite foods ---
-  List<FoodItem> loadFavourites() {
-    final raw = _prefs.getStringList(_kFavourites) ?? const [];
-    return raw
-        .map((s) => FoodItem.fromJson(jsonDecode(s) as Map<String, dynamic>))
-        .toList();
-  }
+  List<FoodItem> loadFavourites() => _loadJsonList(_kFavourites, FoodItem.fromJson);
 
   Future<void> saveFavourites(List<FoodItem> items) =>
       _prefs.setStringList(
           _kFavourites, items.map((i) => jsonEncode(i.toJson())).toList());
 
   // --- Recent foods (last 20 unique) ---
-  List<FoodItem> loadRecents() {
-    final raw = _prefs.getStringList(_kRecents) ?? const [];
-    return raw
-        .map((s) => FoodItem.fromJson(jsonDecode(s) as Map<String, dynamic>))
-        .toList();
-  }
+  List<FoodItem> loadRecents() => _loadJsonList(_kRecents, FoodItem.fromJson);
 
   Future<void> saveRecents(List<FoodItem> items) =>
       _prefs.setStringList(
@@ -113,5 +104,21 @@ class StorageService {
     await _prefs.setBool(_kReminderEnabled, enabled);
     await _prefs.setInt(_kReminderHour, hour);
     await _prefs.setInt(_kReminderMinute, minute);
+  }
+
+  /// Decodes a stored JSON string list, skipping any entries that fail to
+  /// parse (e.g. corrupted or malformed data) instead of losing the whole list.
+  List<T> _loadJsonList<T>(
+      String key, T Function(Map<String, dynamic>) fromJson) {
+    final raw = _prefs.getStringList(key) ?? const [];
+    final result = <T>[];
+    for (final s in raw) {
+      try {
+        result.add(fromJson(jsonDecode(s) as Map<String, dynamic>));
+      } catch (e) {
+        debugPrint('StorageService: skipping corrupted entry for "$key" ($e)');
+      }
+    }
+    return result;
   }
 }
