@@ -133,20 +133,20 @@ class TodayScreen extends StatelessWidget {
           // Water tracker (only if enabled in Goals)
           if (store.waterEnabled) ...[
             WaterCard(goal: store.waterGoal),
-            const SizedBox(height: 4),
+            const SizedBox(height: 12),
           ],
 
           // Weight card
           const WeightCard(),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
 
           // Activity section
           const ActivitySection(),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
 
           // Health sync card
           const HealthSyncCard(),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
 
           if (today.isEmpty) _EmptyTodayState(onLogFood: () => _addFood(context, MealType.snack)),
 

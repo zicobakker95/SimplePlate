@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/food_store.dart';
 import '../services/health_service.dart';
@@ -16,6 +19,7 @@ class HealthSyncCard extends StatefulWidget {
 class _HealthSyncCardState extends State<HealthSyncCard> {
   bool _connecting = false;
   bool _syncing = false;
+  bool _permissionDenied = false;
   double _burnedFromHealth = 0;
   int _steps = 0;
 
@@ -26,17 +30,17 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
   }
 
   Future<void> _connect() async {
-    setState(() => _connecting = true);
+    setState(() {
+      _connecting = true;
+      _permissionDenied = false;
+    });
     final ok = await HealthService.instance.requestPermissions();
     if (!mounted) return;
     setState(() => _connecting = false);
     if (ok) {
       await _refresh();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Health access not granted. Check permissions.')),
-      );
+      setState(() => _permissionDenied = true);
     }
   }
 
@@ -107,10 +111,55 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
             if (!authorised) ...[
               const SizedBox(height: 8),
               Text(
-                'Connect Apple Health or Google Health Connect to import calories burned and sync your nutrition.',
+                Platform.isIOS
+                    ? 'Connect Apple Health to import calories burned and sync your nutrition.'
+                    : 'Connect Google Health Connect to import calories burned and sync your nutrition.',
                 style: const TextStyle(
                     color: AppColors.textSecondary, fontSize: 12),
               ),
+              if (_permissionDenied) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded,
+                          color: Colors.orange, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          Platform.isIOS
+                              ? 'Open Settings → Privacy & Security → Health → PlateSimple to grant access.'
+                              : 'Open Health Connect and grant PlateSimple permissions.',
+                          style: const TextStyle(
+                              color: Colors.orange, fontSize: 11),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.settings_rounded, size: 14),
+                  label: const Text('Open Settings'),
+                  onPressed: () =>
+                      launchUrl(Uri.parse('app-settings:')),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -121,7 +170,8 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.link_rounded, size: 16),
-                  label: const Text('Connect Health'),
+                  label: Text(
+                      _permissionDenied ? 'Try again' : 'Connect Health'),
                   onPressed: _connecting ? null : _connect,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
@@ -133,8 +183,8 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _Stat('Steps', '$_steps', Icons.directions_walk_rounded,
-                      Colors.blueAccent),
+                  _Stat('Steps', '$_steps',
+                      Icons.directions_walk_rounded, Colors.blueAccent),
                   const SizedBox(width: 16),
                   _Stat('Burned', '${_burnedFromHealth.round()} kcal',
                       Icons.local_fire_department_rounded, Colors.orange),
