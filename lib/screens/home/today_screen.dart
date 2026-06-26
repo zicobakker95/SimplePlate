@@ -5,10 +5,14 @@ import 'package:provider/provider.dart';
 import '../../models/food_entry.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/activity_section.dart';
 import '../../widgets/calorie_ring.dart';
+import '../../widgets/health_card.dart';
 import '../../widgets/macro_bar.dart';
 import '../../widgets/meal_section.dart';
+import '../../widgets/share_card.dart';
 import '../../widgets/water_card.dart';
+import '../../widgets/weight_card.dart';
 import '../log/add_food_screen.dart';
 
 class TodayScreen extends StatelessWidget {
@@ -20,6 +24,7 @@ class TodayScreen extends StatelessWidget {
     final goals = store.goals;
     final today = store.todayEntries;
     final cals = store.todayCalories();
+    final burned = store.todayBurned();
     final protein = store.todayProtein();
     final carbs = store.todayCarbs();
     final fat = store.todayFat();
@@ -54,6 +59,20 @@ class TodayScreen extends StatelessWidget {
               ),
             ),
           IconButton(
+            icon: const Icon(Icons.share_rounded, size: 20),
+            tooltip: 'Share your day',
+            onPressed: () => ShareCard.show(
+              context,
+              date: DateTime.now(),
+              calories: cals,
+              goalCalories: goals.dailyCalories,
+              protein: protein,
+              carbs: carbs,
+              fat: fat,
+              streak: store.streak,
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.copy_all_rounded, size: 20),
             tooltip: 'Copy yesterday\'s meals',
             onPressed: () => _copyYesterday(context),
@@ -72,6 +91,7 @@ class TodayScreen extends StatelessWidget {
                   CalorieRing(
                     consumed: cals,
                     goal: goals.dailyCalories.toDouble(),
+                    burned: burned,
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -113,8 +133,22 @@ class TodayScreen extends StatelessWidget {
           // Water tracker (only if enabled in Goals)
           if (store.waterEnabled) ...[
             WaterCard(goal: store.waterGoal),
-            const SizedBox(height: 4),
+            const SizedBox(height: 12),
           ],
+
+          // Weight card
+          const WeightCard(),
+          const SizedBox(height: 12),
+
+          // Activity section
+          const ActivitySection(),
+          const SizedBox(height: 12),
+
+          // Health sync card
+          const HealthSyncCard(),
+          const SizedBox(height: 12),
+
+          if (today.isEmpty) _EmptyTodayState(onLogFood: () => _addFood(context, MealType.snack)),
 
           // Meal sections
           for (final meal in MealType.values)
@@ -174,6 +208,45 @@ class TodayScreen extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Copied $added item${added == 1 ? '' : 's'} from yesterday.')),
+    );
+  }
+}
+
+/// Shown on [TodayScreen] when no food has been logged yet today, so the
+/// page doesn't look broken with everything sitting at zero.
+class _EmptyTodayState extends StatelessWidget {
+  const _EmptyTodayState({required this.onLogFood});
+  final VoidCallback onLogFood;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+        child: Column(
+          children: [
+            const Text('🍽️', style: TextStyle(fontSize: 36)),
+            const SizedBox(height: 12),
+            const Text(
+              'Nothing logged yet today',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Log your first meal to start tracking calories and macros.',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onLogFood,
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text('Log food'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

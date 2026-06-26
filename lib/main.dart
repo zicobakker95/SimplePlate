@@ -8,6 +8,7 @@ import 'services/food_store.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'services/subscription_service.dart';
+import 'services/widget_service.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -15,6 +16,7 @@ Future<void> main() async {
   final storage = await StorageService.init();
   await NotificationService.instance.init();
   await AdService.instance.initialize();
+  await WidgetService.instance.init();
   // Subscriptions are initialized in parallel; don't await to keep startup fast
   SubscriptionService.instance.initialize();
   runApp(SimplePlateApp(storage: storage));
