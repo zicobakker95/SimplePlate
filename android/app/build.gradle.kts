@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         applicationId = "com.zibaentertainment.simple_plate"
-        minSdk = flutter.minSdkVersion
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

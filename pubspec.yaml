@@ -2,7 +2,7 @@ name: simple_plate
 description: "PlateSimple — fast, clean calorie and macro tracker by ZiBa Entertainment."
 publish_to: 'none'
 
-version: 1.0.3+4
+version: 1.0.4+5
 
 environment:
   sdk: ^3.10.0
@@ -78,7 +78,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/icon.png"
-  min_sdk_android: 21
+  min_sdk_android: 26
   adaptive_icon_background: "#0E6433"
   adaptive_icon_foreground: "assets/icon/icon.png"
 
