@@ -28,11 +28,13 @@ void main() {
     SharedPreferences.setMockInitialValues(_seedData());
   });
 
+  var surfaceConverted = false;
   Future<void> shot(WidgetTester tester, String name) async {
     await tester.pumpAndSettle(const Duration(milliseconds: 400));
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid && !surfaceConverted) {
       await binding.convertFlutterSurfaceToImage();
       await tester.pumpAndSettle();
+      surfaceConverted = true;
     }
     await binding.takeScreenshot(name);
   }
