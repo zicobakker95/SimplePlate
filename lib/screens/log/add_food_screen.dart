@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
 import '../../models/recipe.dart';
@@ -63,8 +64,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
         _loading = false;
         _results = items;
         if (items.isEmpty) {
-          _error =
-              'No results found for "$query".\nTry a more specific term or scan the barcode.';
+          _error = context.l10n.noResults(query);
         }
       });
     } on OpenFoodFactsException catch (e) {
@@ -72,12 +72,13 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       setState(() {
         _loading = false;
         _results = [];
-        _error = '$e\nPull down to retry.';
+        _error = context.l10n.searchErrorRetry('$e');
       });
     }
   }
 
   Future<void> _scanBarcode() async {
+    final l10n = context.l10n;
     final unlocked = await AdService.instance.isScannerUnlockedToday();
     if (!mounted) return;
 
@@ -86,17 +87,16 @@ class _AddFoodScreenState extends State<AddFoodScreen>
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          title: const Text('Unlock barcode scanner'),
-          content: const Text(
-              'Watch a short ad to unlock the barcode scanner for the rest of the day.'),
+          title: Text(l10n.unlockScannerTitle),
+          content: Text(l10n.unlockScannerBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton.icon(
               icon: const Icon(Icons.play_circle_outline_rounded, size: 18),
-              label: const Text('Watch ad'),
+              label: Text(l10n.watchAd),
               onPressed: () => Navigator.pop(ctx, true),
             ),
           ],
@@ -113,8 +113,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       if (!mounted) return;
       setState(() => _loading = false);
       if (!scannerReady) {
-        setState(
-            () => _error = 'Ad unavailable right now. Try again in a moment.');
+        setState(() => _error = l10n.adUnavailable);
         return;
       }
     }
@@ -132,7 +131,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       if (!mounted) return;
       setState(() => _loading = false);
       if (item == null) {
-        setState(() => _error = 'Product not found in database.');
+        setState(() => _error = context.l10n.productNotFound);
         return;
       }
       _handleItem(item);
@@ -158,17 +157,18 @@ class _AddFoodScreenState extends State<AddFoodScreen>
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
     final tabs = widget.pickMode
-        ? const [Tab(text: 'Search'), Tab(text: 'My Foods')]
-        : const [
-            Tab(text: 'Search'),
-            Tab(text: 'Recent & Favourites'),
-            Tab(text: 'Recipes'),
+        ? [Tab(text: l10n.tabSearch), Tab(text: l10n.tabMyFoods)]
+        : [
+            Tab(text: l10n.tabSearch),
+            Tab(text: l10n.tabRecentFav),
+            Tab(text: l10n.tabRecipes),
           ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.pickMode ? 'Pick ingredient' : 'Add food'),
+        title: Text(widget.pickMode ? l10n.pickIngredientTitle : l10n.addFoodTitle),
         bottom: TabBar(
           controller: _tabs,
           labelColor: AppColors.accent,
@@ -193,7 +193,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                         textInputAction: TextInputAction.search,
                         onSubmitted: _search,
                         decoration: InputDecoration(
-                          hintText: 'Search foods…',
+                          hintText: l10n.searchHint,
                           prefixIcon: const Icon(Icons.search_rounded),
                           suffixIcon: _searchCtrl.text.isNotEmpty
                               ? IconButton(
@@ -214,7 +214,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                             backgroundColor: AppColors.surfaceAlt),
                         icon: const Icon(Icons.qr_code_scanner_rounded,
                             color: AppColors.accent),
-                        tooltip: 'Scan barcode',
+                        tooltip: l10n.scanTooltip,
                         onPressed: _scanBarcode,
                       ),
                     ],
@@ -253,7 +253,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
-                  label: const Text('Create custom food'),
+                  label: Text(l10n.createCustomFood),
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => CreateCustomFoodScreen(
@@ -267,18 +267,18 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                 ),
               ),
               if (store.customFoods.isNotEmpty) ...[
-                _sectionHeader('My Foods'),
+                _sectionHeader(l10n.tabMyFoods),
                 for (final item in store.customFoods)
                   _FoodTile(item: item, onTap: _handleItem),
               ],
               if (!widget.pickMode) ...[
                 if (store.favourites.isNotEmpty) ...[
-                  _sectionHeader('Favourites ⭐'),
+                  _sectionHeader(l10n.sectionFavourites),
                   for (final item in store.favourites)
                     _FoodTile(item: item, onTap: _handleItem),
                 ],
                 if (store.recents.isNotEmpty) ...[
-                  _sectionHeader('Recent'),
+                  _sectionHeader(l10n.sectionRecent),
                   for (final item in store.recents)
                     _FoodTile(item: item, onTap: _handleItem),
                 ],
@@ -286,11 +286,11 @@ class _AddFoodScreenState extends State<AddFoodScreen>
               if (store.customFoods.isEmpty &&
                   (widget.pickMode ||
                       (store.favourites.isEmpty && store.recents.isEmpty)))
-                const Padding(
-                  padding: EdgeInsets.all(48),
-                  child: Text('No foods yet.',
+                Padding(
+                  padding: const EdgeInsets.all(48),
+                  child: Text(l10n.noFoodsYet,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textMuted)),
+                      style: const TextStyle(color: AppColors.textMuted)),
                 ),
             ],
           ),
@@ -323,13 +323,14 @@ class _RecipesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
     return ListView(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: OutlinedButton.icon(
             icon: const Icon(Icons.restaurant_menu_rounded, size: 18),
-            label: const Text('Create new recipe'),
+            label: Text(l10n.createNewRecipe),
             onPressed: () => Navigator.of(context)
                 .push(CreateRecipeScreen.route()),
             style: OutlinedButton.styleFrom(
@@ -339,11 +340,11 @@ class _RecipesTab extends StatelessWidget {
           ),
         ),
         if (store.recipes.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(48),
-            child: Text('No recipes yet.\nTap "Create new recipe" to start.',
+          Padding(
+            padding: const EdgeInsets.all(48),
+            child: Text(l10n.noRecipesYet,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted)),
+                style: const TextStyle(color: AppColors.textMuted)),
           ),
         for (final recipe in store.recipes)
           _RecipeTile(recipe: recipe, defaultMeal: defaultMeal),
@@ -360,6 +361,7 @@ class _RecipeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = context.read<FoodStore>();
+    final l10n = context.l10n;
     return ListTile(
       onTap: () => _logDialog(context, store),
       leading: Container(
@@ -375,8 +377,8 @@ class _RecipeTile extends StatelessWidget {
       title: Text(recipe.name,
           style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(
-        '${recipe.caloriesPerServing.round()} kcal/serving  ·  '
-        '${recipe.servings} serving${recipe.servings != 1 ? 's' : ''}',
+        l10n.recipePerServing(
+            recipe.caloriesPerServing.round(), recipe.servings),
         style:
             const TextStyle(color: AppColors.textSecondary, fontSize: 12),
       ),
@@ -391,18 +393,19 @@ class _RecipeTile extends StatelessWidget {
             store.deleteRecipe(recipe.id);
           }
         },
-        itemBuilder: (_) => const [
-          PopupMenuItem(value: 'edit', child: Text('Edit')),
+        itemBuilder: (_) => [
+          PopupMenuItem(value: 'edit', child: Text(l10n.edit)),
           PopupMenuItem(
               value: 'delete',
-              child: Text('Delete',
-                  style: TextStyle(color: Colors.redAccent))),
+              child: Text(l10n.delete,
+                  style: const TextStyle(color: Colors.redAccent))),
         ],
       ),
     );
   }
 
   Future<void> _logDialog(BuildContext context, FoodStore store) async {
+    final l10n = context.l10n;
     final servCtrl =
         TextEditingController(text: '1');
     MealType meal = defaultMeal;
@@ -417,7 +420,7 @@ class _RecipeTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${recipe.caloriesPerServing.round()} kcal per serving',
+                l10n.recipeKcalPerServing(recipe.caloriesPerServing.round()),
                 style:
                     const TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
@@ -426,7 +429,7 @@ class _RecipeTile extends StatelessWidget {
                 controller: servCtrl,
                 keyboardType: TextInputType.number,
                 decoration:
-                    const InputDecoration(labelText: 'Servings to log'),
+                    InputDecoration(labelText: l10n.servingsToLog),
                 onChanged: (_) => setS(() {}),
               ),
               const SizedBox(height: 12),
@@ -439,7 +442,7 @@ class _RecipeTile extends StatelessWidget {
                 items: MealType.values
                     .map((m) => DropdownMenuItem(
                         value: m,
-                        child: Text(m.label)))
+                        child: Text(m.localizedLabel(l10n))))
                     .toList(),
               ),
             ],
@@ -447,7 +450,7 @@ class _RecipeTile extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -458,7 +461,7 @@ class _RecipeTile extends StatelessWidget {
               },
               style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary),
-              child: const Text('Log'),
+              child: Text(l10n.logAction),
             ),
           ],
         ),
@@ -506,8 +509,8 @@ class _FoodTile extends StatelessWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
           tooltip: store.isFavourite(item.id)
-              ? 'Remove from favourites'
-              : 'Add to favourites',
+              ? context.l10n.removeFavourite
+              : context.l10n.addToFavourites,
         ),
       ),
       contentPadding:

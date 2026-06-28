@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/nutrition_goals.dart';
 import '../../models/weight_entry.dart';
@@ -18,11 +19,13 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final dates = store.loggedDates;
     final goals = store.goals;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(title: Text(l10n.historyTitle)),
       body: Column(
         children: [
           Padding(
@@ -52,9 +55,9 @@ class HistoryScreen extends StatelessWidget {
           ),
           Expanded(
             child: dates.isEmpty
-                ? const Center(
-                    child: Text('No logged days yet.',
-                        style: TextStyle(color: AppColors.textMuted)))
+                ? Center(
+                    child: Text(l10n.noLoggedDays,
+                        style: const TextStyle(color: AppColors.textMuted)))
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: dates.length,
@@ -82,14 +85,15 @@ class HistoryScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       isToday
-                                          ? 'Today'
-                                          : DateFormat('EEE, MMM d').format(date),
+                                          ? l10n.today
+                                          : DateFormat('EEE, MMM d', locale)
+                                              .format(date),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w700),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '${entries.length} item${entries.length == 1 ? '' : 's'}',
+                                      l10n.itemsCount(entries.length),
                                       style: const TextStyle(
                                           color: AppColors.textSecondary,
                                           fontSize: 12),
@@ -157,6 +161,8 @@ class _DaySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final cals = entries.fold<double>(0, (s, e) => s + e.calories);
     final protein = entries.fold<double>(0, (s, e) => s + e.protein);
     final carbs = entries.fold<double>(0, (s, e) => s + e.carbs);
@@ -181,20 +187,20 @@ class _DaySheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(DateFormat('EEEE, MMMM d, y').format(date),
+          Text(DateFormat('EEEE, MMMM d, y', locale).format(date),
               style:
                   tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _Stat('Calories', '${cals.round()}', 'kcal',
+              _Stat(l10n.macroCalories, '${cals.round()}', 'kcal',
                   AppColors.calories),
-              _Stat('Protein', protein.toStringAsFixed(1), 'g',
+              _Stat(l10n.macroProtein, protein.toStringAsFixed(1), 'g',
                   AppColors.protein),
-              _Stat('Carbs', carbs.toStringAsFixed(1), 'g',
+              _Stat(l10n.macroCarbs, carbs.toStringAsFixed(1), 'g',
                   AppColors.carbs),
-              _Stat('Fat', fat.toStringAsFixed(1), 'g', AppColors.fat),
+              _Stat(l10n.macroFat, fat.toStringAsFixed(1), 'g', AppColors.fat),
             ],
           ),
           const SizedBox(height: 16),
@@ -205,7 +211,7 @@ class _DaySheet extends StatelessWidget {
               title: Text(e.foodName,
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
-                  '${e.meal.label} · ${e.servingGrams.round()} g',
+                  '${e.meal.localizedLabel(l10n)} · ${e.servingGrams.round()} g',
                   style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 11)),
               trailing: Text('${e.calories.round()} kcal',
@@ -245,6 +251,7 @@ class _Stat extends StatelessWidget {
 class _WeeklyInsightsTeaser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 180),
       child: Card(
@@ -259,13 +266,13 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Text('7-Day Average',
-                          style: TextStyle(fontWeight: FontWeight.w700)),
-                      Spacer(),
-                      Text('— kcal avg',
-                          style: TextStyle(
+                      Text(l10n.sevenDayAverage,
+                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                      const Spacer(),
+                      Text(l10n.kcalAvgEmpty,
+                          style: const TextStyle(
                               color: AppColors.calories,
                               fontWeight: FontWeight.w600,
                               fontSize: 13)),
@@ -321,19 +328,19 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
                         color: AppColors.primary, size: 28),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Weekly Insights',
-                      style: TextStyle(
+                  Text(l10n.weeklyInsights,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                           fontSize: 15)),
                   const SizedBox(height: 4),
-                  const Text('Premium feature',
-                      style: TextStyle(
+                  Text(l10n.premiumFeature,
+                      style: const TextStyle(
                           color: Colors.white60, fontSize: 12)),
                   const SizedBox(height: 14),
                   FilledButton.icon(
                     icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-                    label: const Text('Upgrade to Premium'),
+                    label: Text(l10n.upgradeToPremium),
                     onPressed: () => PremiumScreen.show(context),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -361,6 +368,8 @@ class _WeeklySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
     final days = List.generate(
       7,
@@ -382,11 +391,11 @@ class _WeeklySummaryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('7-Day Average',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                Text(l10n.sevenDayAverage,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text(
-                  '${avg.round()} kcal avg',
+                  l10n.kcalAvg(avg.round()),
                   style: const TextStyle(
                       color: AppColors.calories,
                       fontWeight: FontWeight.w600,
@@ -435,7 +444,9 @@ class _WeeklySummaryCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('E').format(days[i]).substring(0, 1),
+                            DateFormat('E', locale)
+                                .format(days[i])
+                                .substring(0, 1),
                             style: TextStyle(
                               fontSize: 10,
                               color: isToday
@@ -467,6 +478,8 @@ class _WeightTrendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final minKg = entries.map((e) => e.kg).reduce(min);
     final maxKg = entries.map((e) => e.kg).reduce(max);
 
@@ -478,8 +491,8 @@ class _WeightTrendCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('Weight trend',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                Text(l10n.weightTrend,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text(
                   '${entries.last.kg} kg',
@@ -507,12 +520,12 @@ class _WeightTrendCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  DateFormat('MMM d').format(entries.first.loggedAt),
+                  DateFormat('MMM d', locale).format(entries.first.loggedAt),
                   style: const TextStyle(
                       color: AppColors.textMuted, fontSize: 10),
                 ),
                 Text(
-                  DateFormat('MMM d').format(entries.last.loggedAt),
+                  DateFormat('MMM d', locale).format(entries.last.loggedAt),
                   style: const TextStyle(
                       color: AppColors.textMuted, fontSize: 10),
                 ),
@@ -598,6 +611,8 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final firstDay = _month;
     final daysInMonth = DateUtils.getDaysInMonth(_month.year, _month.month);
     final startWeekday = firstDay.weekday % 7; // 0=Sun, 1=Mon…
@@ -627,11 +642,11 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
                       _month = DateTime(_month.year, _month.month - 1)),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Previous month',
+                  tooltip: l10n.prevMonth,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  DateFormat('MMMM y').format(_month),
+                  DateFormat('MMMM y', locale).format(_month),
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const Spacer(),
@@ -644,7 +659,7 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
                           _month = DateTime(_month.year, _month.month + 1)),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Next month',
+                  tooltip: l10n.nextMonth,
                 ),
               ],
             ),
@@ -723,11 +738,12 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _LegendDot(AppColors.primary.withOpacity(0.3), 'Under'),
+                _LegendDot(AppColors.primary.withOpacity(0.3), l10n.legendUnder),
                 const SizedBox(width: 8),
-                _LegendDot(AppColors.primary.withOpacity(0.75), 'On target'),
+                _LegendDot(
+                    AppColors.primary.withOpacity(0.75), l10n.legendOnTarget),
                 const SizedBox(width: 8),
-                _LegendDot(AppColors.danger.withOpacity(0.6), 'Over'),
+                _LegendDot(AppColors.danger.withOpacity(0.6), l10n.legendOver),
               ],
             ),
           ],

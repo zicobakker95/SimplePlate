@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
@@ -21,6 +22,7 @@ class TodayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
     final goals = store.goals;
     final today = store.todayEntries;
     final cals = store.todayCalories();
@@ -29,7 +31,9 @@ class TodayScreen extends StatelessWidget {
     final carbs = store.todayCarbs();
     final fat = store.todayFat();
 
-    final dateLabel = DateFormat('EEEE, MMM d').format(DateTime.now());
+    final locale = Localizations.localeOf(context).toString();
+    final dateLabel =
+        DateFormat('EEEE, MMM d', locale).format(DateTime.now());
 
     return Scaffold(
       appBar: AppBar(
@@ -60,7 +64,7 @@ class TodayScreen extends StatelessWidget {
             ),
           IconButton(
             icon: const Icon(Icons.share_rounded, size: 20),
-            tooltip: 'Share your day',
+            tooltip: l10n.todayShareTooltip,
             onPressed: () => ShareCard.show(
               context,
               date: DateTime.now(),
@@ -74,7 +78,7 @@ class TodayScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.copy_all_rounded, size: 20),
-            tooltip: 'Copy yesterday\'s meals',
+            tooltip: l10n.todayCopyTooltip,
             onPressed: () => _copyYesterday(context),
           ),
         ],
@@ -98,7 +102,7 @@ class TodayScreen extends StatelessWidget {
                     children: [
                       Expanded(
                           child: MacroBar(
-                        label: 'Protein',
+                        label: l10n.macroProtein,
                         current: protein,
                         goal: goals.proteinGrams.toDouble(),
                         color: AppColors.protein,
@@ -107,7 +111,7 @@ class TodayScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                           child: MacroBar(
-                        label: 'Carbs',
+                        label: l10n.macroCarbs,
                         current: carbs,
                         goal: goals.carbsGrams.toDouble(),
                         color: AppColors.carbs,
@@ -116,7 +120,7 @@ class TodayScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                           child: MacroBar(
-                        label: 'Fat',
+                        label: l10n.macroFat,
                         current: fat,
                         goal: goals.fatGrams.toDouble(),
                         color: AppColors.fat,
@@ -148,7 +152,9 @@ class TodayScreen extends StatelessWidget {
           const HealthSyncCard(),
           const SizedBox(height: 12),
 
-          if (today.isEmpty) _EmptyTodayState(onLogFood: () => _addFood(context, MealType.snack)),
+          if (today.isEmpty)
+            _EmptyTodayState(
+                onLogFood: () => _addFood(context, MealType.snack)),
 
           // Meal sections
           for (final meal in MealType.values)
@@ -165,7 +171,7 @@ class TodayScreen extends StatelessWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Log food'),
+        label: Text(l10n.logFood),
       ),
     );
   }
@@ -178,27 +184,28 @@ class TodayScreen extends StatelessWidget {
 
   Future<void> _copyYesterday(BuildContext context) async {
     final store = context.read<FoodStore>();
+    final l10n = context.l10n;
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     final count = store.entriesForDay(yesterday).length;
     if (count == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No entries logged yesterday.')),
+        SnackBar(content: Text(l10n.copyYesterdayNone)),
       );
       return;
     }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Copy yesterday?'),
-        content: Text('Copy $count item${count == 1 ? '' : 's'} from yesterday to today?'),
+        title: Text(l10n.copyYesterdayTitle),
+        content: Text(l10n.copyYesterdayBody(count)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Copy'),
+            child: Text(l10n.copyAction),
           ),
         ],
       ),
@@ -207,7 +214,7 @@ class TodayScreen extends StatelessWidget {
     final added = await store.copyYesterdayEntries();
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Copied $added item${added == 1 ? '' : 's'} from yesterday.')),
+      SnackBar(content: Text(l10n.copiedSnack(added))),
     );
   }
 }
@@ -220,6 +227,7 @@ class _EmptyTodayState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
@@ -227,22 +235,23 @@ class _EmptyTodayState extends StatelessWidget {
           children: [
             const Text('🍽️', style: TextStyle(fontSize: 36)),
             const SizedBox(height: 12),
-            const Text(
-              'Nothing logged yet today',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            Text(
+              l10n.emptyTodayTitle,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Log your first meal to start tracking calories and macros.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            Text(
+              l10n.emptyTodayBody,
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 13),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: onLogFood,
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('Log food'),
+              label: Text(l10n.logFood),
             ),
           ],
         ),

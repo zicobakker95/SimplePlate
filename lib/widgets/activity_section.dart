@@ -2,21 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../l10n/l10n.dart';
 import '../models/activity_entry.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
 
-/// Common activity presets for quick logging.
+/// Common activity presets for quick logging. [key] selects the localized
+/// label; [met] is the metabolic equivalent for the calorie estimate.
 const _presets = [
-  (name: 'Walking', met: 3.5),
-  (name: 'Running', met: 9.8),
-  (name: 'Cycling', met: 7.5),
-  (name: 'Swimming', met: 8.0),
-  (name: 'Weight training', met: 5.0),
-  (name: 'Yoga', met: 2.5),
-  (name: 'HIIT', met: 8.5),
-  (name: 'Hiking', met: 6.0),
+  (key: 'walking', met: 3.5),
+  (key: 'running', met: 9.8),
+  (key: 'cycling', met: 7.5),
+  (key: 'swimming', met: 8.0),
+  (key: 'weightTraining', met: 5.0),
+  (key: 'yoga', met: 2.5),
+  (key: 'hiit', met: 8.5),
+  (key: 'hiking', met: 6.0),
 ];
+
+String _presetLabel(AppLocalizations l, String key) => switch (key) {
+      'walking' => l.actWalking,
+      'running' => l.actRunning,
+      'cycling' => l.actCycling,
+      'swimming' => l.actSwimming,
+      'weightTraining' => l.actWeightTraining,
+      'yoga' => l.actYoga,
+      'hiit' => l.actHIIT,
+      'hiking' => l.actHiking,
+      _ => key,
+    };
 
 /// Card that shows today's activity log and provides an "Add activity" button.
 class ActivitySection extends StatelessWidget {
@@ -25,6 +39,7 @@ class ActivitySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
     final activities = store.todayActivities;
     final burned = store.todayBurned();
 
@@ -39,8 +54,8 @@ class ActivitySection extends StatelessWidget {
                 const Icon(Icons.directions_run_rounded,
                     size: 18, color: AppColors.primary),
                 const SizedBox(width: 6),
-                const Text('Activity',
-                    style: TextStyle(
+                Text(l10n.activity,
+                    style: const TextStyle(
                         fontWeight: FontWeight.w700, fontSize: 15)),
                 const Spacer(),
                 if (burned > 0)
@@ -57,8 +72,8 @@ class ActivitySection extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  'No activity logged today.',
-                  style: TextStyle(
+                  l10n.noActivityToday,
+                  style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 12),
                 ),
@@ -69,7 +84,7 @@ class ActivitySection extends StatelessWidget {
             TextButton.icon(
               onPressed: () => _showLogDialog(context),
               icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text('Add activity'),
+              label: Text(l10n.addActivity),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -126,7 +141,7 @@ class _ActivityTile extends StatelessWidget {
                 context.read<FoodStore>().deleteActivity(entry.id),
             padding: const EdgeInsets.only(left: 4),
             constraints: const BoxConstraints(),
-            tooltip: 'Remove',
+            tooltip: context.l10n.remove,
           ),
         ],
       ),
@@ -145,7 +160,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
   final _nameCtrl = TextEditingController();
   final _durationCtrl = TextEditingController(text: '30');
   final _calCtrl = TextEditingController();
-  ({String name, double met})? _selectedPreset;
+  ({String key, double met})? _selectedPreset;
   bool _manualMode = false;
 
   // Body weight used for MET-based calorie estimate (default 70 kg).
@@ -163,10 +178,11 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
   }
 
   Future<void> _log() async {
+    final l10n = context.l10n;
     final duration = int.tryParse(_durationCtrl.text) ?? 0;
     if (duration <= 0) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Enter a valid duration.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.enterValidDuration)));
       return;
     }
 
@@ -175,21 +191,21 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
 
     if (_manualMode) {
       name = _nameCtrl.text.trim().isEmpty
-          ? 'Custom activity'
+          ? l10n.customActivity
           : _nameCtrl.text.trim();
       burned = int.tryParse(_calCtrl.text) ?? 0;
       if (burned <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Enter calories burned.')));
+            SnackBar(content: Text(l10n.enterCaloriesBurned)));
         return;
       }
     } else {
       if (_selectedPreset == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Select an activity first.')));
+            SnackBar(content: Text(l10n.selectActivityFirst)));
         return;
       }
-      name = _selectedPreset!.name;
+      name = _presetLabel(l10n, _selectedPreset!.key);
       burned = _estimateCalories();
     }
 
@@ -217,6 +233,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final bottomPad = MediaQuery.of(context).viewInsets.bottom;
     final estimated = _manualMode ? 0 : _estimateCalories();
 
@@ -235,7 +252,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
             ),
           ),
           const SizedBox(height: 16),
-          Text('Log activity',
+          Text(l10n.logActivityTitle,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 16),
 
@@ -243,7 +260,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
           Row(
             children: [
               ChoiceChip(
-                label: const Text('Presets'),
+                label: Text(l10n.presets),
                 selected: !_manualMode,
                 onSelected: (_) => setState(() => _manualMode = false),
                 selectedColor: AppColors.primary.withOpacity(0.2),
@@ -254,7 +271,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
               ),
               const SizedBox(width: 8),
               ChoiceChip(
-                label: const Text('Manual'),
+                label: Text(l10n.manual),
                 selected: _manualMode,
                 onSelected: (_) => setState(() => _manualMode = true),
                 selectedColor: AppColors.primary.withOpacity(0.2),
@@ -272,9 +289,9 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
               spacing: 8,
               runSpacing: 8,
               children: _presets.map((p) {
-                final selected = _selectedPreset?.name == p.name;
+                final selected = _selectedPreset?.key == p.key;
                 return ChoiceChip(
-                  label: Text(p.name),
+                  label: Text(_presetLabel(l10n, p.key)),
                   selected: selected,
                   onSelected: (_) => setState(() => _selectedPreset = p),
                   selectedColor: AppColors.primary.withOpacity(0.2),
@@ -289,17 +306,17 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
           ] else ...[
             TextField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Activity name',
-                hintText: 'e.g. Soccer, Dancing…',
+              decoration: InputDecoration(
+                labelText: l10n.activityNameLabel,
+                hintText: l10n.activityNameHint,
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _calCtrl,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Calories burned',
+              decoration: InputDecoration(
+                labelText: l10n.caloriesBurnedLabel,
                 suffixText: 'kcal',
               ),
             ),
@@ -309,8 +326,8 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
           TextField(
             controller: _durationCtrl,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Duration',
+            decoration: InputDecoration(
+              labelText: l10n.durationLabel,
               suffixText: 'min',
             ),
             onChanged: (_) => setState(() {}),
@@ -319,7 +336,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
           if (!_manualMode && _selectedPreset != null && estimated > 0) ...[
             const SizedBox(height: 8),
             Text(
-              'Estimated: ~$estimated kcal burned',
+              l10n.estimatedBurned(estimated),
               style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 12,
@@ -334,7 +351,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
               onPressed: _log,
               style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary),
-              child: const Text('Log activity'),
+              child: Text(l10n.logActivityTitle),
             ),
           ),
         ],

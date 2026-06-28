@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/food_entry.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
@@ -22,6 +23,7 @@ class MealSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final cals = entries.fold<double>(0, (s, e) => s + e.calories);
 
     return Padding(
@@ -42,7 +44,7 @@ class MealSection extends StatelessWidget {
                     Text(meal.emoji,
                         style: const TextStyle(fontSize: 20)),
                     const SizedBox(width: 10),
-                    Text(meal.label,
+                    Text(meal.localizedLabel(l10n),
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 15)),
                     const Spacer(),
@@ -80,19 +82,19 @@ class MealSection extends StatelessWidget {
                 confirmDismiss: (_) => showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Delete entry?'),
-                    content: Text(
-                        'Remove "${entry.foodName}" from ${entry.meal.label}?'),
+                    title: Text(l10n.deleteEntryTitle),
+                    content: Text(l10n.deleteEntryBody(
+                        entry.foodName, entry.meal.localizedLabel(l10n))),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
+                        child: Text(l10n.cancel),
                       ),
                       TextButton(
                         style: TextButton.styleFrom(
                             foregroundColor: AppColors.danger),
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Delete'),
+                        child: Text(l10n.delete),
                       ),
                     ],
                   ),
@@ -120,8 +122,8 @@ class MealSection extends StatelessWidget {
                               fontSize: 12,
                               color: AppColors.calories,
                               fontWeight: FontWeight.w600)),
-                      const Text('hold to edit',
-                          style: TextStyle(
+                      Text(l10n.holdToEdit,
+                          style: const TextStyle(
                               fontSize: 9,
                               color: AppColors.textMuted)),
                     ],
@@ -138,6 +140,7 @@ class MealSection extends StatelessWidget {
 }
 
 void _showEditSheet(BuildContext context, FoodEntry entry) {
+  final l10n = context.l10n;
   final ctrl =
       TextEditingController(text: entry.servingGrams.round().toString());
 
@@ -173,8 +176,8 @@ void _showEditSheet(BuildContext context, FoodEntry entry) {
             autofocus: true,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Serving size',
+            decoration: InputDecoration(
+              labelText: l10n.servingSizeLabel,
               suffixText: 'g',
             ),
           ),
@@ -184,7 +187,7 @@ void _showEditSheet(BuildContext context, FoodEntry entry) {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(sheetCtx),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
               ),
               const SizedBox(width: 12),
@@ -199,7 +202,7 @@ void _showEditSheet(BuildContext context, FoodEntry entry) {
                       Navigator.pop(sheetCtx);
                     }
                   },
-                  child: const Text('Update'),
+                  child: Text(l10n.update),
                 ),
               ),
             ],

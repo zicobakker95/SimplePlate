@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
 
@@ -13,6 +14,7 @@ class WaterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
     final glasses = store.waterGlasses;
 
     return Card(
@@ -26,12 +28,12 @@ class WaterCard extends StatelessWidget {
                 const Icon(Icons.water_drop_rounded,
                     color: Colors.lightBlue, size: 18),
                 const SizedBox(width: 6),
-                const Text('Water',
-                    style: TextStyle(
+                Text(l10n.water,
+                    style: const TextStyle(
                         fontWeight: FontWeight.w700, fontSize: 15)),
                 const Spacer(),
                 Text(
-                  '$glasses / $goal glasses',
+                  l10n.waterCount(glasses, goal),
                   style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 13),
                 ),
@@ -41,19 +43,18 @@ class WaterCard extends StatelessWidget {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Reset water?'),
-                        content: const Text(
-                            'Set today\'s water count back to 0?'),
+                        title: Text(l10n.resetWaterTitle),
+                        content: Text(l10n.resetWaterBody),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Cancel'),
+                            child: Text(l10n.cancel),
                           ),
                           TextButton(
                             style: TextButton.styleFrom(
                                 foregroundColor: AppColors.danger),
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Reset'),
+                            child: Text(l10n.reset),
                           ),
                         ],
                       ),

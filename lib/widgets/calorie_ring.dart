@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_colors.dart';
 
 /// Circular calorie progress ring with consumed/remaining text.
@@ -21,6 +22,7 @@ class CalorieRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     // Clamp net to zero so a big burn day never shows a negative calorie count.
     final net = (consumed - burned).clamp(0.0, double.infinity);
     final pct = goal > 0 ? (net / goal).clamp(0.0, 1.0) : 0.0;
@@ -47,15 +49,15 @@ class CalorieRing extends StatelessWidget {
                 color: AppColors.textPrimary),
           ),
           Text(
-            burned > 0 ? 'net kcal' : 'kcal eaten',
+            burned > 0 ? l10n.netKcal : l10n.kcalEaten,
             style: const TextStyle(
                 fontSize: 11, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             over
-                ? '${(net - goal).round()} over'
-                : '${remaining.round()} left',
+                ? l10n.kcalOver((net - goal).round())
+                : l10n.kcalLeft(remaining.round()),
             style: TextStyle(
                 fontSize: 11,
                 color: over ? AppColors.danger : AppColors.textMuted,
@@ -64,7 +66,7 @@ class CalorieRing extends StatelessWidget {
           if (burned > 0) ...[
             const SizedBox(height: 2),
             Text(
-              '−${burned.round()} burned',
+              l10n.kcalBurnedLine(burned.round()),
               style: const TextStyle(
                   fontSize: 10,
                   color: AppColors.primary,

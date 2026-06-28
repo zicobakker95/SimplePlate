@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 import '../goals/goals_screen.dart';
 import '../history/history_screen.dart';
@@ -23,30 +24,31 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: IndexedStack(index: _index, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         backgroundColor: AppColors.surface,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            selectedIcon: Icon(Icons.restaurant_menu_rounded,
+            icon: const Icon(Icons.restaurant_menu_outlined),
+            selectedIcon: const Icon(Icons.restaurant_menu_rounded,
                 color: AppColors.primary),
-            label: 'Today',
+            label: l10n.navToday,
           ),
           NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month_rounded,
+            icon: const Icon(Icons.calendar_month_outlined),
+            selectedIcon: const Icon(Icons.calendar_month_rounded,
                 color: AppColors.primary),
-            label: 'History',
+            label: l10n.navHistory,
           ),
           NavigationDestination(
-            icon: Icon(Icons.flag_outlined),
+            icon: const Icon(Icons.flag_outlined),
             selectedIcon:
-                Icon(Icons.flag_rounded, color: AppColors.primary),
-            label: 'Goals',
+                const Icon(Icons.flag_rounded, color: AppColors.primary),
+            label: l10n.navGoals,
           ),
         ],
       ),

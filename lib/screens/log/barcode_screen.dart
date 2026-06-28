@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 
 /// Full-screen barcode scanner. Returns the scanned barcode string via
@@ -39,7 +40,7 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text('Scan barcode'),
+        title: Text(context.l10n.scanBarcodeTitle),
       ),
       body: Stack(
         children: [

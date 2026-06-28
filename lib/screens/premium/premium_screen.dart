@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../l10n/l10n.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 
@@ -60,6 +61,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Widget build(BuildContext context) {
     final svc = SubscriptionService.instance;
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: CustomScrollView(
@@ -100,11 +102,11 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           color: AppColors.primary, size: 36),
                     ),
                     const SizedBox(height: 12),
-                    Text('PlateSimple Premium',
+                    Text(l10n.premiumTitle,
                         style: tt.titleLarge?.copyWith(
                             fontWeight: FontWeight.w800, color: Colors.white)),
                     const SizedBox(height: 4),
-                    Text('Unlock the full experience',
+                    Text(l10n.premiumSubtitle,
                         style: tt.bodySmall
                             ?.copyWith(color: Colors.white60)),
                   ],
@@ -123,25 +125,22 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   _Feature(
                     icon: Icons.bar_chart_rounded,
                     color: AppColors.primary,
-                    title: '7-day weekly insights',
-                    subtitle:
-                        'See your calorie sparkline and 7-day average at a glance.',
+                    title: l10n.featInsightsTitle,
+                    subtitle: l10n.featInsightsSub,
                   ),
                   const SizedBox(height: 16),
                   _Feature(
                     icon: Icons.block_rounded,
                     color: Colors.orangeAccent,
-                    title: 'Ad-free experience',
-                    subtitle: 'No interstitial ads, no rewarded ads. Ever.',
+                    title: l10n.featAdFreeTitle,
+                    subtitle: l10n.featAdFreeSub,
                   ),
                   const SizedBox(height: 16),
                   _Feature(
                     icon: Icons.favorite_rounded,
                     color: Colors.redAccent,
-                    title: 'Support a solo developer',
-                    subtitle:
-                        'PlateSimple is built and maintained by one person. '
-                        'Your subscription keeps it going.',
+                    title: l10n.featSupportTitle,
+                    subtitle: l10n.featSupportSub,
                   ),
 
                   const SizedBox(height: 28),
@@ -154,14 +153,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   else if (svc.products.isEmpty)
                     Center(
                       child: Text(
-                        'Could not load pricing.\nCheck your connection and try again.',
+                        l10n.loadPricingError,
                         textAlign: TextAlign.center,
                         style: tt.bodySmall
                             ?.copyWith(color: AppColors.textSecondary),
                       ),
                     )
                   else ...[
-                    Text('Choose a plan',
+                    Text(l10n.choosePlan,
                         style: tt.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 12),
@@ -193,9 +192,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           : const Icon(Icons.workspace_premium_rounded,
                               size: 20),
                       label: Text(
-                        svc.isPremium
-                            ? 'You\'re already Premium ✓'
-                            : 'Subscribe',
+                        svc.isPremium ? l10n.alreadyPremium : l10n.subscribe,
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w700),
                       ),
@@ -221,8 +218,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     child: TextButton(
                       onPressed:
                           svc.purchasing ? null : _restore,
-                      child: const Text('Restore purchases',
-                          style: TextStyle(color: AppColors.textSecondary)),
+                      child: Text(l10n.restorePurchases,
+                          style: const TextStyle(
+                              color: AppColors.textSecondary)),
                     ),
                   ),
 
@@ -239,7 +237,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               Uri.parse(
                                   'https://zibaentertainment.com/privacy/'),
                               mode: LaunchMode.externalApplication),
-                          child: Text('Privacy Policy',
+                          child: Text(l10n.privacyPolicy,
                               style: tt.bodySmall
                                   ?.copyWith(color: AppColors.textMuted)),
                         ),
@@ -248,7 +246,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               Uri.parse(
                                   'https://zibaentertainment.com/terms/'),
                               mode: LaunchMode.externalApplication),
-                          child: Text('Terms of Use',
+                          child: Text(l10n.termsOfUse,
                               style: tt.bodySmall
                                   ?.copyWith(color: AppColors.textMuted)),
                         ),
@@ -258,7 +256,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Subscriptions renew automatically. Cancel anytime in your device settings.',
+                      l10n.subsRenew,
                       textAlign: TextAlign.center,
                       style: tt.bodySmall
                           ?.copyWith(color: AppColors.textMuted, height: 1.5),
@@ -285,9 +283,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
     if (!mounted) return;
     final isPremium = SubscriptionService.instance.isPremium;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(isPremium
-          ? 'Premium restored successfully!'
-          : 'No active subscription found.'),
+      content: Text(
+          isPremium ? context.l10n.premiumRestored : context.l10n.noSubFound),
     ));
   }
 }
@@ -350,6 +347,7 @@ class _PlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isYearly = product.id == SubscriptionService.kYearlyId;
     final borderColor =
         isSelected ? AppColors.primary : AppColors.border;
@@ -397,7 +395,7 @@ class _PlanCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        isYearly ? 'Yearly' : 'Monthly',
+                        isYearly ? l10n.planYearly : l10n.planMonthly,
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       if (isBestValue) ...[
@@ -409,9 +407,9 @@ class _PlanCard extends StatelessWidget {
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text(
-                            'BEST VALUE',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.bestValue,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
@@ -423,7 +421,7 @@ class _PlanCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    isYearly ? 'Billed once per year' : 'Billed monthly',
+                    isYearly ? l10n.billedYearly : l10n.billedMonthly,
                     style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 12),
                   ),

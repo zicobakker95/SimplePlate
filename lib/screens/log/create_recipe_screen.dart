@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/food_item.dart';
 import '../../models/recipe.dart';
 import '../../services/food_store.dart';
@@ -95,12 +96,12 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recipe name is required.')));
+          SnackBar(content: Text(context.l10n.recipeNameRequired)));
       return;
     }
     if (_ingredients.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Add at least one ingredient.')));
+          SnackBar(content: Text(context.l10n.addAtLeastOne)));
       return;
     }
 
@@ -126,11 +127,14 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final s = _servings.clamp(1, 99);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existing == null ? 'Create recipe' : 'Edit recipe'),
+        title: Text(widget.existing == null
+            ? l10n.createRecipeTitle
+            : l10n.editRecipeTitle),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -140,8 +144,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                     height: 18,
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: AppColors.primary))
-                : const Text('Save',
-                    style: TextStyle(color: AppColors.primary)),
+                : Text(l10n.save,
+                    style: const TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
@@ -150,33 +154,33 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         children: [
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(labelText: 'Recipe name'),
+            decoration: InputDecoration(labelText: l10n.recipeNameLabel),
             textCapitalization: TextCapitalization.sentences,
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _descCtrl,
-            decoration: const InputDecoration(
-                labelText: 'Description (optional)'),
+            decoration: InputDecoration(
+                labelText: l10n.recipeDescLabel),
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _servingsCtrl,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Servings'),
+            decoration: InputDecoration(labelText: l10n.servingsLabel),
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Text('Ingredients',
+              Text(l10n.ingredients,
                   style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const Spacer(),
               TextButton.icon(
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Add'),
+                label: Text(l10n.add),
                 onPressed: _pickIngredient,
                 style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary),
@@ -186,7 +190,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           if (_ingredients.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text('No ingredients yet.',
+              child: Text(l10n.noIngredientsYet,
                   style: tt.bodySmall
                       ?.copyWith(color: AppColors.textMuted)),
             ),
@@ -249,14 +253,14 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
             const SizedBox(height: 16),
             const Divider(color: AppColors.border),
             const SizedBox(height: 12),
-            Text('Nutrition summary',
+            Text(l10n.nutritionSummary,
                 style: tt.titleSmall
                     ?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
-            _SummaryRow('Total', _totalCalories, _totalProtein,
+            _SummaryRow(l10n.total, _totalCalories, _totalProtein,
                 _totalCarbs, _totalFat),
             _SummaryRow(
-              'Per serving${s > 1 ? ' ($s servings)' : ''}',
+              s > 1 ? l10n.perServingCount(s) : l10n.perServing,
               _totalCalories / s,
               _totalProtein / s,
               _totalCarbs / s,
