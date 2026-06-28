@@ -40,7 +40,14 @@ class NotificationService {
     await ios?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
-  Future<void> scheduleDaily({required int hour, required int minute}) async {
+  Future<void> scheduleDaily({
+    required int hour,
+    required int minute,
+    String? title,
+    String? body,
+    String? channelName,
+    String? channelDescription,
+  }) async {
     await _plugin.cancel(_reminderId);
 
     final now = tz.TZDateTime.now(tz.local);
@@ -52,14 +59,15 @@ class NotificationService {
 
     await _plugin.zonedSchedule(
       _reminderId,
-      'Time to log your meals 🥗',
-      'Keep your streak going — log what you ate today!',
+      title ?? 'Time to log your meals 🥗',
+      body ?? 'Keep your streak going — log what you ate today!',
       scheduled,
       NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
-          'Daily Reminders',
-          channelDescription: 'Reminds you to log your meals each day',
+          channelName ?? 'Daily Reminders',
+          channelDescription:
+              channelDescription ?? 'Reminds you to log your meals each day',
           importance: Importance.high,
           priority: Priority.high,
         ),

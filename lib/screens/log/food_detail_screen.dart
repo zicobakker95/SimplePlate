@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
 import '../../services/ad_service.dart';
@@ -53,6 +54,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final isFav = store.isFavourite(widget.item.id);
 
     return Scaffold(
@@ -65,7 +67,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                 isFav ? Icons.star_rounded : Icons.star_border_rounded,
                 color: isFav ? Colors.amber : null),
             onPressed: () => store.toggleFavourite(widget.item),
-            tooltip: isFav ? 'Remove favourite' : 'Add to favourites',
+            tooltip: isFav ? l10n.removeFavourite : l10n.addToFavourites,
           ),
         ],
       ),
@@ -79,7 +81,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
           const SizedBox(height: 24),
 
           // Serving size
-          Text('Serving size (g)',
+          Text(l10n.servingSizeG,
               style: tt.labelLarge
                   ?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 8),
@@ -102,13 +104,13 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _MacroRow('Calories', _calories, 'kcal',
+                  _MacroRow(l10n.macroCalories, _calories, 'kcal',
                       AppColors.calories, bold: true),
                   const Divider(height: 20, color: AppColors.border),
                   _MacroRow(
-                      'Protein', _protein, 'g', AppColors.protein),
-                  _MacroRow('Carbs', _carbs, 'g', AppColors.carbs),
-                  _MacroRow('Fat', _fat, 'g', AppColors.fat),
+                      l10n.macroProtein, _protein, 'g', AppColors.protein),
+                  _MacroRow(l10n.macroCarbs, _carbs, 'g', AppColors.carbs),
+                  _MacroRow(l10n.macroFat, _fat, 'g', AppColors.fat),
                 ],
               ),
             ),
@@ -116,7 +118,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
           const SizedBox(height: 24),
 
           // Meal picker
-          Text('Add to',
+          Text(l10n.addToLabel,
               style: tt.labelLarge
                   ?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 8),
@@ -124,7 +126,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
             spacing: 8,
             children: MealType.values
                 .map((m) => ChoiceChip(
-                      label: Text('${m.emoji} ${m.label}'),
+                      label: Text('${m.emoji} ${m.localizedLabel(l10n)}'),
                       selected: _meal == m,
                       onSelected: (_) => setState(() => _meal = m),
                       selectedColor: AppColors.primary,
@@ -144,7 +146,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
             child: ElevatedButton.icon(
               onPressed: _log,
               icon: const Icon(Icons.add_rounded),
-              label: Text('Add to ${_meal.label}'),
+              label: Text(l10n.addToMeal(_meal.localizedLabel(l10n))),
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/weight_entry.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
@@ -25,22 +26,24 @@ class _WeightCardState extends State<WeightCard> {
   }
 
   String _weightSubtitle(WeightEntry entry) {
+    final l10n = context.l10n;
     final today = DateTime.now();
     final logged = entry.loggedAt;
     final isToday = logged.year == today.year &&
         logged.month == today.month &&
         logged.day == today.day;
-    final dateStr = isToday
-        ? 'today'
-        : DateFormat('MMM d').format(logged);
-    return '${entry.kg} kg  ·  logged $dateStr';
+    final kg = entry.kg.toString();
+    if (isToday) return l10n.weightSubtitleToday(kg);
+    final locale = Localizations.localeOf(context).toString();
+    return l10n.weightSubtitleDate(
+        kg, DateFormat('MMM d', locale).format(logged));
   }
 
   Future<void> _log() async {
     final kg = double.tryParse(_ctrl.text);
     if (kg == null || kg < 20 || kg > 500) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Enter a valid weight.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.weightInvalid)));
       return;
     }
     await context.read<FoodStore>().logWeight(kg);
@@ -54,6 +57,7 @@ class _WeightCardState extends State<WeightCard> {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
+    final l10n = context.l10n;
     final latest = store.latestWeight;
 
     return Card(
@@ -70,20 +74,20 @@ class _WeightCardState extends State<WeightCard> {
                       controller: _ctrl,
                       autofocus: true,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(
-                        labelText: 'Weight',
+                      decoration: InputDecoration(
+                        labelText: l10n.fieldWeight,
                         suffixText: 'kg',
                         isDense: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 10),
                       ),
                       onSubmitted: (_) => _log(),
                     )
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Body weight',
-                            style: TextStyle(
+                        Text(l10n.bodyWeight,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w600, fontSize: 13)),
                         if (latest != null)
                           Text(
@@ -92,8 +96,8 @@ class _WeightCardState extends State<WeightCard> {
                                 color: AppColors.textSecondary, fontSize: 11),
                           )
                         else
-                          const Text('Not logged today',
-                              style: TextStyle(
+                          Text(l10n.notLoggedToday,
+                              style: const TextStyle(
                                   color: AppColors.textMuted, fontSize: 11)),
                       ],
                     ),
@@ -107,14 +111,14 @@ class _WeightCardState extends State<WeightCard> {
                       _editing = false;
                       _ctrl.clear();
                     }),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                   FilledButton(
                     onPressed: _log,
                     style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(horizontal: 14)),
-                    child: const Text('Save'),
+                    child: Text(l10n.save),
                   ),
                 ],
               )
@@ -122,7 +126,7 @@ class _WeightCardState extends State<WeightCard> {
               TextButton(
                 onPressed: () => setState(() => _editing = true),
                 child: Text(
-                    latest == null ? 'Log weight' : 'Update',
+                    latest == null ? l10n.logWeight : l10n.update,
                     style: const TextStyle(color: AppColors.primary)),
               ),
           ],

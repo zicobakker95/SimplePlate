@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/nutrition_goals.dart';
 import '../../models/user_profile.dart';
 import '../../services/food_store.dart';
@@ -69,7 +70,7 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
         age < 10 || age > 120 || height < 50 || height > 280 ||
         weight < 20 || weight > 500) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter valid values for all fields.')),
+        SnackBar(content: Text(context.l10n.tdeeInvalid)),
       );
       return;
     }
@@ -103,10 +104,9 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
     if (!mounted) return;
     // Capture messenger before pop so the context is still valid.
     final messenger = ScaffoldMessenger.of(context);
+    final msg = context.l10n.tdeeAppliedSnack;
     Navigator.pop(context);
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Goals updated from TDEE calculator!')),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(msg)));
   }
 
   Widget _dropdownField<T>({
@@ -147,6 +147,7 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final bottomPad = MediaQuery.of(context).viewInsets.bottom;
 
     return DraggableScrollableSheet(
@@ -168,11 +169,11 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          Text('TDEE Calculator',
+          Text(l10n.tdeeTitle,
               style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
           Text(
-            'Enter your stats to calculate Total Daily Energy Expenditure and auto-set your calorie goal.',
+            l10n.tdeeSubtitle,
             style: tt.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 20),
@@ -185,15 +186,15 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
               foregroundColor: AppColors.textSecondary,
               side: const BorderSide(color: AppColors.border),
             ),
-            segments: const [
+            segments: [
               ButtonSegment(
                   value: BiologicalSex.male,
-                  icon: Icon(Icons.male_rounded, size: 18),
-                  label: Text('Male')),
+                  icon: const Icon(Icons.male_rounded, size: 18),
+                  label: Text(l10n.sexMale)),
               ButtonSegment(
                   value: BiologicalSex.female,
-                  icon: Icon(Icons.female_rounded, size: 18),
-                  label: Text('Female')),
+                  icon: const Icon(Icons.female_rounded, size: 18),
+                  label: Text(l10n.sexFemale)),
             ],
             selected: {_sex},
             onSelectionChanged: (s) => setState(() {
@@ -203,15 +204,15 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
           ),
           const SizedBox(height: 4),
 
-          _numField('Age', _ageCtrl, 'years'),
-          _numField('Height', _heightCtrl, 'cm'),
-          _numField('Weight', _weightCtrl, 'kg'),
+          _numField(l10n.fieldAge, _ageCtrl, l10n.unitYears),
+          _numField(l10n.fieldHeight, _heightCtrl, 'cm'),
+          _numField(l10n.fieldWeight, _weightCtrl, 'kg'),
 
           _dropdownField<ActivityLevel>(
-            label: 'Activity level',
+            label: l10n.activityLevelLabel,
             value: _activityLevel,
             values: ActivityLevel.values,
-            labelOf: (v) => v.label,
+            labelOf: (v) => v.localizedLabel(l10n),
             onChanged: (v) => setState(() {
               if (v != null) _activityLevel = v;
               _showResults = false;
@@ -219,10 +220,10 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
           ),
 
           _dropdownField<WeightGoal>(
-            label: 'Goal',
+            label: l10n.goalLabel,
             value: _weightGoal,
             values: WeightGoal.values,
-            labelOf: (v) => v.label,
+            labelOf: (v) => v.localizedLabel(l10n),
             onChanged: (v) => setState(() {
               if (v != null) _weightGoal = v;
               _showResults = false;
@@ -234,7 +235,7 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _calculate,
-              child: const Text('Calculate'),
+              child: Text(l10n.calculate),
             ),
           ),
 
@@ -242,16 +243,16 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
             const SizedBox(height: 24),
             const Divider(color: AppColors.border),
             const SizedBox(height: 12),
-            Text('Your Results',
+            Text(l10n.yourResults,
                 style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
-            _ResultRow('BMR (base metabolic rate)',
+            _ResultRow(l10n.bmrLabel,
                 '${_result!.bmr.round()} kcal', AppColors.textSecondary),
-            _ResultRow('TDEE (maintenance)',
+            _ResultRow(l10n.tdeeMaintenance,
                 '${_result!.tdee.round()} kcal', AppColors.calories),
-            _ResultRow('BMI', _result!.bmi.toStringAsFixed(1),
+            _ResultRow(l10n.bmiLabel, _result!.bmi.toStringAsFixed(1),
                 AppColors.textSecondary,
-                subtitle: _result!.bmiCategory),
+                subtitle: localizedBmiCategory(l10n, _result!.bmi)),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
@@ -264,18 +265,18 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Suggested goals',
-                      style: TextStyle(
+                  Text(l10n.suggestedGoals,
+                      style: const TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
-                  _ResultRow('Calories',
+                  _ResultRow(l10n.macroCalories,
                       '${_result!.suggestedCalories} kcal', AppColors.calories),
-                  _ResultRow('Protein',
+                  _ResultRow(l10n.macroProtein,
                       '${_result!.suggestedProtein} g', AppColors.protein),
-                  _ResultRow('Carbs',
+                  _ResultRow(l10n.macroCarbs,
                       '${_result!.suggestedCarbs} g', AppColors.carbs),
-                  _ResultRow('Fat',
+                  _ResultRow(l10n.macroFat,
                       '${_result!.suggestedFat} g', AppColors.fat),
                 ],
               ),
@@ -285,7 +286,7 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
               width: double.infinity,
               child: FilledButton.icon(
                 icon: const Icon(Icons.check_rounded, size: 18),
-                label: const Text('Apply these goals'),
+                label: Text(l10n.applyGoals),
                 onPressed: _applyGoals,
                 style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary),

@@ -1,0 +1,11 @@
+{
+  "_comment": "Marketing caption banners drawn above each screenshot. Order maps to raw files 01_today, 02_history, 03_goals, 04_add_food. The app UI itself is English-only for now; these localized captions still make the store screenshots feel native per market.",
+  "en-US": ["Your whole day at a glance", "See your trends & streaks", "Set goals that fit you", "Log food in seconds"],
+  "nl-NL": ["Je hele dag in één oogopslag", "Bekijk je trends & reeksen", "Doelen die bij jou passen", "Log eten in seconden"],
+  "de-DE": ["Dein ganzer Tag auf einen Blick", "Sieh Trends & Serien", "Ziele, die zu dir passen", "Essen in Sekunden erfassen"],
+  "fr-FR": ["Toute votre journée en un coup d'œil", "Voyez vos tendances et séries", "Des objectifs à votre mesure", "Enregistrez en quelques secondes"],
+  "es-ES": ["Todo tu día de un vistazo", "Mira tus tendencias y rachas", "Metas hechas a tu medida", "Registra comida en segundos"],
+  "it-IT": ["Tutta la giornata in un colpo d'occhio", "Vedi tendenze e serie", "Obiettivi su misura per te", "Registra il cibo in pochi secondi"],
+  "pt-BR": ["Seu dia todo num relance", "Veja tendências e sequências", "Metas sob medida para você", "Registre comida em segundos"],
+  "ja-JP": ["1日をひと目で確認", "傾向と連続記録をチェック", "あなたに合った目標設定", "数秒で食事を記録"]
+}

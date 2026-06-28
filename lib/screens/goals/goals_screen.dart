@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/nutrition_goals.dart';
 import '../../screens/goals/tdee_calculator_sheet.dart';
 import '../../screens/premium/premium_screen.dart';
@@ -162,7 +163,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     if (!mounted) return;
     setState(() => _saving = false);
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Goals saved!')));
+        .showSnackBar(SnackBar(content: Text(context.l10n.goalsSavedSnack)));
   }
 
   // ── Widgets ─────────────────────────────────────────────────────────────────
@@ -211,11 +212,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
     );
   }
 
-  Widget _pctHint(String macro, int grams, Color color) {
+  Widget _pctHint(String text, Color color) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 4),
       child: Text(
-        '  → $grams g $macro',
+        text,
         style: TextStyle(
             color: color.withOpacity(0.8),
             fontSize: 12,
@@ -225,6 +226,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   Widget _pctSumIndicator() {
+    final l10n = context.l10n;
     final sum = _pctSum.round();
     final ok = sum == 100;
     final color = ok ? AppColors.primary : AppColors.fat;
@@ -242,9 +244,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               color: color, size: 18),
           const SizedBox(width: 8),
           Text(
-            ok
-                ? 'Percentages add up to 100% ✓'
-                : 'Percentages add up to $sum% (should be 100%)',
+            ok ? l10n.pctTotalOk : l10n.pctTotalOff(sum),
             style: TextStyle(
                 color: color,
                 fontSize: 13,
@@ -256,35 +256,38 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   Widget _manualMode() {
+    final l10n = context.l10n;
     return Column(children: [
-      _field('Calories', _calCtrl, AppColors.calories, 'kcal'),
-      _field('Protein', _proCtrl, AppColors.protein, 'g'),
-      _field('Carbohydrates', _carbCtrl, AppColors.carbs, 'g'),
-      _field('Fat', _fatCtrl, AppColors.fat, 'g'),
+      _field(l10n.fieldCalories, _calCtrl, AppColors.calories, 'kcal'),
+      _field(l10n.fieldProtein, _proCtrl, AppColors.protein, 'g'),
+      _field(l10n.fieldCarbohydrates, _carbCtrl, AppColors.carbs, 'g'),
+      _field(l10n.fieldFat, _fatCtrl, AppColors.fat, 'g'),
     ]);
   }
 
   Widget _percentagesMode() {
+    final l10n = context.l10n;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _field('Daily calories', _calPctCtrl, AppColors.calories, 'kcal'),
+      _field(l10n.fieldDailyCalories, _calPctCtrl, AppColors.calories, 'kcal'),
       const SizedBox(height: 4),
-      _field('Protein %', _proPctCtrl, AppColors.protein, '%'),
-      _pctHint('protein', _calcProteinG, AppColors.protein),
-      _field('Carbohydrates %', _carbPctCtrl, AppColors.carbs, '%'),
-      _pctHint('carbs', _calcCarbsG, AppColors.carbs),
-      _field('Fat %', _fatPctCtrl, AppColors.fat, '%'),
-      _pctHint('fat', _calcFatG, AppColors.fat),
+      _field(l10n.fieldProteinPct, _proPctCtrl, AppColors.protein, '%'),
+      _pctHint(l10n.pctHintProtein(_calcProteinG), AppColors.protein),
+      _field(l10n.fieldCarbsPct, _carbPctCtrl, AppColors.carbs, '%'),
+      _pctHint(l10n.pctHintCarbs(_calcCarbsG), AppColors.carbs),
+      _field(l10n.fieldFatPct, _fatPctCtrl, AppColors.fat, '%'),
+      _pctHint(l10n.pctHintFat(_calcFatG), AppColors.fat),
       _pctSumIndicator(),
     ]);
   }
 
   Widget _macrosToCaloriesMode() {
+    final l10n = context.l10n;
     return Column(children: [
-      _field('Protein', _proGCtrl, AppColors.protein, 'g'),
-      _field('Carbohydrates', _carbGCtrl, AppColors.carbs, 'g'),
-      _field('Fat', _fatGCtrl, AppColors.fat, 'g'),
+      _field(l10n.fieldProtein, _proGCtrl, AppColors.protein, 'g'),
+      _field(l10n.fieldCarbohydrates, _carbGCtrl, AppColors.carbs, 'g'),
+      _field(l10n.fieldFat, _fatGCtrl, AppColors.fat, 'g'),
       const SizedBox(height: 8),
-      _readonlyCard('Calculated calories', '$_calcCalories kcal',
+      _readonlyCard(l10n.calculatedCalories, '$_calcCalories kcal',
           AppColors.calories),
     ]);
   }
@@ -292,8 +295,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Goals')),
+      appBar: AppBar(title: Text(l10n.navGoals)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -338,8 +342,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           children: [
                             Text(
                               isPremium
-                                  ? 'You\'re a Premium member'
-                                  : 'Upgrade to Premium',
+                                  ? l10n.premiumBannerMemberTitle
+                                  : l10n.premiumBannerUpgradeTitle,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: isPremium
@@ -349,8 +353,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                             const SizedBox(height: 2),
                             Text(
                               isPremium
-                                  ? 'Weekly insights unlocked · No ads'
-                                  : 'Weekly insights · No ads · Support dev',
+                                  ? l10n.premiumBannerMemberSub
+                                  : l10n.premiumBannerUpgradeSub,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: isPremium
@@ -369,17 +373,17 @@ class _GoalsScreenState extends State<GoalsScreen> {
               );
             },
           ),
-          Text('Daily nutrition targets',
+          Text(l10n.goalsDailyTargets,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          Text('Choose how you want to set your goals.',
+          Text(l10n.goalsChooseHow,
               style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 12),
 
           // TDEE calculator shortcut
           OutlinedButton.icon(
             icon: const Icon(Icons.calculate_outlined, size: 18),
-            label: const Text('Calculate with TDEE / BMI'),
+            label: Text(l10n.goalsCalcTdee),
             onPressed: () => TdeeCalculatorSheet.show(context),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
@@ -396,21 +400,21 @@ class _GoalsScreenState extends State<GoalsScreen> {
               foregroundColor: AppColors.textSecondary,
               side: const BorderSide(color: AppColors.border),
             ),
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: _GoalMode.manual,
-                icon: Icon(Icons.edit_outlined, size: 16),
-                label: Text('Manual'),
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: Text(l10n.goalModeManual),
               ),
               ButtonSegment(
                 value: _GoalMode.percentages,
-                icon: Icon(Icons.percent, size: 16),
-                label: Text('% → Macros'),
+                icon: const Icon(Icons.percent, size: 16),
+                label: Text(l10n.goalModePercent),
               ),
               ButtonSegment(
                 value: _GoalMode.macrosToCalories,
-                icon: Icon(Icons.calculate_outlined, size: 16),
-                label: Text('Macros → kcal'),
+                icon: const Icon(Icons.calculate_outlined, size: 16),
+                label: Text(l10n.goalModeMacros),
               ),
             ],
             selected: {_mode},
@@ -426,12 +430,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
                 switch (_mode) {
-                  _GoalMode.manual =>
-                    'Enter your calories and macro grams directly.',
-                  _GoalMode.percentages =>
-                    'Enter total calories and the % split — grams are calculated live.',
-                  _GoalMode.macrosToCalories =>
-                    'Enter your macro grams — total calories are calculated live.',
+                  _GoalMode.manual => l10n.goalModeManualDesc,
+                  _GoalMode.percentages => l10n.goalModePercentDesc,
+                  _GoalMode.macrosToCalories => l10n.goalModeMacrosDesc,
                 },
                 style:
                     tt.bodySmall?.copyWith(color: AppColors.textMuted),
@@ -466,7 +467,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       height: 20,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
-                  : const Text('Save goals'),
+                  : Text(l10n.goalsSaveBtn),
             ),
           ),
 
@@ -474,10 +475,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 16),
-          Text('Water tracking',
+          Text(l10n.waterTrackingTitle,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          Text('Track your daily water intake on the home screen.',
+          Text(l10n.waterTrackingSubtitle,
               style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 12),
           Card(
@@ -489,9 +490,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     setState(() => _waterEnabled = v);
                     _saveWaterSettings();
                   },
-                  title: const Text('Show water tracker',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Displays water card on Today screen'),
+                  title: Text(l10n.waterShowTracker,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Text(l10n.waterShowTrackerSub),
                   activeColor: AppColors.primary,
                 ),
                 if (_waterEnabled) ...[
@@ -501,10 +502,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     child: TextField(
                       controller: _waterGoalCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Daily goal',
-                        suffixText: 'glasses',
-                        prefixIcon: Icon(Icons.water_drop_rounded,
+                      decoration: InputDecoration(
+                        labelText: l10n.waterDailyGoal,
+                        suffixText: l10n.waterGlassesUnit,
+                        prefixIcon: const Icon(Icons.water_drop_rounded,
                             color: Colors.lightBlue),
                       ),
                       onChanged: (_) => _saveWaterSettings(),
@@ -519,10 +520,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 16),
-          Text('Daily reminder',
+          Text(l10n.reminderTitle,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          Text('Get a daily nudge to log your meals.',
+          Text(l10n.reminderSubtitle,
               style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 12),
           _ReminderSection(
@@ -534,12 +535,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 16),
-          Text('Feedback',
+          Text(l10n.feedbackTitle,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
           Text(
-            "I'm a solo developer and your feedback helps make PlateSimple better. "
-            'Takes less than a minute!',
+            l10n.feedbackBody,
             style: tt.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
@@ -547,8 +547,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
             child: ListTile(
               leading: const Icon(Icons.feedback_rounded,
                   color: AppColors.primary),
-              title: const Text('Share feedback',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              title: Text(l10n.feedbackShare,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
               subtitle: const Text('zibaentertainment.com/feedback'),
               trailing: const Icon(Icons.open_in_new_rounded, size: 18),
               onTap: () => launchUrl(
@@ -561,10 +561,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 16),
-          Text('Data export',
+          Text(l10n.dataExportTitle,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          Text('Export your food log, weight, and activity data.',
+          Text(l10n.dataExportSubtitle,
               style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 12),
           Card(
@@ -573,9 +573,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ListTile(
                   leading: const Icon(Icons.table_chart_outlined,
                       color: AppColors.primary),
-                  title: const Text('Export as CSV',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Spreadsheet-compatible format'),
+                  title: Text(l10n.exportCsv,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Text(l10n.exportCsvSub),
                   trailing: const Icon(Icons.chevron_right_rounded, size: 18),
                   onTap: () async {
                     final store = context.read<FoodStore>();
@@ -590,9 +590,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ListTile(
                   leading: const Icon(Icons.data_object_rounded,
                       color: AppColors.primary),
-                  title: const Text('Export as JSON',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Full data backup'),
+                  title: Text(l10n.exportJson,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Text(l10n.exportJsonSub),
                   trailing: const Icon(Icons.chevron_right_rounded, size: 18),
                   onTap: () async {
                     final store = context.read<FoodStore>();
@@ -609,7 +609,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 16),
-          Text('About PlateSimple',
+          Text(l10n.aboutTitle,
               style: tt.labelLarge
                   ?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 8),
@@ -645,8 +645,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
         minute: _reminderTime.minute);
 
     if (enabled) {
+      final l10n = context.l10n;
       await NotificationService.instance.scheduleDaily(
-          hour: _reminderTime.hour, minute: _reminderTime.minute);
+        hour: _reminderTime.hour,
+        minute: _reminderTime.minute,
+        title: l10n.notifTitle,
+        body: l10n.notifBody,
+        channelName: l10n.notifChannelName,
+        channelDescription: l10n.notifChannelDesc,
+      );
     } else {
       await NotificationService.instance.cancelReminder();
     }
@@ -664,9 +671,16 @@ class _GoalsScreenState extends State<GoalsScreen> {
         enabled: _reminderEnabled,
         hour: picked.hour,
         minute: picked.minute);
-    if (_reminderEnabled) {
-      await NotificationService.instance
-          .scheduleDaily(hour: picked.hour, minute: picked.minute);
+    if (_reminderEnabled && mounted) {
+      final l10n = context.l10n;
+      await NotificationService.instance.scheduleDaily(
+        hour: picked.hour,
+        minute: picked.minute,
+        title: l10n.notifTitle,
+        body: l10n.notifBody,
+        channelName: l10n.notifChannelName,
+        channelDescription: l10n.notifChannelDesc,
+      );
     }
   }
 }
@@ -686,15 +700,16 @@ class _ReminderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       child: Column(
         children: [
           SwitchListTile(
             value: enabled,
             onChanged: onToggle,
-            title: const Text('Enable reminder',
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: const Text('Sends a daily notification'),
+            title: Text(l10n.reminderEnable,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: Text(l10n.reminderEnableSub),
             activeColor: AppColors.primary,
           ),
           if (enabled) ...[
@@ -702,7 +717,7 @@ class _ReminderSection extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.access_time_rounded,
                   color: AppColors.primary),
-              title: const Text('Reminder time'),
+              title: Text(l10n.reminderTimeLabel),
               trailing: Text(
                 time.format(context),
                 style: const TextStyle(

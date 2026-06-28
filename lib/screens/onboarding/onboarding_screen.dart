@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/nutrition_goals.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
@@ -107,6 +108,7 @@ class _WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
@@ -123,13 +125,13 @@ class _WelcomePage extends StatelessWidget {
                 color: Colors.white, size: 52),
           ),
           const SizedBox(height: 32),
-          Text('Welcome to PlateSimple',
+          Text(l10n.welcomeTitle,
               style: tt.headlineMedium
                   ?.copyWith(fontWeight: FontWeight.w800),
               textAlign: TextAlign.center),
           const SizedBox(height: 16),
           Text(
-            'Fast, clean calorie tracking.\nFree barcode scanning. No clutter.',
+            l10n.welcomeSubtitle,
             style: tt.bodyLarge
                 ?.copyWith(color: AppColors.textSecondary, height: 1.6),
             textAlign: TextAlign.center,
@@ -138,7 +140,7 @@ class _WelcomePage extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-                onPressed: onNext, child: const Text('Get started')),
+                onPressed: onNext, child: Text(l10n.getStarted)),
           ),
         ],
       ),
@@ -276,9 +278,9 @@ class _GoalsPageState extends State<_GoalsPage> {
     );
   }
 
-  Widget _pctHint(String macro, int grams, Color color) => Padding(
+  Widget _pctHint(String text, Color color) => Padding(
         padding: const EdgeInsets.only(left: 4, bottom: 2),
-        child: Text('  → $grams g $macro',
+        child: Text(text,
             style: TextStyle(
                 color: color.withOpacity(0.8),
                 fontSize: 12,
@@ -286,6 +288,7 @@ class _GoalsPageState extends State<_GoalsPage> {
       );
 
   Widget _pctSumIndicator() {
+    final l10n = context.l10n;
     final sum = _pctSum.round();
     final ok = sum == 100;
     final color = ok ? AppColors.primary : AppColors.fat;
@@ -306,9 +309,7 @@ class _GoalsPageState extends State<_GoalsPage> {
             size: 16),
         const SizedBox(width: 8),
         Text(
-          ok
-              ? 'Total: 100% ✓'
-              : 'Total: $sum% (needs to be 100%)',
+          ok ? l10n.pctTotalOk : l10n.pctTotalOff(sum),
           style: TextStyle(
               color: color, fontSize: 12, fontWeight: FontWeight.w500),
         ),
@@ -319,16 +320,17 @@ class _GoalsPageState extends State<_GoalsPage> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          Text('Set your daily goals',
+          Text(l10n.onbSetGoalsTitle,
               style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          Text('You can change these anytime in Goals.',
+          Text(l10n.onbSetGoalsSubtitle,
               style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
 
@@ -341,19 +343,19 @@ class _GoalsPageState extends State<_GoalsPage> {
               side: const BorderSide(color: AppColors.border),
               textStyle: const TextStyle(fontSize: 11),
             ),
-            segments: const [
+            segments: [
               ButtonSegment(
                   value: _GoalMode.manual,
-                  icon: Icon(Icons.edit_outlined, size: 14),
-                  label: Text('Manual')),
+                  icon: const Icon(Icons.edit_outlined, size: 14),
+                  label: Text(l10n.goalModeManual)),
               ButtonSegment(
                   value: _GoalMode.percentages,
-                  icon: Icon(Icons.percent, size: 14),
-                  label: Text('% → Macros')),
+                  icon: const Icon(Icons.percent, size: 14),
+                  label: Text(l10n.goalModePercent)),
               ButtonSegment(
                   value: _GoalMode.macrosToCalories,
-                  icon: Icon(Icons.calculate_outlined, size: 14),
-                  label: Text('Macros → kcal')),
+                  icon: const Icon(Icons.calculate_outlined, size: 14),
+                  label: Text(l10n.goalModeMacros)),
             ],
             selected: {_mode},
             onSelectionChanged: (s) =>
@@ -362,11 +364,9 @@ class _GoalsPageState extends State<_GoalsPage> {
           const SizedBox(height: 4),
           Text(
             switch (_mode) {
-              _GoalMode.manual => 'Enter calories and macro grams directly.',
-              _GoalMode.percentages =>
-                'Enter total calories and a % split — grams are calculated live.',
-              _GoalMode.macrosToCalories =>
-                'Enter your macro grams — calories are calculated live.',
+              _GoalMode.manual => l10n.goalModeManualDesc,
+              _GoalMode.percentages => l10n.goalModePercentDesc,
+              _GoalMode.macrosToCalories => l10n.goalModeMacrosDesc,
             },
             style: tt.bodySmall?.copyWith(color: AppColors.textMuted),
           ),
@@ -381,29 +381,37 @@ class _GoalsPageState extends State<_GoalsPage> {
               key: ValueKey(_mode),
               child: switch (_mode) {
                 _GoalMode.manual => Column(children: [
-                    _field('Calories', _calCtrl, AppColors.calories, 'kcal'),
-                    _field('Protein', _proCtrl, AppColors.protein, 'g'),
-                    _field('Carbohydrates', _carbCtrl, AppColors.carbs, 'g'),
-                    _field('Fat', _fatCtrl, AppColors.fat, 'g'),
+                    _field(l10n.fieldCalories, _calCtrl, AppColors.calories,
+                        'kcal'),
+                    _field(l10n.fieldProtein, _proCtrl, AppColors.protein, 'g'),
+                    _field(l10n.fieldCarbohydrates, _carbCtrl, AppColors.carbs,
+                        'g'),
+                    _field(l10n.fieldFat, _fatCtrl, AppColors.fat, 'g'),
                   ]),
                 _GoalMode.percentages => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _field('Daily calories', _calPctCtrl, AppColors.calories,
-                          'kcal'),
-                      _field('Protein %', _proPctCtrl, AppColors.protein, '%'),
-                      _pctHint('protein', _calcProteinG, AppColors.protein),
-                      _field('Carbs %', _carbPctCtrl, AppColors.carbs, '%'),
-                      _pctHint('carbs', _calcCarbsG, AppColors.carbs),
-                      _field('Fat %', _fatPctCtrl, AppColors.fat, '%'),
-                      _pctHint('fat', _calcFatG, AppColors.fat),
+                      _field(l10n.fieldDailyCalories, _calPctCtrl,
+                          AppColors.calories, 'kcal'),
+                      _field(l10n.fieldProteinPct, _proPctCtrl,
+                          AppColors.protein, '%'),
+                      _pctHint(l10n.pctHintProtein(_calcProteinG),
+                          AppColors.protein),
+                      _field(l10n.fieldCarbsPct, _carbPctCtrl, AppColors.carbs,
+                          '%'),
+                      _pctHint(
+                          l10n.pctHintCarbs(_calcCarbsG), AppColors.carbs),
+                      _field(l10n.fieldFatPct, _fatPctCtrl, AppColors.fat, '%'),
+                      _pctHint(l10n.pctHintFat(_calcFatG), AppColors.fat),
                       _pctSumIndicator(),
                     ]),
                 _GoalMode.macrosToCalories => Column(children: [
-                    _field('Protein', _proGCtrl, AppColors.protein, 'g'),
-                    _field('Carbohydrates', _carbGCtrl, AppColors.carbs, 'g'),
-                    _field('Fat', _fatGCtrl, AppColors.fat, 'g'),
-                    _readonlyCard('Calculated calories',
+                    _field(l10n.fieldProtein, _proGCtrl, AppColors.protein,
+                        'g'),
+                    _field(l10n.fieldCarbohydrates, _carbGCtrl, AppColors.carbs,
+                        'g'),
+                    _field(l10n.fieldFat, _fatGCtrl, AppColors.fat, 'g'),
+                    _readonlyCard(l10n.calculatedCalories,
                         '$_calcCalories kcal', AppColors.calories),
                   ]),
               },
@@ -414,7 +422,7 @@ class _GoalsPageState extends State<_GoalsPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-                onPressed: widget.onNext, child: const Text('Continue')),
+                onPressed: widget.onNext, child: Text(l10n.continueLabel)),
           ),
         ],
       ),
@@ -429,6 +437,7 @@ class _PermissionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
@@ -437,12 +446,12 @@ class _PermissionsPage extends StatelessWidget {
           const Icon(Icons.notifications_active_rounded,
               size: 72, color: AppColors.primary),
           const SizedBox(height: 32),
-          Text('Stay on track',
+          Text(l10n.onbStayOnTrackTitle,
               style: tt.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 16),
           Text(
-            'Allow notifications so we can remind you to log meals and keep your streak alive.',
+            l10n.onbStayOnTrackBody,
             style: tt.bodyLarge
                 ?.copyWith(color: AppColors.textSecondary, height: 1.6),
             textAlign: TextAlign.center,
@@ -452,11 +461,11 @@ class _PermissionsPage extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
                 onPressed: onFinish,
-                child: const Text("Let's go!")),
+                child: Text(l10n.letsGo)),
           ),
           const SizedBox(height: 12),
           TextButton(
-              onPressed: onFinish, child: const Text('Skip for now')),
+              onPressed: onFinish, child: Text(l10n.skipForNow)),
         ],
       ),
     );

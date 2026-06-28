@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
 import '../../services/food_store.dart';
@@ -90,9 +91,9 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
         validator: required
             ? (v) {
                 final s = v?.trim() ?? '';
-                if (s.isEmpty) return 'Required';
+                if (s.isEmpty) return context.l10n.fieldRequired;
                 if (decimal && double.tryParse(s) == null) {
-                  return 'Enter a valid number';
+                  return context.l10n.enterValidNumber;
                 }
                 return null;
               }
@@ -104,34 +105,35 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create custom food')),
+      appBar: AppBar(title: Text(l10n.createCustomFoodTitle)),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            Text('Food details',
+            Text(l10n.foodDetailsSection,
                 style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
-            Text('Values are per 100 g / 100 ml.',
+            Text(l10n.valuesPer100,
                 style:
                     tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 12),
-            _field('Food name', _nameCtrl, decimal: false),
-            _field('Brand (optional)', _brandCtrl,
+            _field(l10n.foodNameLabel, _nameCtrl, decimal: false),
+            _field(l10n.brandOptional, _brandCtrl,
                 required: false, decimal: false),
             const SizedBox(height: 16),
             const Divider(color: AppColors.border),
             const SizedBox(height: 8),
-            Text('Nutrition per 100 g',
+            Text(l10n.nutritionPer100,
                 style: tt.titleSmall
                     ?.copyWith(color: AppColors.textSecondary)),
-            _field('Calories', _calCtrl,
+            _field(l10n.fieldCalories, _calCtrl,
                 suffix: 'kcal', decimal: true),
-            _field('Protein', _proteinCtrl, suffix: 'g'),
-            _field('Carbohydrates', _carbCtrl, suffix: 'g'),
-            _field('Fat', _fatCtrl, suffix: 'g'),
+            _field(l10n.fieldProtein, _proteinCtrl, suffix: 'g'),
+            _field(l10n.fieldCarbohydrates, _carbCtrl, suffix: 'g'),
+            _field(l10n.fieldFat, _fatCtrl, suffix: 'g'),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,
@@ -145,7 +147,7 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                    : const Text('Save & log serving'),
+                    : Text(l10n.saveAndLog),
               ),
             ),
           ],

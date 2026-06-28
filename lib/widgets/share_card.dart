@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_colors.dart';
 
 // Update these once the app is live in the stores.
@@ -71,12 +72,14 @@ class ShareCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final pct = goalCalories > 0
         ? (calories / goalCalories).clamp(0.0, 1.0)
         : 0.0;
     final goalMet = calories >= goalCalories * 0.85 &&
         calories <= goalCalories * 1.1;
-    final dateLabel = DateFormat('EEEE, MMM d').format(date);
+    final dateLabel = DateFormat('EEEE, MMM d', locale).format(date);
 
     return Container(
       width: 360,
@@ -131,7 +134,7 @@ class ShareCard extends StatelessWidget {
                       const Icon(Icons.local_fire_department_rounded,
                           color: Colors.orange, size: 14),
                       const SizedBox(width: 4),
-                      Text('$streak day${streak == 1 ? '' : 's'}',
+                      Text(l10n.dayStreak(streak),
                           style: const TextStyle(
                               color: Colors.orange,
                               fontSize: 12,
@@ -174,7 +177,7 @@ class ShareCard extends StatelessWidget {
                       style: TextStyle(
                           color: Colors.white54, fontSize: 11)),
                   Text(
-                    'of $goalCalories goal',
+                    l10n.ofGoal(goalCalories),
                     style: const TextStyle(
                         color: Colors.white38, fontSize: 10),
                   ),
@@ -195,14 +198,14 @@ class ShareCard extends StatelessWidget {
                 border: Border.all(
                     color: AppColors.primary.withValues(alpha: 0.5)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_outline_rounded,
+                  const Icon(Icons.check_circle_outline_rounded,
                       color: AppColors.primary, size: 14),
-                  SizedBox(width: 6),
-                  Text('Goal hit!',
-                      style: TextStyle(
+                  const SizedBox(width: 6),
+                  Text(l10n.goalHit,
+                      style: const TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 13)),
@@ -215,17 +218,17 @@ class ShareCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _MacroChip('Protein', protein, 'g', AppColors.protein),
-              _MacroChip('Carbs', carbs, 'g', AppColors.carbs),
-              _MacroChip('Fat', fat, 'g', AppColors.fat),
+              _MacroChip(l10n.macroProtein, protein, 'g', AppColors.protein),
+              _MacroChip(l10n.macroCarbs, carbs, 'g', AppColors.carbs),
+              _MacroChip(l10n.macroFat, fat, 'g', AppColors.fat),
             ],
           ),
           const SizedBox(height: 20),
 
           // Footer
-          const Text(
-            'tracked with PlateSimple',
-            style: TextStyle(color: Colors.white24, fontSize: 10),
+          Text(
+            l10n.trackedWith,
+            style: const TextStyle(color: Colors.white24, fontSize: 10),
           ),
         ],
       ),
@@ -288,6 +291,7 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
   bool _sharing = false;
 
   Future<void> _share() async {
+    final shareText = context.l10n.shareText(_shareStoreUrl);
     setState(() => _sharing = true);
     try {
       final boundary = _boundaryKey.currentContext?.findRenderObject()
@@ -306,7 +310,7 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
 
       await Share.shareXFiles(
         [XFile(file.path, mimeType: 'image/png')],
-        text: 'My nutrition today — tracked with PlateSimple 🥗\n$_shareStoreUrl',
+        text: shareText,
       );
     } finally {
       if (mounted) setState(() => _sharing = false);
@@ -328,9 +332,9 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
                 borderRadius: BorderRadius.circular(2)),
           ),
           const SizedBox(height: 16),
-          const Text('Share your day',
-              style:
-                  TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+          Text(context.l10n.shareDayTitle,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700, fontSize: 18)),
           const SizedBox(height: 20),
 
           // Card preview — wrapped in RepaintBoundary for capture
@@ -359,8 +363,8 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.share_rounded, size: 18),
-              label:
-                  Text(_sharing ? 'Preparing…' : 'Share'),
+              label: Text(
+                  _sharing ? context.l10n.preparing : context.l10n.share),
               style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary),
             ),

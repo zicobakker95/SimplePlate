@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../services/food_store.dart';
 import '../services/health_service.dart';
 import '../theme/app_colors.dart';
@@ -67,14 +68,14 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(ok
-              ? 'Nutrition synced to Health!'
-              : 'Could not write to Health.')),
+          content: Text(
+              ok ? context.l10n.healthSynced : context.l10n.healthWriteFailed)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final authorised = HealthService.instance.isAuthorised;
 
     return Card(
@@ -88,8 +89,8 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                 const Icon(Icons.favorite_rounded,
                     color: Colors.redAccent, size: 20),
                 const SizedBox(width: 8),
-                const Text('Health sync',
-                    style: TextStyle(
+                Text(l10n.healthSync,
+                    style: const TextStyle(
                         fontWeight: FontWeight.w600, fontSize: 14)),
                 const Spacer(),
                 if (authorised && _syncing)
@@ -112,8 +113,8 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
               const SizedBox(height: 8),
               Text(
                 Platform.isIOS
-                    ? 'Connect Apple Health to import calories burned and sync your nutrition.'
-                    : 'Connect Google Health Connect to import calories burned and sync your nutrition.',
+                    ? l10n.healthConnectApple
+                    : l10n.healthConnectGoogle,
                 style: const TextStyle(
                     color: AppColors.textSecondary, fontSize: 12),
               ),
@@ -136,8 +137,8 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                       Expanded(
                         child: Text(
                           Platform.isIOS
-                              ? 'Open Settings → Privacy & Security → Health → PlateSimple to grant access.'
-                              : 'Open Health Connect and grant PlateSimple permissions.',
+                              ? l10n.healthDeniedIos
+                              : l10n.healthDeniedAndroid,
                           style: const TextStyle(
                               color: Colors.orange, fontSize: 11),
                         ),
@@ -148,7 +149,7 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
                   icon: const Icon(Icons.settings_rounded, size: 14),
-                  label: const Text('Open Settings'),
+                  label: Text(l10n.openSettings),
                   onPressed: () =>
                       launchUrl(Uri.parse('app-settings:')),
                   style: OutlinedButton.styleFrom(
@@ -171,7 +172,7 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.link_rounded, size: 16),
                   label: Text(
-                      _permissionDenied ? 'Try again' : 'Connect Health'),
+                      _permissionDenied ? l10n.tryAgain : l10n.connectHealth),
                   onPressed: _connecting ? null : _connect,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
@@ -183,17 +184,17 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _Stat('Steps', '$_steps',
+                  _Stat(l10n.statSteps, '$_steps',
                       Icons.directions_walk_rounded, Colors.blueAccent),
                   const SizedBox(width: 16),
-                  _Stat('Burned', '${_burnedFromHealth.round()} kcal',
+                  _Stat(l10n.statBurned, '${_burnedFromHealth.round()} kcal',
                       Icons.local_fire_department_rounded, Colors.orange),
                 ],
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 icon: const Icon(Icons.upload_rounded, size: 16),
-                label: const Text('Sync nutrition to Health'),
+                label: Text(l10n.syncNutrition),
                 onPressed: _writeNutrition,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
