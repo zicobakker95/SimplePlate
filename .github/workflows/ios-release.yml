@@ -15,6 +15,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Let the launchd runner codesign non-interactively (errSecInternalComponent fix).
+      - name: Unlock keychain for code signing
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          PW="$(printf '%s' "$KEYCHAIN_PASSWORD" | tr -d '\r\n')"
+          KC="$HOME/Library/Keychains/login.keychain-db"
+          security unlock-keychain -p "$PW" "$KC"
+          security set-keychain-settings -t 3600 -l "$KC"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PW" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" "/Library/Keychains/System.keychain"
+
       - name: Build IPA and upload to App Store Connect
         working-directory: ios
         env:

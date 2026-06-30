@@ -32,8 +32,10 @@ platform :ios do
     ) + 1
     UI.message("Building PlateSimple build number #{next_build}")
 
-    sh("cd #{root.shellescape} && flutter pub get && " \
-       "flutter build ipa --release --build-number=#{next_build} --export-method app-store")
+    # Unset fastlane's GEM_HOME/GEM_PATH so the flutter->pod subprocess uses the brew
+    # pod gem set (otherwise CocoaPods resolves against fastlane's gems and breaks).
+    sh("cd #{root.shellescape} && unset GEM_HOME GEM_PATH && flutter pub get && " \
+       "flutter build ipa --release --build-number=#{next_build} --export-method app-store --no-tree-shake-icons")
 
     ipa = Dir[File.join(root, "build/ios/ipa/*.ipa")].max_by { |f| File.mtime(f) }
     UI.user_error!("No .ipa produced — check Xcode signing/export on this Mac.") unless ipa
