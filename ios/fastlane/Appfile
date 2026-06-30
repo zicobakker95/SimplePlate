@@ -1,0 +1,2 @@
+app_identifier("com.zibaentertainment.simplePlate")
+# Apple ID / team are not needed here — auth is the App Store Connect API key (see Fastfile).

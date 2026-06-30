@@ -1,0 +1,24 @@
+name: iOS release
+
+# Builds the IPA on your always-on Mac mini (a self-hosted runner) and uploads it
+# to App Store Connect. Trigger by pushing a tag like v1.0.5, or run it manually
+# from the Actions tab (workflow_dispatch).
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  release:
+    runs-on: [ self-hosted, macOS ]   # your Mac mini runner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build IPA and upload to App Store Connect
+        working-directory: ios
+        env:
+          ASC_KEY_ID:    ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8:    ${{ secrets.ASC_KEY_P8 }}
+        run: fastlane release

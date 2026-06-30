@@ -1,0 +1,52 @@
+# PlateSimple (SimplePlate) — build the Flutter IPA and upload it to App Store Connect.
+# Auth: App Store Connect API key (no Apple-ID 2FA). Set these env vars / GitHub secrets:
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (full contents of the .p8 file).
+#
+# Run locally on the Mac:   cd ios && fastlane release
+# Or via the GitHub Action (.github/workflows/ios-release.yml) on your self-hosted Mac runner.
+
+require "shellwords"
+
+APP_ID = "com.zibaentertainment.simplePlate"
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Build the Flutter IPA and upload to App Store Connect (uploads binary only — no auto-submit)"
+  lane :release do
+    api_key = app_store_connect_api_key(
+      key_id:      ENV.fetch("ASC_KEY_ID"),
+      issuer_id:   ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_KEY_P8"),
+      is_key_content_base64: false
+    )
+
+    # App root = two levels up from this file (ios/fastlane -> app root)
+    root = File.expand_path("../..", __dir__)
+
+    # Auto +1: next build number = highest already on App Store Connect + 1
+    next_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: APP_ID,
+      initial_build_number: 0
+    ) + 1
+    UI.message("Building PlateSimple build number #{next_build}")
+
+    sh("cd #{root.shellescape} && flutter pub get && " \
+       "flutter build ipa --release --build-number=#{next_build} --export-method app-store")
+
+    ipa = Dir[File.join(root, "build/ios/ipa/*.ipa")].max_by { |f| File.mtime(f) }
+    UI.user_error!("No .ipa produced — check Xcode signing/export on this Mac.") unless ipa
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa,
+      app_identifier: APP_ID,
+      skip_screenshots: true,        # screenshots/metadata are managed in the browser
+      skip_metadata: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false,      # just uploads the build; you submit when ready
+      force: true                    # no interactive HTML preview confirmation
+    )
+  end
+end
