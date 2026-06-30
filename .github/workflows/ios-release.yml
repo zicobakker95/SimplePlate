@@ -1,7 +1,7 @@
 name: iOS release
 
 # Builds the IPA on your always-on Mac mini (a self-hosted runner) and uploads it
-# to App Store Connect. Trigger by pushing a tag like v1.0.5, or run it manually
+# to App Store Connect. Trigger by pushing a tag like v1.0.0, or run it manually
 # from the Actions tab (workflow_dispatch).
 on:
   workflow_dispatch:
@@ -10,27 +10,26 @@ on:
 
 jobs:
   release:
-    runs-on: [ self-hosted, macOS ]   # your Mac mini runner
+    runs-on: [ self-hosted, macOS ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Let the launchd runner codesign non-interactively (errSecInternalComponent fix).
-      - name: Unlock keychain for code signing
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          PW="$(printf '%s' "$KEYCHAIN_PASSWORD" | tr -d '\r\n')"
-          KC="$HOME/Library/Keychains/login.keychain-db"
-          security unlock-keychain -p "$PW" "$KC"
-          security set-keychain-settings -t 3600 -l "$KC"
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PW" "$KC" >/dev/null
-          security list-keychains -d user -s "$KC" "/Library/Keychains/System.keychain"
-
       - name: Build IPA and upload to App Store Connect
         working-directory: ios
         env:
-          ASC_KEY_ID:    ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_KEY_P8:    ${{ secrets.ASC_KEY_P8 }}
-        run: fastlane release
+          ASC_KEY_ID:        ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID:     ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8:        ${{ secrets.ASC_KEY_P8 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Unlock the login keychain in THIS shell so codesign (a child process) shares the
+          # unlocked session — a separate step's unlock doesn't reliably carry over under the
+          # launchd runner (codesign would fail with errSecInternalComponent).
+          PW="$(printf '%s' "$KEYCHAIN_PASSWORD" | tr -d '\r\n')"
+          KC="$HOME/Library/Keychains/login.keychain-db"
+          security unlock-keychain -p "$PW" "$KC"
+          security set-keychain-settings -t 3600 "$KC"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PW" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" "/Library/Keychains/System.keychain"
+          fastlane release
