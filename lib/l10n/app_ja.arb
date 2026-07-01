@@ -252,6 +252,13 @@
   "removeFavourite": "お気に入りから削除",
   "addToFavourites": "お気に入りに追加",
   "servingSizeG": "分量（g）",
+  "unitGram": "グラム",
+  "unitTablespoon": "大さじ",
+  "unitTeaspoon": "小さじ",
+  "unitCup": "カップ",
+  "unitPiece": "個",
+  "approxGrams": "≈ {grams} g",
+  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
   "addToLabel": "追加先",
   "addToMeal": "{meal}に追加",
 

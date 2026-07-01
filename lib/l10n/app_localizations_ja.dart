@@ -747,6 +747,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get servingSizeG => '分量（g）';
 
   @override
+  String get unitGram => 'グラム';
+
+  @override
+  String get unitTablespoon => '大さじ';
+
+  @override
+  String get unitTeaspoon => '小さじ';
+
+  @override
+  String get unitCup => 'カップ';
+
+  @override
+  String get unitPiece => '個';
+
+  @override
+  String approxGrams(int grams) {
+    return '≈ $grams g';
+  }
+
+  @override
   String get addToLabel => '追加先';
 
   @override

@@ -60,10 +60,18 @@ class OpenFoodFactsService {
   /// Search food by text query. Returns up to [limit] results (possibly empty
   /// if there are genuinely no matches). Throws [OpenFoodFactsException] on
   /// network/timeout/server errors.
+  ///
+  /// Open Food Facts' raw search ranks by popularity, so a query like "banana"
+  /// surfaces branded banana-flavoured products (yoghurts, drinks) above the
+  /// plain fruit. We fetch a larger candidate pool and re-rank client-side so
+  /// exact / whole-word name matches and simple generic foods come first.
   Future<List<FoodItem>> search(String query, {int limit = 25}) async {
-    final encoded = Uri.encodeComponent(query);
+    final q = query.trim();
+    // Pull a bigger pool than we show so the re-rank has room to work.
+    final poolSize = (limit * 3).clamp(30, 100);
+    final encoded = Uri.encodeComponent(q);
     final uri = Uri.parse(
-        '$_searchBase/cgi/search.pl?search_terms=$encoded&search_simple=1&action=process&json=1&page_size=$limit&fields=code,product_name,brands,nutriments,image_front_url');
+        '$_searchBase/cgi/search.pl?search_terms=$encoded&search_simple=1&action=process&json=1&page_size=$poolSize&fields=code,product_name,brands,nutriments,image_front_url');
     try {
       final resp = await http
           .get(uri, headers: {'User-Agent': _userAgent})
@@ -74,12 +82,15 @@ class OpenFoodFactsService {
       }
       final body = jsonDecode(resp.body) as Map<String, dynamic>;
       final products = (body['products'] as List<dynamic>?) ?? const [];
-      return products
+      final items = products
           .cast<Map<String, dynamic>>()
           .map((p) => _parseProduct((p['code'] as String?) ?? '', p))
           // Only require a non-empty name; calorie data may be missing for many valid items
           .where((item) => item.name.isNotEmpty && item.name != 'Unknown')
           .toList();
+      // Stable sort (Dart List.sort is stable) → ties keep OFF's popularity order.
+      items.sort((a, b) => _relevance(b, q).compareTo(_relevance(a, q)));
+      return items.take(limit).toList();
     } on OpenFoodFactsException {
       rethrow;
     } on TimeoutException {
@@ -89,6 +100,39 @@ class OpenFoodFactsService {
     } catch (e) {
       throw OpenFoodFactsException('Could not reach Open Food Facts ($e).');
     }
+  }
+
+  /// Heuristic relevance score for re-ranking search results against [query].
+  /// Higher is better. Rewards exact / prefix / whole-word name matches and
+  /// simple generic foods (few words, no brand); a plain "Banana" beats
+  /// "Banana Flavoured Yoghurt Drink".
+  int _relevance(FoodItem item, String query) {
+    final q = query.toLowerCase().trim();
+    if (q.isEmpty) return 0;
+    final name = item.name.toLowerCase().trim();
+    final words = name.split(RegExp(r'[^\p{L}\p{N}]+', unicode: true))
+        .where((w) => w.isNotEmpty)
+        .toList();
+
+    var score = 0;
+    if (name == q) {
+      score += 1000; // exact product name
+    } else if (name.startsWith('$q ') || name.startsWith('$q,')) {
+      score += 600; // name begins with the query
+    } else if (words.contains(q)) {
+      score += 350; // query is a whole word in the name
+    } else if (name.contains(q)) {
+      score += 100; // query appears somewhere (e.g. inside another word)
+    }
+
+    // Prefer simple, generic names — fewer words usually means the raw food.
+    score -= (words.length - 1).clamp(0, 12) * 8;
+    // Generic foods often have no brand.
+    if (item.brand.isEmpty) score += 25;
+    // Prefer items that actually carry calorie data (usable when logged).
+    if (item.caloriesPer100 > 0) score += 30;
+
+    return score;
   }
 
   FoodItem _parseProduct(String id, Map<String, dynamic> p) {

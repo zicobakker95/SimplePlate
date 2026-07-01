@@ -252,6 +252,13 @@
   "removeFavourite": "Retirer des favoris",
   "addToFavourites": "Ajouter aux favoris",
   "servingSizeG": "Taille de portion (g)",
+  "unitGram": "Gramme",
+  "unitTablespoon": "Cuillère à soupe",
+  "unitTeaspoon": "Cuillère à café",
+  "unitCup": "Tasse",
+  "unitPiece": "Pièce",
+  "approxGrams": "≈ {grams} g",
+  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
   "addToLabel": "Ajouter à",
   "addToMeal": "Ajouter à {meal}",
 

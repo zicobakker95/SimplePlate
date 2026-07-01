@@ -252,6 +252,13 @@
   "removeFavourite": "Favoriet verwijderen",
   "addToFavourites": "Aan favorieten toevoegen",
   "servingSizeG": "Portiegrootte (g)",
+  "unitGram": "Gram",
+  "unitTablespoon": "Eetlepel",
+  "unitTeaspoon": "Theelepel",
+  "unitCup": "Kopje",
+  "unitPiece": "Stuk",
+  "approxGrams": "≈ {grams} g",
+  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
   "addToLabel": "Toevoegen aan",
   "addToMeal": "Toevoegen aan {meal}",
 

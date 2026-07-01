@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
+import '../../models/serving_unit.dart';
 import '../../services/ad_service.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
@@ -23,13 +24,30 @@ class FoodDetailScreen extends StatefulWidget {
 
 class _FoodDetailScreenState extends State<FoodDetailScreen> {
   late MealType _meal = widget.defaultMeal;
-  late double _grams = 100;
-  final _gramsCtrl = TextEditingController(text: '100');
+  ServingUnit _unit = ServingUnit.grams;
+  final _qtyCtrl = TextEditingController(text: '100');
+
+  /// Serving amount resolved to grams (macros always compute from grams).
+  double get _grams {
+    final qty = double.tryParse(_qtyCtrl.text.replaceAll(',', '.')) ?? 0;
+    return qty * _unit.gramsPerUnit;
+  }
 
   @override
   void dispose() {
-    _gramsCtrl.dispose();
+    _qtyCtrl.dispose();
     super.dispose();
+  }
+
+  void _onUnitChanged(ServingUnit? u) {
+    if (u == null || u == _unit) return;
+    setState(() {
+      _unit = u;
+      // Reset to a sensible default for the new unit (100 g, or 1 of anything else).
+      _qtyCtrl.text = u.defaultQuantity == u.defaultQuantity.roundToDouble()
+          ? u.defaultQuantity.round().toString()
+          : u.defaultQuantity.toString();
+    });
   }
 
   double get _calories => widget.item.caloriesPer100 * _grams / 100;
@@ -80,22 +98,50 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     ?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 24),
 
-          // Serving size
-          Text(l10n.servingSizeG,
+          // Serving size — quantity + unit (grams, tablespoon, cup, …).
+          Text(l10n.servingSizeLabel,
               style: tt.labelLarge
                   ?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 8),
-          TextField(
-            controller: _gramsCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(suffixText: 'g'),
-            onChanged: (v) {
-              final parsed = double.tryParse(v);
-              if (parsed != null && parsed > 0) {
-                setState(() => _grams = parsed);
-              }
-            },
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  controller: _qtyCtrl,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    suffixText: _unit == ServingUnit.grams ? 'g' : null,
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 3,
+                child: DropdownButtonFormField<ServingUnit>(
+                  value: _unit,
+                  isExpanded: true,
+                  decoration: const InputDecoration(),
+                  onChanged: _onUnitChanged,
+                  items: ServingUnit.values
+                      .map((u) => DropdownMenuItem(
+                            value: u,
+                            child: Text(u.localizedLabel(l10n),
+                                overflow: TextOverflow.ellipsis),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ],
           ),
+          if (_unit.isApproximate) ...[
+            const SizedBox(height: 6),
+            Text(l10n.approxGrams(_grams.round()),
+                style: tt.bodySmall?.copyWith(color: AppColors.textMuted)),
+          ],
           const SizedBox(height: 24),
 
           // Macros card

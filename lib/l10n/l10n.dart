@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../models/food_entry.dart';
+import '../models/serving_unit.dart';
 import '../models/user_profile.dart';
 import 'app_localizations.dart';
 
@@ -17,6 +18,16 @@ extension MealTypeL10n on MealType {
         MealType.lunch => l.mealLunch,
         MealType.dinner => l.mealDinner,
         MealType.snack => l.mealSnack,
+      };
+}
+
+extension ServingUnitL10n on ServingUnit {
+  String localizedLabel(AppLocalizations l) => switch (this) {
+        ServingUnit.grams => l.unitGram,
+        ServingUnit.tablespoon => l.unitTablespoon,
+        ServingUnit.teaspoon => l.unitTeaspoon,
+        ServingUnit.cup => l.unitCup,
+        ServingUnit.piece => l.unitPiece,
       };
 }
 

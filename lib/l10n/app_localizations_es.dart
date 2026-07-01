@@ -771,6 +771,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get servingSizeG => 'Tamaño de la ración (g)';
 
   @override
+  String get unitGram => 'Gramo';
+
+  @override
+  String get unitTablespoon => 'Cucharada';
+
+  @override
+  String get unitTeaspoon => 'Cucharadita';
+
+  @override
+  String get unitCup => 'Taza';
+
+  @override
+  String get unitPiece => 'Pieza';
+
+  @override
+  String approxGrams(int grams) {
+    return '≈ $grams g';
+  }
+
+  @override
   String get addToLabel => 'Añadir a';
 
   @override

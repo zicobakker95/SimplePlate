@@ -252,6 +252,13 @@
   "removeFavourite": "Favorit entfernen",
   "addToFavourites": "Zu Favoriten hinzufügen",
   "servingSizeG": "Portionsgröße (g)",
+  "unitGram": "Gramm",
+  "unitTablespoon": "Esslöffel",
+  "unitTeaspoon": "Teelöffel",
+  "unitCup": "Tasse",
+  "unitPiece": "Stück",
+  "approxGrams": "≈ {grams} g",
+  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
   "addToLabel": "Hinzufügen zu",
   "addToMeal": "Zu {meal} hinzufügen",
 

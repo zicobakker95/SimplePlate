@@ -1472,6 +1472,42 @@ abstract class AppLocalizations {
   /// **'Serving size (g)'**
   String get servingSizeG;
 
+  /// No description provided for @unitGram.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram'**
+  String get unitGram;
+
+  /// No description provided for @unitTablespoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Tablespoon'**
+  String get unitTablespoon;
+
+  /// No description provided for @unitTeaspoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Teaspoon'**
+  String get unitTeaspoon;
+
+  /// No description provided for @unitCup.
+  ///
+  /// In en, this message translates to:
+  /// **'Cup'**
+  String get unitCup;
+
+  /// No description provided for @unitPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece'**
+  String get unitPiece;
+
+  /// No description provided for @approxGrams.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {grams} g'**
+  String approxGrams(int grams);
+
   /// No description provided for @addToLabel.
   ///
   /// In en, this message translates to:
