@@ -9,9 +9,21 @@ class SubscriptionService extends ChangeNotifier {
   SubscriptionService._();
   static final instance = SubscriptionService._();
 
-  // ── Product IDs (must match exactly in both stores) ────────────────────────
-  static const kMonthlyId = 'simple_plate.premium_monthly';
-  static const kYearlyId  = 'simple_plate.premium_yearly';
+  // ── Product IDs (must match exactly in each store) ─────────────────────────
+  // iOS products are registered in App Store Connect under the fully-qualified
+  // com.zibaentertainment.simple_plate.* namespace; Android (Play Console) keeps
+  // the short ids. Resolve per platform so queryProductDetails matches.
+  static const _kMonthlyAndroid = 'simple_plate.premium_monthly';
+  static const _kYearlyAndroid = 'simple_plate.premium_yearly';
+  static const _kMonthlyIOS = 'com.zibaentertainment.simple_plate.premium_monthly';
+  static const _kYearlyIOS = 'com.zibaentertainment.simple_plate.premium_yearly';
+
+  static final kMonthlyId = defaultTargetPlatform == TargetPlatform.iOS
+      ? _kMonthlyIOS
+      : _kMonthlyAndroid;
+  static final kYearlyId = defaultTargetPlatform == TargetPlatform.iOS
+      ? _kYearlyIOS
+      : _kYearlyAndroid;
 
   static const _kCacheKey = 'sp.premium.active';
 
@@ -42,7 +54,7 @@ class SubscriptionService extends ChangeNotifier {
   /// the plan instead of being a separate option).
   List<PlanOption> get planOptions {
     final result = <PlanOption>[];
-    for (final id in const [kMonthlyId, kYearlyId]) {
+    for (final id in [kMonthlyId, kYearlyId]) {
       final offers = _products.where((p) => p.id == id).toList();
       if (offers.isEmpty) continue;
       // The recurring-price offer (rawPrice > 0) drives the displayed price.
