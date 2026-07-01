@@ -252,6 +252,13 @@
   "removeFavourite": "Quitar de favoritos",
   "addToFavourites": "Añadir a favoritos",
   "servingSizeG": "Tamaño de la ración (g)",
+  "unitGram": "Gramo",
+  "unitTablespoon": "Cucharada",
+  "unitTeaspoon": "Cucharadita",
+  "unitCup": "Taza",
+  "unitPiece": "Pieza",
+  "approxGrams": "≈ {grams} g",
+  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
   "addToLabel": "Añadir a",
   "addToMeal": "Añadir a {meal}",
 

@@ -207,17 +207,18 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                         onChanged: (v) => setState(() {}),
                       ),
                     ),
-                    if (!widget.pickMode) ...[
-                      const SizedBox(width: 8),
-                      IconButton.filled(
-                        style: IconButton.styleFrom(
-                            backgroundColor: AppColors.surfaceAlt),
-                        icon: const Icon(Icons.qr_code_scanner_rounded,
-                            color: AppColors.accent),
-                        tooltip: l10n.scanTooltip,
-                        onPressed: _scanBarcode,
-                      ),
-                    ],
+                    // Scanning is available everywhere, including when picking a
+                    // recipe ingredient (pickMode) — a scanned item is returned
+                    // to the recipe builder just like a searched one.
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      style: IconButton.styleFrom(
+                          backgroundColor: AppColors.surfaceAlt),
+                      icon: const Icon(Icons.qr_code_scanner_rounded,
+                          color: AppColors.accent),
+                      tooltip: l10n.scanTooltip,
+                      onPressed: _scanBarcode,
+                    ),
                   ],
                 ),
               ),
@@ -271,21 +272,21 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                 for (final item in store.customFoods)
                   _FoodTile(item: item, onTap: _handleItem),
               ],
-              if (!widget.pickMode) ...[
-                if (store.favourites.isNotEmpty) ...[
-                  _sectionHeader(l10n.sectionFavourites),
-                  for (final item in store.favourites)
-                    _FoodTile(item: item, onTap: _handleItem),
-                ],
-                if (store.recents.isNotEmpty) ...[
-                  _sectionHeader(l10n.sectionRecent),
-                  for (final item in store.recents)
-                    _FoodTile(item: item, onTap: _handleItem),
-                ],
+              // Favourites & recents are shown in both modes — when building a
+              // recipe you can pull ingredients straight from your saved foods.
+              if (store.favourites.isNotEmpty) ...[
+                _sectionHeader(l10n.sectionFavourites),
+                for (final item in store.favourites)
+                  _FoodTile(item: item, onTap: _handleItem),
+              ],
+              if (store.recents.isNotEmpty) ...[
+                _sectionHeader(l10n.sectionRecent),
+                for (final item in store.recents)
+                  _FoodTile(item: item, onTap: _handleItem),
               ],
               if (store.customFoods.isEmpty &&
-                  (widget.pickMode ||
-                      (store.favourites.isEmpty && store.recents.isEmpty)))
+                  store.favourites.isEmpty &&
+                  store.recents.isEmpty)
                 Padding(
                   padding: const EdgeInsets.all(48),
                   child: Text(l10n.noFoodsYet,

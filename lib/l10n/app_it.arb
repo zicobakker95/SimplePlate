@@ -252,6 +252,13 @@
   "removeFavourite": "Rimuovi dai preferiti",
   "addToFavourites": "Aggiungi ai preferiti",
   "servingSizeG": "Dimensione porzione (g)",
+  "unitGram": "Grammo",
+  "unitTablespoon": "Cucchiaio",
+  "unitTeaspoon": "Cucchiaino",
+  "unitCup": "Tazza",
+  "unitPiece": "Pezzo",
+  "approxGrams": "≈ {grams} g",
+  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
   "addToLabel": "Aggiungi a",
   "addToMeal": "Aggiungi a {meal}",
 

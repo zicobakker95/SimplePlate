@@ -767,6 +767,26 @@ class AppLocalizationsNl extends AppLocalizations {
   String get servingSizeG => 'Portiegrootte (g)';
 
   @override
+  String get unitGram => 'Gram';
+
+  @override
+  String get unitTablespoon => 'Eetlepel';
+
+  @override
+  String get unitTeaspoon => 'Theelepel';
+
+  @override
+  String get unitCup => 'Kopje';
+
+  @override
+  String get unitPiece => 'Stuk';
+
+  @override
+  String approxGrams(int grams) {
+    return '≈ $grams g';
+  }
+
+  @override
   String get addToLabel => 'Toevoegen aan';
 
   @override
