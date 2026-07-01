@@ -1,0 +1,63 @@
+<en-US>
+• Your food log is now front and centre, with Weight, Activity and Health sync grouped below it.
+• The Health sync “Open Settings” button now works reliably.
+• Fixed the spacing above the first meal on the empty “no food logged yet” state.
+• Tidied the subscription screen so the annual plan and its free trial are one clear choice.
+• Bug fixes.
+</en-US>
+
+<de-DE>
+• Dein Ernährungsprotokoll steht jetzt im Mittelpunkt, mit Gewicht, Aktivität und Health-Sync darunter.
+• Der Button „Einstellungen öffnen“ beim Health-Sync funktioniert jetzt zuverlässig.
+• Abstand über der ersten Mahlzeit im leeren Zustand korrigiert.
+• Abo-Bildschirm aufgeräumt: Jahresabo und Gratis-Test sind nun eine klare Auswahl.
+• Fehlerbehebungen.
+</de-DE>
+
+<es-ES>
+• Tu registro de comidas ahora es lo primero, con Peso, Actividad y sincronización de Salud debajo.
+• El botón «Abrir ajustes» de la sincronización de Salud ahora funciona bien.
+• Se corrigió el espaciado sobre la primera comida cuando aún no hay registros.
+• Se ordenó la pantalla de suscripción: el plan anual y su prueba gratis son una sola opción clara.
+• Correcciones de errores.
+</es-ES>
+
+<fr-FR>
+• Ton journal alimentaire est désormais mis en avant, avec Poids, Activité et synchro Santé en dessous.
+• Le bouton « Ouvrir les réglages » de la synchro Santé fonctionne maintenant correctement.
+• Correction de l’espacement au-dessus du premier repas quand rien n’est encore enregistré.
+• Écran d’abonnement clarifié : l’offre annuelle et son essai gratuit ne font plus qu’un.
+• Corrections de bugs.
+</fr-FR>
+
+<it-IT>
+• Il tuo diario alimentare è ora in primo piano, con Peso, Attività e sincronizzazione Salute sotto.
+• Il pulsante “Apri Impostazioni” della sincronizzazione Salute ora funziona bene.
+• Corretta la spaziatura sopra il primo pasto nello stato vuoto.
+• Schermata abbonamenti riordinata: il piano annuale e la sua prova gratuita sono un’unica scelta chiara.
+• Correzioni di bug.
+</it-IT>
+
+<ja-JP>
+• 食事の記録が画面の中心になり、体重・アクティビティ・ヘルス同期はその下にまとめました。
+• ヘルス同期の「設定を開く」ボタンが正しく動作するようになりました。
+• 記録がないときの最初の食事の上の余白を修正。
+• サブスク画面を整理し、年額プランと無料トライアルを1つの分かりやすい選択にしました。
+• 不具合の修正。
+</ja-JP>
+
+<nl-NL>
+• Je voedingslogboek staat nu centraal, met Gewicht, Activiteit en Health-synchronisatie eronder.
+• De knop “Instellingen openen” bij Health-synchronisatie werkt nu betrouwbaar.
+• Ruimte boven de eerste maaltijd in de lege staat gecorrigeerd.
+• Abonnementsscherm opgeschoond: het jaarabonnement en de gratis proefperiode zijn nu één duidelijke keuze.
+• Bugfixes.
+</nl-NL>
+
+<pt-BR>
+• Seu registro de refeições agora fica em destaque, com Peso, Atividade e sincronização de Saúde abaixo.
+• O botão “Abrir configurações” da sincronização de Saúde agora funciona corretamente.
+• Corrigido o espaçamento acima da primeira refeição no estado vazio.
+• Tela de assinatura organizada: o plano anual e seu teste grátis agora são uma única opção clara.
+• Correções de bugs.
+</pt-BR>

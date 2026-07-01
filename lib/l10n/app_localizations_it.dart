@@ -940,6 +940,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get billedMonthly => 'Addebitato mensilmente';
 
   @override
+  String get freeTrial => 'Prova gratuita';
+
+  @override
   String get legendUnder => 'Sotto';
 
   @override

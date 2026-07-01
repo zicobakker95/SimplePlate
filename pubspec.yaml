@@ -2,7 +2,7 @@ name: simple_plate
 description: "PlateSimple — fast, clean calorie and macro tracker by ZiBa Entertainment."
 publish_to: 'none'
 
-version: 1.0.6+20
+version: 1.0.6+21
 
 environment:
   sdk: ^3.10.0
@@ -67,6 +67,7 @@ dependencies:
   drift: ^2.21.0
   drift_flutter: ^0.2.2
   sqlite3_flutter_libs: ^0.5.0
+  app_settings: 5.1.1
 
 dev_dependencies:
   flutter_test:

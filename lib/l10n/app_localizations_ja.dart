@@ -910,6 +910,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get billedMonthly => '毎月の請求';
 
   @override
+  String get freeTrial => '無料トライアル';
+
+  @override
   String get legendUnder => '不足';
 
   @override

@@ -304,6 +304,7 @@
   "billedYearly": "年1回の請求",
   "billedMonthly": "毎月の請求",
 
+  "freeTrial": "無料トライアル",
   "legendUnder": "不足",
   "legendOnTarget": "目標どおり",
   "legendOver": "超過",

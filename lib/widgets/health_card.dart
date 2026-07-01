@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/l10n.dart';
 import '../services/food_store.dart';
@@ -150,8 +150,7 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                 OutlinedButton.icon(
                   icon: const Icon(Icons.settings_rounded, size: 14),
                   label: Text(l10n.openSettings),
-                  onPressed: () =>
-                      launchUrl(Uri.parse('app-settings:')),
+                  onPressed: () => AppSettings.openAppSettings(),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.orange,
                     side: const BorderSide(color: Colors.orange),

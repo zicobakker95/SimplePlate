@@ -937,6 +937,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get billedMonthly => 'Maandelijks in rekening gebracht';
 
   @override
+  String get freeTrial => 'Gratis proefperiode';
+
+  @override
   String get legendUnder => 'Onder';
 
   @override

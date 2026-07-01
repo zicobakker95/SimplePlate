@@ -140,6 +140,23 @@ class TodayScreen extends StatelessWidget {
             const SizedBox(height: 12),
           ],
 
+          // ── Food tracking (most important — kept directly under the ring) ──
+          if (today.isEmpty) ...[
+            _EmptyTodayState(
+                onLogFood: () => _addFood(context, MealType.snack)),
+            const SizedBox(height: 12),
+          ],
+
+          // Meal sections (each MealSection already adds 12px bottom spacing)
+          for (final meal in MealType.values)
+            MealSection(
+              meal: meal,
+              entries: today.where((e) => e.meal == meal).toList(),
+              onAdd: () => _addFood(context, meal),
+              onDelete: (id) => store.deleteEntry(id),
+            ),
+
+          // ── Secondary trackers (below the food log) ──
           // Weight card
           const WeightCard(),
           const SizedBox(height: 12),
@@ -150,20 +167,6 @@ class TodayScreen extends StatelessWidget {
 
           // Health sync card
           const HealthSyncCard(),
-          const SizedBox(height: 12),
-
-          if (today.isEmpty)
-            _EmptyTodayState(
-                onLogFood: () => _addFood(context, MealType.snack)),
-
-          // Meal sections
-          for (final meal in MealType.values)
-            MealSection(
-              meal: meal,
-              entries: today.where((e) => e.meal == meal).toList(),
-              onAdd: () => _addFood(context, meal),
-              onDelete: (id) => store.deleteEntry(id),
-            ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/l10n.dart';
@@ -164,14 +163,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         style: tt.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 12),
-                    for (final product in svc.products)
+                    for (final plan in svc.planOptions)
                       _PlanCard(
-                        product: product,
-                        isSelected: _selectedId == product.id,
+                        plan: plan,
+                        isSelected: _selectedId == plan.id,
                         isBestValue:
-                            product.id == SubscriptionService.kYearlyId,
+                            plan.id == SubscriptionService.kYearlyId,
                         onTap: () =>
-                            setState(() => _selectedId = product.id),
+                            setState(() => _selectedId = plan.id),
                       ),
                   ],
 
@@ -273,9 +272,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Future<void> _purchase() async {
-    final product = SubscriptionService.instance.products
-        .firstWhere((p) => p.id == _selectedId);
-    await SubscriptionService.instance.purchase(product);
+    final svc = SubscriptionService.instance;
+    final plan = svc.planOptions.firstWhere((p) => p.id == _selectedId);
+    await svc.purchase(plan.purchaseTarget);
   }
 
   Future<void> _restore() async {
@@ -336,19 +335,19 @@ class _Feature extends StatelessWidget {
 
 class _PlanCard extends StatelessWidget {
   const _PlanCard({
-    required this.product,
+    required this.plan,
     required this.isSelected,
     required this.isBestValue,
     required this.onTap,
   });
-  final ProductDetails product;
+  final PlanOption plan;
   final bool isSelected, isBestValue;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final isYearly = product.id == SubscriptionService.kYearlyId;
+    final isYearly = plan.id == SubscriptionService.kYearlyId;
     final borderColor =
         isSelected ? AppColors.primary : AppColors.border;
     final bgColor = isSelected
@@ -420,6 +419,16 @@ class _PlanCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 3),
+                  if (plan.hasFreeTrial) ...[
+                    Text(
+                      l10n.freeTrial,
+                      style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 2),
+                  ],
                   Text(
                     isYearly ? l10n.billedYearly : l10n.billedMonthly,
                     style: const TextStyle(
@@ -430,7 +439,7 @@ class _PlanCard extends StatelessWidget {
             ),
             // Price
             Text(
-              product.price,
+              plan.price,
               style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 17,

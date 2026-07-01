@@ -32,6 +32,40 @@ class SubscriptionService extends ChangeNotifier {
   ProductDetails? get monthly => _byId(kMonthlyId);
   ProductDetails? get yearly => _byId(kYearlyId);
 
+  /// One entry per subscription tier for the paywall.
+  ///
+  /// On Google Play a subscription can expose several offers (e.g. a base
+  /// plan plus a free-trial offer) as separate [ProductDetails] that share
+  /// one product id — which would otherwise render as duplicate cards. This
+  /// collapses each id into a single tier that shows the recurring price but
+  /// purchases the free-trial offer when one exists (so the trial belongs to
+  /// the plan instead of being a separate option).
+  List<PlanOption> get planOptions {
+    final result = <PlanOption>[];
+    for (final id in const [kMonthlyId, kYearlyId]) {
+      final offers = _products.where((p) => p.id == id).toList();
+      if (offers.isEmpty) continue;
+      // The recurring-price offer (rawPrice > 0) drives the displayed price.
+      final display =
+          offers.firstWhere((p) => p.rawPrice > 0, orElse: () => offers.first);
+      // A free-trial offer starts with a zero-price pricing phase.
+      ProductDetails? trial;
+      for (final o in offers) {
+        if (o.rawPrice == 0) {
+          trial = o;
+          break;
+        }
+      }
+      result.add(PlanOption(
+        id: id,
+        display: display,
+        purchaseTarget: trial ?? display,
+        hasFreeTrial: trial != null,
+      ));
+    }
+    return result;
+  }
+
   ProductDetails? _byId(String id) {
     try {
       return _products.firstWhere((p) => p.id == id);
@@ -125,4 +159,30 @@ class SubscriptionService extends ChangeNotifier {
     _purchaseSub?.cancel();
     super.dispose();
   }
+}
+
+/// A single subscription tier shown on the paywall (see
+/// [SubscriptionService.planOptions]).
+class PlanOption {
+  PlanOption({
+    required this.id,
+    required this.display,
+    required this.purchaseTarget,
+    required this.hasFreeTrial,
+  });
+
+  /// The base product id (monthly / yearly).
+  final String id;
+
+  /// Offer used for the displayed recurring price and labels.
+  final ProductDetails display;
+
+  /// Offer actually purchased — the free-trial offer when one exists, so its
+  /// offer token is applied and the trial is granted.
+  final ProductDetails purchaseTarget;
+
+  /// Whether [purchaseTarget] includes a free trial.
+  final bool hasFreeTrial;
+
+  String get price => display.price;
 }

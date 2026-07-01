@@ -329,6 +329,7 @@
   "billedYearly": "Billed once per year",
   "billedMonthly": "Billed monthly",
 
+  "freeTrial": "Free trial",
   "legendUnder": "Under",
   "legendOnTarget": "On target",
   "legendOver": "Over",

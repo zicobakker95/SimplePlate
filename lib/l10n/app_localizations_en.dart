@@ -934,6 +934,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get billedMonthly => 'Billed monthly';
 
   @override
+  String get freeTrial => 'Free trial';
+
+  @override
   String get legendUnder => 'Under';
 
   @override

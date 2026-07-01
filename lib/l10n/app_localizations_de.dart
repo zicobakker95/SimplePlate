@@ -938,6 +938,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get billedMonthly => 'Monatlich abgerechnet';
 
   @override
+  String get freeTrial => 'Kostenlose Testphase';
+
+  @override
   String get legendUnder => 'Unter';
 
   @override

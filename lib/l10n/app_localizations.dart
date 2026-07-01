@@ -1754,6 +1754,12 @@ abstract class AppLocalizations {
   /// **'Billed monthly'**
   String get billedMonthly;
 
+  /// No description provided for @freeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Free trial'**
+  String get freeTrial;
+
   /// No description provided for @legendUnder.
   ///
   /// In en, this message translates to:
