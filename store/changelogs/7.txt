@@ -1,0 +1,31 @@
+<en-US>
+Simple Plate now speaks 8 languages! Sync your nutrition with Apple Health, add the home-screen widget, create your own recipes, export your log to CSV, and share your daily summary.
+</en-US>
+
+<de-DE>
+Simple Plate spricht jetzt 8 Sprachen! Synchronisiere deine Ernährung mit Apple Health, füge das Startbildschirm-Widget hinzu, erstelle eigene Rezepte, exportiere dein Protokoll als CSV und teile deine Tageszusammenfassung.
+</de-DE>
+
+<es-ES>
+¡Simple Plate ahora habla 8 idiomas! Sincroniza tu nutrición con Apple Health, añade el widget a la pantalla de inicio, crea tus propias recetas, exporta tu registro a CSV y comparte tu resumen diario.
+</es-ES>
+
+<fr-FR>
+Simple Plate parle désormais 8 langues ! Synchronise ta nutrition avec Apple Santé, ajoute le widget à l'écran d'accueil, crée tes propres recettes, exporte ton journal en CSV et partage ton résumé quotidien.
+</fr-FR>
+
+<it-IT>
+Simple Plate ora parla 8 lingue! Sincronizza la tua nutrizione con Apple Salute, aggiungi il widget alla schermata Home, crea le tue ricette, esporta il diario in CSV e condividi il riepilogo giornaliero.
+</it-IT>
+
+<ja-JP>
+Simple Plate が8言語に対応しました！栄養データを Apple ヘルスケアと同期し、ホーム画面ウィジェットを追加、オリジナルのレシピを作成、記録をCSVで書き出し、1日のまとめを共有できます。
+</ja-JP>
+
+<nl-NL>
+Simple Plate spreekt nu 8 talen! Synchroniseer je voeding met Apple Health, voeg de widget op je beginscherm toe, maak je eigen recepten, exporteer je logboek naar CSV en deel je dagoverzicht.
+</nl-NL>
+
+<pt-BR>
+O Simple Plate agora fala 8 idiomas! Sincronize sua nutrição com o Apple Saúde, adicione o widget à tela de início, crie suas próprias receitas, exporte seu registro em CSV e compartilhe seu resumo diário.
+</pt-BR>
