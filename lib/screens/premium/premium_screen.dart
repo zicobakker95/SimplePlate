@@ -234,7 +234,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         GestureDetector(
                           onTap: () => launchUrl(
                               Uri.parse(
-                                  'https://zibaentertainment.com/privacy/'),
+                                  'https://zibaentertainment.com/privacy-policy-platesimple.html'),
                               mode: LaunchMode.externalApplication),
                           child: Text(l10n.privacyPolicy,
                               style: tt.bodySmall
@@ -243,7 +243,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         GestureDetector(
                           onTap: () => launchUrl(
                               Uri.parse(
-                                  'https://zibaentertainment.com/terms/'),
+                                  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
                               mode: LaunchMode.externalApplication),
                           child: Text(l10n.termsOfUse,
                               style: tt.bodySmall
