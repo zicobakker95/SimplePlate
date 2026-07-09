@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../cross_promo.dart';
 import '../../l10n/l10n.dart';
 import '../../models/nutrition_goals.dart';
 import '../../screens/goals/tdee_calculator_sheet.dart';
@@ -605,6 +606,20 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ),
               ],
             ),
+          ),
+          // ── More from ZiBa ─────────────────────────────────────────────────
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          MoreFromZiba(
+            selfId: 'platesimple',
+            group: ZibaGroup.wellness,
+            title: 'More from ZiBa',
+            textColor: Theme.of(context).colorScheme.onSurface,
+            mutedColor:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            cardColor: AppColors.surfaceAlt,
+            borderColor: AppColors.border,
           ),
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
