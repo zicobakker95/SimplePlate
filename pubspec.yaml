@@ -2,7 +2,7 @@ name: simple_plate
 description: "PlateSimple — fast, clean calorie and macro tracker by ZiBa Entertainment."
 publish_to: 'none'
 
-version: 1.0.6+21
+version: 1.0.7+22
 
 environment:
   sdk: ^3.10.0
