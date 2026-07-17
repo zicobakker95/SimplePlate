@@ -1,0 +1,1 @@
+Health Connect: streamlined permissions — the app now only reads calories burned for your daily energy balance. Steps are no longer requested on Android.

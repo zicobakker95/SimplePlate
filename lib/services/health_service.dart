@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:health/health.dart';
 
-/// Wraps the `health` package for reading steps + calories burned
-/// and writing food nutrition to Apple Health / Google Health Connect.
+/// Wraps the `health` package for reading calories burned (+ steps on
+/// iOS) and writing food nutrition to Apple Health / Health Connect.
+///
+/// Android reads NO step data: Google Play's Health Connect review
+/// flagged Steps as beyond the minimum scope for a calorie counter,
+/// so the steps stat is an Apple Health nicety only.
 class HealthService {
   HealthService._();
   static final instance = HealthService._();
@@ -10,7 +16,7 @@ class HealthService {
   final _health = Health();
 
   static final _readTypes = [
-    HealthDataType.STEPS,
+    if (Platform.isIOS) HealthDataType.STEPS,
     HealthDataType.ACTIVE_ENERGY_BURNED,
     HealthDataType.TOTAL_CALORIES_BURNED,
   ];
@@ -75,9 +81,9 @@ class HealthService {
     }
   }
 
-  /// Returns step count for today.
+  /// Returns step count for today (iOS only — no Android permission).
   Future<int> fetchStepsToday() async {
-    if (!_authorised) return 0;
+    if (!_authorised || !Platform.isIOS) return 0;
     try {
       final now = DateTime.now();
       final start = DateTime(now.year, now.month, now.day);

@@ -183,9 +183,13 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _Stat(l10n.statSteps, '$_steps',
-                      Icons.directions_walk_rounded, Colors.blueAccent),
-                  const SizedBox(width: 16),
+                  // steps come from Apple Health only — Android reads
+                  // just calories (Play minimum-scope policy)
+                  if (Platform.isIOS) ...[
+                    _Stat(l10n.statSteps, '$_steps',
+                        Icons.directions_walk_rounded, Colors.blueAccent),
+                    const SizedBox(width: 16),
+                  ],
                   _Stat(l10n.statBurned, '${_burnedFromHealth.round()} kcal',
                       Icons.local_fire_department_rounded, Colors.orange),
                 ],
