@@ -51,4 +51,23 @@ platform :ios do
       force: true                    # no interactive HTML preview confirmation
     )
   end
+  desc "Push file-managed App Store metadata only (no binary, no screenshots, no auto-submit)"
+  lane :update_metadata do
+    api_key = app_store_connect_api_key(
+      key_id:      ENV.fetch("ASC_KEY_ID"),
+      issuer_id:   ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_KEY_P8"),
+      is_key_content_base64: false
+    )
+    upload_to_app_store(
+      api_key: api_key,
+      app_identifier: APP_ID,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false,
+      force: true
+    )
+  end
+
 end
