@@ -266,6 +266,7 @@
 
   "historyTitle": "Historial",
   "noLoggedDays": "Aún no hay días registrados.",
+  "noEntriesThatDay": "No se registraron alimentos este día.",
   "today": "Hoy",
   "itemsCount": "{count, plural, =1{1 elemento} other{{count} elementos}}",
   "weeklyInsights": "Análisis semanales",

@@ -266,6 +266,7 @@
 
   "historyTitle": "履歴",
   "noLoggedDays": "まだ記録した日がありません。",
+  "noEntriesThatDay": "この日に記録された食品はありません。",
   "today": "今日",
   "itemsCount": "{count, plural, other{{count}件}}",
   "weeklyInsights": "週間インサイト",

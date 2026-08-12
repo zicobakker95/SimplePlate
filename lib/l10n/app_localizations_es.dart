@@ -808,6 +808,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noLoggedDays => 'Aún no hay días registrados.';
 
   @override
+  String get noEntriesThatDay => 'No se registraron alimentos este día.';
+
+  @override
   String get today => 'Hoy';
 
   @override

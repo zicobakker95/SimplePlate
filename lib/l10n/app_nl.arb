@@ -266,6 +266,7 @@
 
   "historyTitle": "Geschiedenis",
   "noLoggedDays": "Nog geen gelogde dagen.",
+  "noEntriesThatDay": "Geen voeding vastgelegd op deze dag.",
   "today": "Vandaag",
   "itemsCount": "{count, plural, =1{1 item} other{{count} items}}",
   "weeklyInsights": "Wekelijkse inzichten",

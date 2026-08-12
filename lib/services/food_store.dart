@@ -161,7 +161,17 @@ class FoodStore extends ChangeNotifier {
     // Prompt for a review after 3+ day streak, at most once every 60 days.
     await _maybeRequestReview();
 
-    // Push updated totals to home screen widget.
+    _pushWidgetTotals();
+
+    notifyListeners();
+  }
+
+  /// Mirrors today's totals onto the home screen widget.
+  ///
+  /// Called after any mutation that can change today's numbers — logging,
+  /// editing a serving or deleting an entry — so the widget never shows a
+  /// stale total after the user corrects a past mistake.
+  void _pushWidgetTotals() {
     unawaited(WidgetService.instance.updateCalories(
       calories: todayCalories(),
       goalCalories: _goals.dailyCalories,
@@ -169,13 +179,12 @@ class FoodStore extends ChangeNotifier {
       carbs: todayCarbs(),
       fat: todayFat(),
     ));
-
-    notifyListeners();
   }
 
   Future<void> deleteEntry(String entryId) async {
     _allEntries = _allEntries.where((e) => e.id != entryId).toList();
     await _storage.saveEntries(_allEntries);
+    _pushWidgetTotals();
     notifyListeners();
   }
 
@@ -197,6 +206,7 @@ class FoodStore extends ChangeNotifier {
       );
     }).toList();
     await _storage.saveEntries(_allEntries);
+    _pushWidgetTotals();
     notifyListeners();
   }
 

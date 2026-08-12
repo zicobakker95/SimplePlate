@@ -266,6 +266,7 @@
 
   "historyTitle": "Historique",
   "noLoggedDays": "Aucun jour enregistré pour l'instant.",
+  "noEntriesThatDay": "Aucun aliment enregistré ce jour-là.",
   "today": "Aujourd'hui",
   "itemsCount": "{count, plural, =1{1 élément} other{{count} éléments}}",
   "weeklyInsights": "Analyses hebdomadaires",

@@ -83,5 +83,69 @@ void main() {
 
       expect(reloaded.todayEntries, hasLength(1));
     });
+
+    group('editing a previous day', () {
+      // Two entries logged three days ago — the case from the user request:
+      // spotting a wrong portion after the fact.
+      final past = DateTime.now().subtract(const Duration(days: 3));
+      FoodEntry entry(String id, double grams) => FoodEntry(
+            id: id,
+            foodItemId: 'apple',
+            foodName: 'Apple',
+            servingGrams: grams,
+            caloriesPer100: 52,
+            proteinPer100: 0.3,
+            carbsPer100: 14,
+            fatPer100: 0.2,
+            meal: MealType.lunch,
+            loggedAt: past,
+          );
+
+      Future<FoodStore> seeded() async {
+        final storage = await StorageService.init();
+        await storage.saveEntries([entry('a', 200), entry('b', 100)]);
+        return FoodStore(storage);
+      }
+
+      test('entriesForDay returns that day\'s entries', () async {
+        final store = await seeded();
+        expect(store.entriesForDay(past), hasLength(2));
+        expect(store.caloriesTotalsForDay(past), closeTo(156, 0.001));
+      });
+
+      test('updateEntryServing recomputes that day\'s totals', () async {
+        final store = await seeded();
+
+        await store.updateEntryServing('a', 50); // 200 g -> 50 g
+
+        final entries = store.entriesForDay(past);
+        expect(entries.firstWhere((e) => e.id == 'a').servingGrams, 50);
+        // 52*50/100 + 52*100/100 = 26 + 52
+        expect(store.caloriesTotalsForDay(past), closeTo(78, 0.001));
+      });
+
+      test('deleteEntry removes it and updates that day\'s totals', () async {
+        final store = await seeded();
+
+        await store.deleteEntry('a');
+
+        expect(store.entriesForDay(past), hasLength(1));
+        expect(store.caloriesTotalsForDay(past), closeTo(52, 0.001));
+      });
+
+      test('edits survive a reload and do not touch other days', () async {
+        final storage = await StorageService.init();
+        await storage.saveEntries([entry('a', 200), entry('b', 100)]);
+        final store = FoodStore(storage);
+        await store.logFood(_apple, 100, MealType.breakfast); // today
+
+        await store.deleteEntry('b');
+
+        final reloaded = FoodStore(storage);
+        expect(reloaded.entriesForDay(past), hasLength(1));
+        expect(reloaded.todayEntries, hasLength(1),
+            reason: 'today must be unaffected by editing a past day');
+      });
+    });
   });
 }

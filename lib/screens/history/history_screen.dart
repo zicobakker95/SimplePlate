@@ -12,6 +12,7 @@ import '../../screens/premium/premium_screen.dart';
 import '../../services/food_store.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/edit_entry_sheet.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -75,7 +76,7 @@ class HistoryScreen extends StatelessWidget {
                       return Card(
                         child: InkWell(
                           borderRadius: BorderRadius.circular(16),
-                          onTap: () => _showDaySheet(context, date, entries),
+                          onTap: () => showDaySheet(context, date),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(
@@ -141,41 +142,52 @@ class HistoryScreen extends StatelessWidget {
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  void _showDaySheet(
-      BuildContext context, DateTime date, List<FoodEntry> entries) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _DaySheet(date: date, entries: entries),
-    );
-  }
+}
+
+/// Opens the editable day sheet for [date].
+///
+/// The sheet reads its entries straight from [FoodStore], so edits and
+/// deletions made inside it refresh the list and the day totals immediately.
+void showDaySheet(BuildContext context, DateTime date) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppColors.surface,
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (_) => _DaySheet(date: date),
+  );
 }
 
 class _DaySheet extends StatelessWidget {
-  const _DaySheet({required this.date, required this.entries});
+  const _DaySheet({required this.date});
   final DateTime date;
-  final List<FoodEntry> entries;
 
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
+
+    // Watching the store keeps the list and the totals below in sync after an
+    // edit or a delete without the sheet having to be reopened.
+    final store = context.watch<FoodStore>();
+    final entries = store.entriesForDay(date);
+    final goals = store.goals;
+
     final cals = entries.fold<double>(0, (s, e) => s + e.calories);
     final protein = entries.fold<double>(0, (s, e) => s + e.protein);
     final carbs = entries.fold<double>(0, (s, e) => s + e.carbs);
     final fat = entries.fold<double>(0, (s, e) => s + e.fat);
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
+      initialChildSize: 0.7,
       minChildSize: 0.4,
-      maxChildSize: 0.92,
+      maxChildSize: 0.95,
       expand: false,
       builder: (_, ctrl) => ListView(
         controller: ctrl,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
           Center(
             child: Container(
@@ -188,9 +200,16 @@ class _DaySheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(DateFormat('EEEE, MMMM d, y', locale).format(date),
-              style:
-                  tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 12),
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(
+            '${l10n.itemsCount(entries.length)}  ·  '
+            '${cals.round()} / ${goals.dailyCalories} kcal',
+            style: const TextStyle(
+                color: AppColors.textSecondary, fontSize: 12),
+          ),
+          const SizedBox(height: 14),
+          // Day totals — recomputed on every store change.
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -205,23 +224,96 @@ class _DaySheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Divider(color: AppColors.border),
-          for (final e in entries)
-            ListTile(
-              dense: true,
-              title: Text(e.foodName,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text(
-                  '${e.meal.localizedLabel(l10n)} · ${e.servingGrams.round()} g',
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 11)),
-              trailing: Text('${e.calories.round()} kcal',
-                  style: const TextStyle(
-                      color: AppColors.calories, fontSize: 12)),
-              contentPadding: EdgeInsets.zero,
-            ),
+          if (entries.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Text(l10n.noEntriesThatDay,
+                    style: const TextStyle(color: AppColors.textMuted)),
+              ),
+            )
+          else
+            // Grouped by meal so the day reads the same way the Today tab does.
+            for (final meal in MealType.values)
+              ..._mealBlock(context, meal,
+                  entries.where((e) => e.meal == meal).toList()),
         ],
       ),
     );
+  }
+
+  List<Widget> _mealBlock(
+      BuildContext context, MealType meal, List<FoodEntry> entries) {
+    if (entries.isEmpty) return const [];
+    final l10n = context.l10n;
+    final store = context.read<FoodStore>();
+    final mealCals = entries.fold<double>(0, (s, e) => s + e.calories);
+
+    return [
+      Padding(
+        padding: const EdgeInsets.only(top: 12, bottom: 2),
+        child: Row(
+          children: [
+            Text(meal.emoji, style: const TextStyle(fontSize: 14)),
+            const SizedBox(width: 8),
+            Text(meal.localizedLabel(l10n),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 13)),
+            const Spacer(),
+            Text('${mealCals.round()} kcal',
+                style: const TextStyle(
+                    color: AppColors.calories,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12)),
+          ],
+        ),
+      ),
+      for (final e in entries)
+        Dismissible(
+          key: ValueKey(e.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 16),
+            decoration: BoxDecoration(
+              color: AppColors.danger,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.delete_rounded, color: Colors.white),
+          ),
+          confirmDismiss: (_) => confirmDeleteEntry(context, e),
+          onDismissed: (_) => store.deleteEntry(e.id),
+          child: ListTile(
+            dense: true,
+            onLongPress: () => showEditEntrySheet(context, e),
+            title: Text(e.foodName,
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: Text(
+              '${e.servingGrams.round()} g'
+              '  ·  P ${e.protein.toStringAsFixed(1)}g'
+              '  C ${e.carbs.toStringAsFixed(1)}g'
+              '  F ${e.fat.toStringAsFixed(1)}g',
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 11),
+            ),
+            trailing: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('${e.calories.round()} kcal',
+                    style: const TextStyle(
+                        color: AppColors.calories,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
+                Text(l10n.holdToEdit,
+                    style: const TextStyle(
+                        fontSize: 9, color: AppColors.textMuted)),
+              ],
+            ),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+    ];
   }
 }
 
@@ -710,24 +802,29 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
                   cellColor = AppColors.primary.withOpacity(0.3);
                 }
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: cellColor,
-                    borderRadius: BorderRadius.circular(4),
-                    border: isToday
-                        ? Border.all(color: AppColors.primary, width: 1.5)
-                        : null,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '$day',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight:
-                          isToday ? FontWeight.w800 : FontWeight.normal,
-                      color: cals > 0 && !isFuture
-                          ? Colors.white
-                          : AppColors.textMuted,
+                // Any non-future day opens its editable day sheet.
+                return InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: isFuture ? null : () => showDaySheet(context, date),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: cellColor,
+                      borderRadius: BorderRadius.circular(4),
+                      border: isToday
+                          ? Border.all(color: AppColors.primary, width: 1.5)
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$day',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight:
+                            isToday ? FontWeight.w800 : FontWeight.normal,
+                        color: cals > 0 && !isFuture
+                            ? Colors.white
+                            : AppColors.textMuted,
+                      ),
                     ),
                   ),
                 );

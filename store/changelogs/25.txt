@@ -1,0 +1,55 @@
+<en-US>
+• Tap any day in History — or any date in the calendar — to see exactly which foods you logged.
+• Change a serving size or delete an entry right there.
+• The day's calorie and macro totals update instantly as you edit.
+Thanks to everyone who suggested this!
+</en-US>
+
+<de-DE>
+• Tippe auf einen Tag im Verlauf – oder auf ein Datum im Kalender –, um genau zu sehen, welche Lebensmittel du erfasst hast.
+• Ändere die Portionsgröße oder lösche einen Eintrag direkt dort.
+• Die Kalorien- und Makro-Summen des Tages werden sofort aktualisiert.
+Danke an alle, die das vorgeschlagen haben!
+</de-DE>
+
+<es-ES>
+• Toca cualquier día del historial —o cualquier fecha del calendario— para ver exactamente qué alimentos registraste.
+• Cambia la cantidad o elimina una entrada ahí mismo.
+• Los totales de calorías y macros del día se actualizan al instante.
+¡Gracias a todos los que lo sugirieron!
+</es-ES>
+
+<fr-FR>
+• Touchez n'importe quel jour de l'historique — ou une date du calendrier — pour voir exactement les aliments enregistrés.
+• Modifiez une portion ou supprimez une entrée directement sur place.
+• Les totaux de calories et de macros du jour se mettent à jour instantanément.
+Merci à tous ceux qui l'ont suggéré !
+</fr-FR>
+
+<it-IT>
+• Tocca un giorno nella cronologia — o una data nel calendario — per vedere esattamente quali alimenti hai registrato.
+• Modifica una porzione o elimina una voce direttamente da lì.
+• I totali di calorie e macro del giorno si aggiornano all'istante.
+Grazie a tutti quelli che l'hanno suggerito!
+</it-IT>
+
+<ja-JP>
+• 履歴の日付やカレンダーの日付をタップすると、その日に記録した食品をそのまま確認できます。
+• 分量の変更や記録の削除も、その場で行えます。
+• その日のカロリーとマクロの合計はすぐに更新されます。
+ご提案いただいた皆さま、ありがとうございます！
+</ja-JP>
+
+<nl-NL>
+• Tik op een dag in de geschiedenis — of op een datum in de kalender — om precies te zien welke voeding je hebt vastgelegd.
+• Pas een portie aan of verwijder een item meteen ter plekke.
+• De dagtotalen voor calorieën en macro's worden direct bijgewerkt.
+Bedankt aan iedereen die dit heeft voorgesteld!
+</nl-NL>
+
+<pt-BR>
+• Toque em qualquer dia do histórico — ou em qualquer data do calendário — para ver exatamente quais alimentos você registrou.
+• Altere uma porção ou exclua um registro ali mesmo.
+• Os totais de calorias e macros do dia são atualizados na hora.
+Obrigado a todos que sugeriram isso!
+</pt-BR>

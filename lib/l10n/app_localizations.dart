@@ -1538,6 +1538,12 @@ abstract class AppLocalizations {
   /// **'No logged days yet.'**
   String get noLoggedDays;
 
+  /// No description provided for @noEntriesThatDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No foods logged on this day.'**
+  String get noEntriesThatDay;
+
   /// No description provided for @today.
   ///
   /// In en, this message translates to:

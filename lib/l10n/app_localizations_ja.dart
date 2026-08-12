@@ -784,6 +784,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noLoggedDays => 'まだ記録した日がありません。';
 
   @override
+  String get noEntriesThatDay => 'この日に記録された食品はありません。';
+
+  @override
   String get today => '今日';
 
   @override

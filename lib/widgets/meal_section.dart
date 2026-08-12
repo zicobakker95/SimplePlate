@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';
 import '../models/food_entry.dart';
-import '../services/food_store.dart';
+import 'edit_entry_sheet.dart';
 import '../theme/app_colors.dart';
 
 /// Collapsible meal section card (Breakfast / Lunch / Dinner / Snack).
@@ -79,30 +78,11 @@ class MealSection extends StatelessWidget {
                   child: const Icon(Icons.delete_rounded,
                       color: Colors.white),
                 ),
-                confirmDismiss: (_) => showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text(l10n.deleteEntryTitle),
-                    content: Text(l10n.deleteEntryBody(
-                        entry.foodName, entry.meal.localizedLabel(l10n))),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: Text(l10n.cancel),
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            foregroundColor: AppColors.danger),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(l10n.delete),
-                      ),
-                    ],
-                  ),
-                ),
+                confirmDismiss: (_) => confirmDeleteEntry(context, entry),
                 onDismissed: (_) => onDelete(entry.id),
                 child: ListTile(
                   dense: true,
-                  onLongPress: () => _showEditSheet(context, entry),
+                  onLongPress: () => showEditEntrySheet(context, entry),
                   title: Text(entry.foodName,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: Text(
@@ -137,78 +117,4 @@ class MealSection extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showEditSheet(BuildContext context, FoodEntry entry) {
-  final l10n = context.l10n;
-  final ctrl =
-      TextEditingController(text: entry.servingGrams.round().toString());
-
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppColors.surface,
-    shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-    builder: (sheetCtx) => Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(entry.foodName,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 16),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-          if (entry.foodBrand.isNotEmpty)
-            Text(entry.foodBrand,
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12)),
-          const SizedBox(height: 16),
-          TextField(
-            controller: ctrl,
-            autofocus: true,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: l10n.servingSizeLabel,
-              suffixText: 'g',
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(sheetCtx),
-                  child: Text(l10n.cancel),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    final grams = double.tryParse(ctrl.text);
-                    if (grams != null && grams > 0) {
-                      context
-                          .read<FoodStore>()
-                          .updateEntryServing(entry.id, grams);
-                      Navigator.pop(sheetCtx);
-                    }
-                  },
-                  child: Text(l10n.update),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
 }

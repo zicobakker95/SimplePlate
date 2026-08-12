@@ -809,6 +809,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noLoggedDays => 'Aucun jour enregistré pour l\'instant.';
 
   @override
+  String get noEntriesThatDay => 'Aucun aliment enregistré ce jour-là.';
+
+  @override
   String get today => 'Aujourd\'hui';
 
   @override

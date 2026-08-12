@@ -804,6 +804,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get noLoggedDays => 'Nog geen gelogde dagen.';
 
   @override
+  String get noEntriesThatDay => 'Geen voeding vastgelegd op deze dag.';
+
+  @override
   String get today => 'Vandaag';
 
   @override

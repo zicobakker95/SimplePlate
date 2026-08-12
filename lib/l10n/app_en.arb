@@ -286,6 +286,7 @@
 
   "historyTitle": "History",
   "noLoggedDays": "No logged days yet.",
+  "noEntriesThatDay": "No foods logged on this day.",
   "today": "Today",
   "itemsCount": "{count, plural, =1{1 item} other{{count} items}}",
   "@itemsCount": { "placeholders": { "count": { "type": "int" } } },
