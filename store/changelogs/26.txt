@@ -1,0 +1,39 @@
+<en-US>
+• Health Connect: PlateSimple now asks for one calorie permission instead of two.
+• "Calories burned" always means active energy now, so the number is consistent on every phone.
+</en-US>
+
+<de-DE>
+• Health Connect: PlateSimple fragt jetzt nach einer statt zwei Kalorien-Berechtigungen.
+• „Verbrannte Kalorien" bezieht sich jetzt immer auf Aktivitätsenergie – der Wert ist auf jedem Gerät gleich.
+</de-DE>
+
+<es-ES>
+• Health Connect: PlateSimple ahora pide un permiso de calorías en lugar de dos.
+• «Calorías quemadas» siempre se refiere a la energía activa, así que la cifra es igual en todos los móviles.
+</es-ES>
+
+<fr-FR>
+• Health Connect : PlateSimple demande désormais une seule autorisation de calories au lieu de deux.
+• « Calories brûlées » correspond toujours à l'énergie active : le chiffre est identique sur tous les téléphones.
+</fr-FR>
+
+<it-IT>
+• Health Connect: PlateSimple ora chiede un solo permesso per le calorie invece di due.
+• «Calorie bruciate» indica sempre l'energia attiva, quindi il valore è coerente su ogni telefono.
+</it-IT>
+
+<ja-JP>
+• Health Connect：カロリーの権限が2つから1つになりました。
+• 「消費カロリー」は常に活動エネルギーを指すようになり、どの端末でも同じ意味になります。
+</ja-JP>
+
+<nl-NL>
+• Health Connect: PlateSimple vraagt nu om één caloriemachtiging in plaats van twee.
+• "Verbrande calorieën" betekent voortaan altijd actieve energie, dus het getal is op elke telefoon hetzelfde.
+</nl-NL>
+
+<pt-BR>
+• Health Connect: o PlateSimple agora pede uma permissão de calorias em vez de duas.
+• "Calorias queimadas" sempre significa energia ativa, então o número é igual em qualquer celular.
+</pt-BR>

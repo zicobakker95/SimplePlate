@@ -9,9 +9,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- Health Connect permissions. Minimum scope (Play policy): only the
-         data the energy-balance feature needs. Steps read is iOS-only. -->
+         data the energy-balance feature needs. Steps read is iOS-only, and
+         TotalCaloriesBurned was dropped after the 2026-08 review — it adds
+         basal/resting energy, which a food log has no use for, and reading
+         it made the "Calories burned" figure mean different things on
+         different devices. Active energy alone is the whole feature. -->
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
-    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.WRITE_NUTRITION" />
 
     <application

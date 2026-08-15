@@ -9,6 +9,12 @@ import 'package:health/health.dart';
 /// Android reads NO step data: Google Play's Health Connect review
 /// flagged Steps as beyond the minimum scope for a calorie counter,
 /// so the steps stat is an Apple Health nicety only.
+///
+/// Calories burned is read from ACTIVE energy only. Total calories =
+/// active + basal, and basal is just the body ticking over — it is not
+/// something a food log can act on, and mixing the two under one
+/// "Calories burned" label made the number mean different things
+/// depending on which app had written to Health that day.
 class HealthService {
   HealthService._();
   static final instance = HealthService._();
@@ -18,7 +24,6 @@ class HealthService {
   static final _readTypes = [
     if (Platform.isIOS) HealthDataType.STEPS,
     HealthDataType.ACTIVE_ENERGY_BURNED,
-    HealthDataType.TOTAL_CALORIES_BURNED,
   ];
 
   static final _writeTypes = [
@@ -59,19 +64,11 @@ class HealthService {
       final now = DateTime.now();
       final start = DateTime(now.year, now.month, now.day);
       final data = await _health.getHealthDataFromTypes(
-        types: [
-          HealthDataType.ACTIVE_ENERGY_BURNED,
-          HealthDataType.TOTAL_CALORIES_BURNED,
-        ],
+        types: [HealthDataType.ACTIVE_ENERGY_BURNED],
         startTime: start,
         endTime: now,
       );
-      if (data.isEmpty) return 0;
-      final active = data
-          .where((d) => d.type == HealthDataType.ACTIVE_ENERGY_BURNED)
-          .toList();
-      final points = active.isNotEmpty ? active : data;
-      return points.fold<double>(
+      return data.fold<double>(
           0,
           (s, d) =>
               s + (d.value as NumericHealthValue).numericValue.toDouble());
