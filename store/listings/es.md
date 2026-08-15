@@ -12,7 +12,7 @@ PlateSimple: Calorías
 Cuenta calorías y macros, escanea códigos y cumple tus objetivos.
 ```
 
-**Full description** (1688/4000)
+**Full description** (1801/4000)
 ```
 PlateSimple hace que contar calorías y macros sea realmente sencillo. Registra comidas en segundos, escanea códigos de barras y mantén el control de tus objetivos nutricionales, sin complicaciones.
 
@@ -41,7 +41,8 @@ PlateSimple hace que contar calorías y macros sea realmente sencillo. Registra 
 • Mapa de calor del calendario para ver tu historial de un vistazo
 
 ★ SINCRONIZA Y EXPORTA
-• Sincroniza con Apple Salud y Google Health Connect
+• Escribe las calorías y macros que registras en Apple Salud / Health Connect
+• Lee las calorías quemadas con actividad, para comparar lo que comes con lo que gastas
 • Widget en la pantalla de inicio con las calorías de hoy
 • Exporta tus datos cuando quieras en CSV o JSON
 

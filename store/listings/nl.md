@@ -12,7 +12,7 @@ PlateSimple: Calorieteller
 Tel calorieën & macro's, scan barcodes en behaal je doelen — simpel.
 ```
 
-**Full description** (1573/4000)
+**Full description** (1685/4000)
 ```
 PlateSimple maakt het tellen van calorieën en macro's écht simpel. Log maaltijden in seconden, scan barcodes en houd grip op je voedingsdoelen — zonder rommel.
 
@@ -41,7 +41,8 @@ PlateSimple maakt het tellen van calorieën en macro's écht simpel. Log maaltij
 • Kalender-heatmap voor je geschiedenis in één oogopslag
 
 ★ SYNCHRONISEREN & EXPORTEREN
-• Synchroniseer met Apple Health en Google Health Connect
+• Schrijft de calorieën en macro's die je vastlegt naar Apple Health / Health Connect
+• Leest verbrande calorieën uit beweging terug, zodat je inname tegen verbruik ziet
 • Widget op je beginscherm voor de calorieën van vandaag
 • Exporteer je gegevens wanneer je wilt als CSV of JSON
 

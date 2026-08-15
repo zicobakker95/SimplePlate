@@ -12,7 +12,7 @@ PlateSimple: Kalorienzähler
 Kalorien & Makros tracken, Barcodes scannen, Ziele erreichen – einfach.
 ```
 
-**Full description** (1605/4000)
+**Full description** (1717/4000)
 ```
 PlateSimple macht das Zählen von Kalorien und Makros wirklich einfach. Mahlzeiten in Sekunden erfassen, Barcodes scannen und deine Ernährungsziele im Blick behalten – ohne Ballast.
 
@@ -41,7 +41,8 @@ PlateSimple macht das Zählen von Kalorien und Makros wirklich einfach. Mahlzeit
 • Kalender-Heatmap für deinen Verlauf auf einen Blick
 
 ★ SYNCHRONISIEREN & EXPORTIEREN
-• Synchronisierung mit Apple Health und Google Health Connect
+• Schreibt deine erfassten Kalorien und Makros in Apple Health / Health Connect
+• Liest die durch Aktivität verbrannten Kalorien zurück – so siehst du Zufuhr gegen Verbrauch
 • Startbildschirm-Widget für die Kalorien von heute
 • Daten jederzeit als CSV oder JSON exportieren
 

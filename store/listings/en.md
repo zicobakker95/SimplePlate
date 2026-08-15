@@ -12,7 +12,7 @@ PlateSimple: Calorie Counter
 Track calories, macros & water. Scan barcodes, log meals, hit your goals.
 ```
 
-**Full description** (1369/4000)
+**Full description** (1481/4000)
 ```
 PlateSimple makes calorie and macro tracking genuinely simple. Log meals in seconds, scan barcodes, and stay on top of your nutrition goals — without the clutter.
 
@@ -41,7 +41,8 @@ PlateSimple makes calorie and macro tracking genuinely simple. Log meals in seco
 • Calendar heatmap to view your history at a glance
 
 ★ SYNC & EXPORT
-• Sync with Apple Health and Google Health Connect
+• Writes the calories and macros you log to Apple Health / Health Connect
+• Reads back calories burned through activity, so you can see food eaten vs energy spent
 • Home screen widget for today's calories at a glance
 • Export your data anytime as CSV or JSON
 
