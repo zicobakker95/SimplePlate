@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "14362134843",
+    "project_id": "platesimple-ziba",
+    "storage_bucket": "platesimple-ziba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14362134843:android:bc0229e8d28aa1ce760f1e",
+        "android_client_info": {
+          "package_name": "com.zibaentertainment.simple_plate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjUvrN1wQ3NjmPXdfS7pgnHdAtlqScdkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

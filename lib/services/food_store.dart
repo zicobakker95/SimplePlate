@@ -10,6 +10,7 @@ import '../models/food_item.dart';
 import '../models/nutrition_goals.dart';
 import '../models/recipe.dart';
 import '../models/user_profile.dart';
+import 'analytics_service.dart';
 import '../models/weight_entry.dart';
 import 'storage_service.dart';
 import 'widget_service.dart';
@@ -132,6 +133,11 @@ class FoodStore extends ChangeNotifier {
 
   // --- Mutators ---
   Future<void> logFood(FoodItem item, double grams, MealType meal) async {
+    // Logging food is the whole point of the app, so this is the activation
+    // signal the ad campaigns should optimise toward — an install that never
+    // logs anything is not a user. Read before the entry is appended.
+    final isFirstEver = _allEntries.isEmpty;
+
     final entry = FoodEntry(
       id: _uuid.v4(),
       foodItemId: item.id,
@@ -162,6 +168,18 @@ class FoodStore extends ChangeNotifier {
     await _maybeRequestReview();
 
     _pushWidgetTotals();
+
+    AnalyticsService.instance.logEvent('food_logged', {
+      'meal': meal.name,
+      'source': item.isCustom ? 'custom' : 'database',
+    });
+    if (isFirstEver) {
+      // The once-per-user activation event, kept separate so it can be
+      // imported into Google Ads as a conversion on its own. Strictly it is
+      // "first entry while none exist", so clearing the whole diary and
+      // logging again would re-fire it — rare enough not to distort UA.
+      AnalyticsService.instance.logEvent('first_food_logged');
+    }
 
     notifyListeners();
   }

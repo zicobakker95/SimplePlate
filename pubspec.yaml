@@ -15,6 +15,13 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # Analytics for user acquisition (see the ZiBa Firebase UA rollout) plus
+  # crash reporting. Analytics is what lets the Google Ads campaigns optimise
+  # toward people who actually log food, rather than toward raw installs.
+  firebase_core: ^4.2.1
+  firebase_analytics: ^12.4.6
+  firebase_crashlytics: ^5.2.7
+
   # State
   provider: ^6.1.5+1
 
