@@ -187,7 +187,16 @@ class _GoalsPageState extends State<_GoalsPage> {
     ]) {
       c.addListener(() => setState(() => _notify()));
     }
-    _notify();
+    // _notify() calls widget.onChanged, which is the parent's setState. This
+    // runs inside initState — i.e. during the parent's build — and a
+    // descendant marking an ancestor dirty mid-build throws
+    // "setState() or markNeedsBuild() called during build". The assert is
+    // compiled out of release, so users never saw the red screen, but
+    // onboarding was unusable in a debug build. Push the first notify to
+    // after the frame; the listeners above are fine, they fire on input.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _notify();
+    });
   }
 
   @override

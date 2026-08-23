@@ -36,6 +36,13 @@ class SubscriptionService extends ChangeNotifier {
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
 
   bool get isPremium => _isPremium;
+
+  /// Debug builds only — see lib/debug.
+  ///
+  /// Premium is otherwise reachable only through a real store subscription,
+  /// which leaves every gated screen untestable on a debug build. Written to
+  /// the same cache key a real entitlement uses, so it survives a restart.
+  Future<void> debugSetPremium(bool value) => _setPremium(value);
   bool get storeAvailable => _storeAvailable;
   bool get purchasing => _purchasing;
   bool get loadingProducts => _loadingProducts;

@@ -132,7 +132,13 @@ class FoodStore extends ChangeNotifier {
   }
 
   // --- Mutators ---
-  Future<void> logFood(FoodItem item, double grams, MealType meal) async {
+  /// Logs [item] at [grams] into [meal].
+  ///
+  /// [at] back-dates the entry; it defaults to now. Nothing in the UI passes
+  /// it yet, but an entry that cannot be given a date can only ever be logged
+  /// for today, which is also why seeding history was impossible.
+  Future<void> logFood(FoodItem item, double grams, MealType meal,
+      {DateTime? at}) async {
     // Logging food is the whole point of the app, so this is the activation
     // signal the ad campaigns should optimise toward — an install that never
     // logs anything is not a user. Read before the entry is appended.
@@ -149,7 +155,7 @@ class FoodStore extends ChangeNotifier {
       carbsPer100: item.carbsPer100,
       fatPer100: item.fatPer100,
       meal: meal,
-      loggedAt: DateTime.now(),
+      loggedAt: at ?? DateTime.now(),
     );
     _allEntries = [..._allEntries, entry];
     await _storage.saveEntries(_allEntries);

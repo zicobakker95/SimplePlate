@@ -12,6 +12,7 @@ import '../../services/food_store.dart';
 import '../../services/notification_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
+import '../../debug/debug_menu_screen.dart';
 
 enum _GoalMode { manual, percentages, macrosToCalories }
 
@@ -168,6 +169,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   // ── Widgets ─────────────────────────────────────────────────────────────────
+
+  /// The debug entry, or null in release. Spread with `...?` so a release
+  /// build inserts literally nothing.
+  List<Widget>? _debugSection(BuildContext context) {
+    final tile = debugToolsTile(context);
+    if (tile == null) return null;
+    return [const SizedBox(height: 24), tile];
+  }
 
   Widget _field(String label, TextEditingController ctrl, Color accent,
       String suffix) {
@@ -607,6 +616,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ],
             ),
           ),
+          // Debug tools — null in release, so this collapses to nothing in a
+          // shipped build.
+          ...?_debugSection(context),
+
           // ── More from ZiBa ─────────────────────────────────────────────────
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
