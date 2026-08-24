@@ -156,6 +156,10 @@ class FoodStore extends ChangeNotifier {
       fatPer100: item.fatPer100,
       meal: meal,
       loggedAt: at ?? DateTime.now(),
+      // Snapshotted for the same reason the macros are: the food can be
+      // edited or deleted later, and a past entry must keep meaning what it
+      // meant on the day it was logged.
+      servingSizeGrams: item.servingSizeGrams,
     );
     _allEntries = [..._allEntries, entry];
     await _storage.saveEntries(_allEntries);

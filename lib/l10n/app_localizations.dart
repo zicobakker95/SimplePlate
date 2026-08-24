@@ -1843,6 +1843,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminds you to log your meals each day'**
   String get notifChannelDesc;
+
+  /// No description provided for @servingOne.
+  ///
+  /// In en, this message translates to:
+  /// **'1 serving'**
+  String get servingOne;
+
+  /// No description provided for @servingMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} servings'**
+  String servingMany(String count);
+
+  /// No description provided for @gramsPerServingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Serving size (g)'**
+  String get gramsPerServingLabel;
+
+  /// No description provided for @gramsPerServingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Lets amounts show as servings, e.g. 100 g (2 servings).'**
+  String get gramsPerServingHint;
 }
 
 class _AppLocalizationsDelegate

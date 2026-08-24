@@ -986,4 +986,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notifChannelDesc => 'Te recuerda registrar tus comidas cada día';
+
+  @override
+  String get servingOne => '1 ración';
+
+  @override
+  String servingMany(String count) {
+    return '$count raciones';
+  }
+
+  @override
+  String get gramsPerServingLabel => 'Tamaño de ración (g)';
+
+  @override
+  String get gramsPerServingHint =>
+      'Opcional. Muestra las cantidades también como raciones, p. ej. 100 g (2 raciones).';
 }

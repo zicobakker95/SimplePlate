@@ -4,6 +4,7 @@ import '../l10n/l10n.dart';
 import '../models/food_entry.dart';
 import 'edit_entry_sheet.dart';
 import '../theme/app_colors.dart';
+import '../utils/serving_format.dart';
 
 /// Collapsible meal section card (Breakfast / Lunch / Dinner / Snack).
 class MealSection extends StatelessWidget {
@@ -82,11 +83,15 @@ class MealSection extends StatelessWidget {
                 onDismissed: (_) => onDelete(entry.id),
                 child: ListTile(
                   dense: true,
+                  // Tap as well as long-press. Editing a past entry was already
+                  // possible but only on long-press, with nothing to suggest it --
+                  // a user emailed twice to ask for a feature the app already had.
+                  onTap: () => showEditEntrySheet(context, entry),
                   onLongPress: () => showEditEntrySheet(context, entry),
                   title: Text(entry.foodName,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: Text(
-                    '${entry.servingGrams.round()} g'
+                    '${gramsWithServings(l10n, entry.servingGrams, entry.servingSizeGrams)}'
                     '  ·  P ${entry.protein.toStringAsFixed(1)}g'
                     '  C ${entry.carbs.toStringAsFixed(1)}g'
                     '  F ${entry.fat.toStringAsFixed(1)}g',

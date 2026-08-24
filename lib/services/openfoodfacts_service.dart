@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/food_item.dart';
@@ -34,7 +35,7 @@ class OpenFoodFactsService {
   /// callers can tell "not found" apart from "couldn't check".
   Future<FoodItem?> fetchByBarcode(String barcode) async {
     final uri = Uri.parse(
-        '$_barcodeBase/api/v2/product/$barcode?fields=product_name,brands,nutriments,image_front_url');
+        '$_barcodeBase/api/v2/product/$barcode?fields=product_name,brands,nutriments,image_front_url,serving_quantity,serving_size');
     try {
       final resp = await http
           .get(uri, headers: {'User-Agent': _userAgent})
@@ -71,7 +72,7 @@ class OpenFoodFactsService {
     final poolSize = (limit * 3).clamp(30, 100);
     final encoded = Uri.encodeComponent(q);
     final uri = Uri.parse(
-        '$_searchBase/cgi/search.pl?search_terms=$encoded&search_simple=1&action=process&json=1&page_size=$poolSize&fields=code,product_name,brands,nutriments,image_front_url');
+        '$_searchBase/cgi/search.pl?search_terms=$encoded&search_simple=1&action=process&json=1&page_size=$poolSize&fields=code,product_name,brands,nutriments,image_front_url,serving_quantity,serving_size');
     try {
       final resp = await http
           .get(uri, headers: {'User-Agent': _userAgent})
@@ -154,6 +155,48 @@ class OpenFoodFactsService {
       carbsPer100: numVal('carbohydrates_100g'),
       fatPer100: numVal('fat_100g'),
       imageUrl: p['image_front_url'] as String?,
+      servingSizeGrams: servingGramsFromProduct(p),
     );
+  }
+
+  /// Grams in one serving, or null when the product does not say.
+  ///
+  /// Open Food Facts is crowd-sourced and this field is messy: it arrives as a
+  /// number, as a numeric string, or not at all, and `serving_size` is free
+  /// text like "30 g", "1 cup (240 ml)" or "2 biscuits". Only a value that
+  /// parses to a positive number of grams is trusted — a guess here would put
+  /// a wrong serving count in front of someone counting calories.
+  @visibleForTesting
+  static double? servingGramsFromProduct(Map<String, dynamic> p) {
+    final q = p['serving_quantity'];
+    double? grams;
+    if (q is num) {
+      grams = q.toDouble();
+    } else if (q is String) {
+      grams = double.tryParse(q.trim());
+    }
+
+    // Fall back to the leading number of the free-text field, but only when it
+    // is stated in grams. "1 cup (240 ml)" is not something to convert.
+    if (grams == null) {
+      final raw = (p['serving_size'] as String?)?.trim().toLowerCase();
+      if (raw != null && raw.isNotEmpty) {
+        // Accepts "30 g", "30g", "30 grams"; rejects "250 ml",
+        // "2 biscuits" and "3 gallon" - a bare \s*g takes the 3
+        // out of that last one.
+        final m = RegExp(
+                r'^([0-9]+(?:[.,][0-9]+)?)\s*(?:g|gr|grams?|grammes?)(?![a-z])')
+            .firstMatch(raw);
+        if (m != null) {
+          grams = double.tryParse(m.group(1)!.replaceAll(',', '.'));
+        }
+      }
+    }
+
+    if (grams == null || grams <= 0) return null;
+    // Sanity bound. A "serving" of 5 kg is bad data, and dividing by it would
+    // render every amount as 0.0 servings.
+    if (grams > 2000) return null;
+    return grams;
   }
 }

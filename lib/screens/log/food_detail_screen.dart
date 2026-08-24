@@ -8,6 +8,7 @@ import '../../models/serving_unit.dart';
 import '../../services/ad_service.dart';
 import '../../services/food_store.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/serving_format.dart';
 
 class FoodDetailScreen extends StatefulWidget {
   const FoodDetailScreen({
@@ -137,7 +138,19 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
               ),
             ],
           ),
-          if (_unit.isApproximate) ...[
+          // What the typed amount works out to in servings, when the food
+          // declares a serving size. Grams remain the number you enter; this
+          // only says what it means. It replaces the approximate-grams line
+          // rather than stacking under it, so there is never a second gram
+          // figure directly beneath the first.
+          if (servingLabel(l10n, _grams, widget.item.servingSizeGrams) !=
+              null) ...[
+            const SizedBox(height: 6),
+            Text(
+              gramsWithServings(l10n, _grams, widget.item.servingSizeGrams),
+              style: tt.bodySmall?.copyWith(color: AppColors.textMuted),
+            ),
+          ] else if (_unit.isApproximate) ...[
             const SizedBox(height: 6),
             Text(l10n.approxGrams(_grams.round()),
                 style: tt.bodySmall?.copyWith(color: AppColors.textMuted)),

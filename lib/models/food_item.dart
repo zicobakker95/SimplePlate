@@ -12,6 +12,12 @@ class FoodItem {
   final bool isFavourite;
   final bool isCustom;
 
+  /// Grams in one serving, when the food declares one — Open Food Facts calls
+  /// this `serving_quantity`, and custom foods can set it by hand. Null when
+  /// unknown, which is the common case: most foods only carry per-100g values,
+  /// and a serving count invented from nothing would be worse than none.
+  final double? servingSizeGrams;
+
   const FoodItem({
     required this.id,
     required this.name,
@@ -23,7 +29,18 @@ class FoodItem {
     this.imageUrl,
     this.isFavourite = false,
     this.isCustom = false,
+    this.servingSizeGrams,
   });
+
+  /// True when this food can express an amount in servings.
+  /// Guards against a zero or negative serving size dividing by zero.
+  bool get hasServingSize =>
+      servingSizeGrams != null && servingSizeGrams! > 0;
+
+  /// How many servings [grams] works out to, or null when the food has no
+  /// declared serving size.
+  double? servingsFor(double grams) =>
+      hasServingSize ? grams / servingSizeGrams! : null;
 
   /// Calories for a specific serving size in grams.
   double caloriesFor(double grams) => caloriesPer100 * grams / 100;
@@ -42,6 +59,7 @@ class FoodItem {
         imageUrl: imageUrl,
         isFavourite: isFavourite ?? this.isFavourite,
         isCustom: isCustom,
+        servingSizeGrams: servingSizeGrams,
       );
 
   Map<String, dynamic> toJson() => {
@@ -55,6 +73,7 @@ class FoodItem {
         'imageUrl': imageUrl,
         'isFavourite': isFavourite,
         'isCustom': isCustom,
+        'servingSizeGrams': servingSizeGrams,
       };
 
   factory FoodItem.fromJson(Map<String, dynamic> j) => FoodItem(
@@ -68,6 +87,9 @@ class FoodItem {
         imageUrl: j['imageUrl'] as String?,
         isFavourite: (j['isFavourite'] as bool?) ?? false,
         isCustom: (j['isCustom'] as bool?) ?? false,
+        // Absent in everything saved before servings existed, which is what
+        // null already means.
+        servingSizeGrams: (j['servingSizeGrams'] as num?)?.toDouble(),
       );
 
   @override

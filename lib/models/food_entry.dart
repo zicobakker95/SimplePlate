@@ -43,6 +43,13 @@ class FoodEntry {
   final MealType meal;
   final DateTime loggedAt;
 
+  /// Grams per serving, snapshotted from the food at log time — for the same
+  /// reason caloriesPer100 is snapshotted. The food can be edited or deleted
+  /// afterwards, and a past entry must keep meaning what it meant on the day.
+  /// Null for entries logged before servings existed, and for foods that
+  /// declare no serving size.
+  final double? servingSizeGrams;
+
   const FoodEntry({
     required this.id,
     required this.foodItemId,
@@ -55,7 +62,15 @@ class FoodEntry {
     required this.fatPer100,
     required this.meal,
     required this.loggedAt,
+    this.servingSizeGrams,
   });
+
+  bool get hasServingSize =>
+      servingSizeGrams != null && servingSizeGrams! > 0;
+
+  /// How many servings this entry is, or null when unknown.
+  double? get servings =>
+      hasServingSize ? servingGrams / servingSizeGrams! : null;
 
   double get calories => caloriesPer100 * servingGrams / 100;
   double get protein => proteinPer100 * servingGrams / 100;
@@ -74,6 +89,7 @@ class FoodEntry {
         'fatPer100': fatPer100,
         'meal': meal.name,
         'loggedAt': loggedAt.toIso8601String(),
+        'servingSizeGrams': servingSizeGrams,
       };
 
   factory FoodEntry.fromJson(Map<String, dynamic> j) => FoodEntry(
@@ -89,5 +105,6 @@ class FoodEntry {
         meal: MealType.values.firstWhere((m) => m.name == j['meal'],
             orElse: () => MealType.snack),
         loggedAt: DateTime.parse(j['loggedAt'] as String),
+        servingSizeGrams: (j['servingSizeGrams'] as num?)?.toDouble(),
       );
 }

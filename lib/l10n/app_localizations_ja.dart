@@ -955,4 +955,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get notifChannelDesc => '毎日、食事の記録をお知らせします';
+
+  @override
+  String get servingOne => '1食分';
+
+  @override
+  String servingMany(String count) {
+    return '$count食分';
+  }
+
+  @override
+  String get gramsPerServingLabel => '1食分のグラム数';
+
+  @override
+  String get gramsPerServingHint => '任意。分量を「100 g（2食分）」のように表示できます。';
 }

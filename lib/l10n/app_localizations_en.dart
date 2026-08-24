@@ -979,4 +979,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifChannelDesc => 'Reminds you to log your meals each day';
+
+  @override
+  String get servingOne => '1 serving';
+
+  @override
+  String servingMany(String count) {
+    return '$count servings';
+  }
+
+  @override
+  String get gramsPerServingLabel => 'Serving size (g)';
+
+  @override
+  String get gramsPerServingHint =>
+      'Optional. Lets amounts show as servings, e.g. 100 g (2 servings).';
 }

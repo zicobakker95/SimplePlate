@@ -984,4 +984,19 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get notifChannelDesc =>
       'Herinnert je er elke dag aan om je maaltijden te loggen';
+
+  @override
+  String get servingOne => '1 portie';
+
+  @override
+  String servingMany(String count) {
+    return '$count porties';
+  }
+
+  @override
+  String get gramsPerServingLabel => 'Portiegrootte (g)';
+
+  @override
+  String get gramsPerServingHint =>
+      'Optioneel. Toont hoeveelheden ook als porties, bijv. 100 g (2 porties).';
 }

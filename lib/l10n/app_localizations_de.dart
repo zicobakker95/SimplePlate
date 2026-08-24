@@ -986,4 +986,19 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get notifChannelDesc =>
       'Erinnert dich täglich daran, deine Mahlzeiten zu erfassen';
+
+  @override
+  String get servingOne => '1 Portion';
+
+  @override
+  String servingMany(String count) {
+    return '$count Portionen';
+  }
+
+  @override
+  String get gramsPerServingLabel => 'Portionsgröße (g)';
+
+  @override
+  String get gramsPerServingHint =>
+      'Optional. Zeigt Mengen zusätzlich als Portionen, z. B. 100 g (2 Portionen).';
 }

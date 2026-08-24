@@ -28,6 +28,7 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
   final _proteinCtrl = TextEditingController();
   final _carbCtrl = TextEditingController();
   final _fatCtrl = TextEditingController();
+  final _servingCtrl = TextEditingController();
 
   bool _saving = false;
 
@@ -39,7 +40,18 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
     _proteinCtrl.dispose();
     _carbCtrl.dispose();
     _fatCtrl.dispose();
+    _servingCtrl.dispose();
     super.dispose();
+  }
+
+  /// The serving size as typed, or null when it is blank or not a usable
+  /// positive number.
+  double? get _parsedServingSize {
+    final raw = _servingCtrl.text.trim().replaceAll(',', '.');
+    if (raw.isEmpty) return null;
+    final v = double.tryParse(raw);
+    if (v == null || v <= 0) return null;
+    return v;
   }
 
   Future<void> _save() async {
@@ -55,6 +67,10 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
       carbsPer100: double.parse(_carbCtrl.text),
       fatPer100: double.parse(_fatCtrl.text),
       isCustom: true,
+      // Optional. Blank, unparseable or non-positive all mean "no serving
+      // size", which is what null already says -- better than a zero that
+      // would divide every amount into infinity servings.
+      servingSizeGrams: _parsedServingSize,
     );
 
     await context.read<FoodStore>().addCustomFood(item);
@@ -134,6 +150,13 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
             _field(l10n.fieldProtein, _proteinCtrl, suffix: 'g'),
             _field(l10n.fieldCarbohydrates, _carbCtrl, suffix: 'g'),
             _field(l10n.fieldFat, _fatCtrl, suffix: 'g'),
+            const SizedBox(height: 8),
+            // Optional, and the only way a custom food can show servings --
+            // scanned foods get this from Open Food Facts.
+            _field(l10n.gramsPerServingLabel, _servingCtrl,
+                suffix: 'g', required: false),
+            Text(l10n.gramsPerServingHint,
+                style: tt.bodySmall?.copyWith(color: AppColors.textMuted)),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,

@@ -1,8 +1,6 @@
 {
   "@@locale": "ja",
-
   "appTitle": "PlateSimple",
-
   "cancel": "キャンセル",
   "save": "保存",
   "delete": "削除",
@@ -18,11 +16,9 @@
   "skipForNow": "今はスキップ",
   "openSettings": "設定を開く",
   "tryAgain": "再試行",
-
   "navToday": "今日",
   "navHistory": "履歴",
   "navGoals": "目標",
-
   "macroCalories": "カロリー",
   "macroProtein": "たんぱく質",
   "macroCarbs": "炭水化物",
@@ -36,7 +32,6 @@
   "fieldCarbsPct": "炭水化物 %",
   "fieldFatPct": "脂質 %",
   "calculatedCalories": "計算されたカロリー",
-
   "goalModeManual": "手動",
   "goalModePercent": "% → マクロ",
   "goalModeMacros": "マクロ → kcal",
@@ -48,20 +43,17 @@
   "pctHintProtein": "  → たんぱく質 {grams} g",
   "pctHintCarbs": "  → 炭水化物 {grams} g",
   "pctHintFat": "  → 脂質 {grams} g",
-
   "welcomeTitle": "PlateSimpleへようこそ",
   "welcomeSubtitle": "速くてすっきりしたカロリー記録。\n無料のバーコードスキャン。余計なものなし。",
   "onbSetGoalsTitle": "1日の目標を設定",
   "onbSetGoalsSubtitle": "目標はいつでも変更できます。",
   "onbStayOnTrackTitle": "継続しよう",
   "onbStayOnTrackBody": "通知を許可すると、食事の記録をお知らせして連続記録を維持できます。",
-
   "goalsDailyTargets": "1日の栄養目標",
   "goalsChooseHow": "目標の設定方法を選んでください。",
   "goalsCalcTdee": "TDEE / BMI で計算",
   "goalsSaveBtn": "目標を保存",
   "goalsSavedSnack": "目標を保存しました！",
-
   "waterTrackingTitle": "水分記録",
   "waterTrackingSubtitle": "ホーム画面で1日の水分摂取を記録します。",
   "waterShowTracker": "水分トラッカーを表示",
@@ -72,31 +64,25 @@
   "waterCount": "{glasses} / {goal} 杯",
   "resetWaterTitle": "水分をリセットしますか？",
   "resetWaterBody": "今日の水分カウントを0に戻しますか？",
-
   "reminderTitle": "毎日のリマインダー",
   "reminderSubtitle": "食事の記録を毎日お知らせします。",
   "reminderEnable": "リマインダーを有効化",
   "reminderEnableSub": "毎日通知を送ります",
   "reminderTimeLabel": "リマインダーの時刻",
-
   "feedbackTitle": "フィードバック",
   "feedbackBody": "個人開発者です。あなたのフィードバックがPlateSimpleの改善に役立ちます。1分もかかりません！",
   "feedbackShare": "フィードバックを送る",
-
   "dataExportTitle": "データのエクスポート",
   "dataExportSubtitle": "食事ログ・体重・アクティビティをエクスポートします。",
   "exportCsv": "CSVでエクスポート",
   "exportCsvSub": "表計算ソフト対応の形式",
   "exportJson": "JSONでエクスポート",
   "exportJsonSub": "完全バックアップ",
-
   "aboutTitle": "PlateSimpleについて",
-
   "premiumBannerUpgradeTitle": "プレミアムにアップグレード",
   "premiumBannerMemberTitle": "あなたはプレミアム会員です",
   "premiumBannerUpgradeSub": "週間インサイト・広告なし・開発者を応援",
   "premiumBannerMemberSub": "週間インサイト解放・広告なし",
-
   "tdeeTitle": "TDEE計算機",
   "tdeeSubtitle": "情報を入力して総消費カロリーを計算し、カロリー目標を自動設定します。",
   "sexMale": "男性",
@@ -116,7 +102,6 @@
   "suggestedGoals": "推奨目標",
   "applyGoals": "この目標を適用",
   "tdeeAppliedSnack": "TDEE計算機から目標を更新しました！",
-
   "activitySedentary": "座りがち（運動ほぼなし）",
   "activityLight": "軽い活動（週1〜3日）",
   "activityModerate": "中程度の活動（週3〜5日）",
@@ -129,7 +114,6 @@
   "bmiNormal": "標準体重",
   "bmiOverweight": "過体重",
   "bmiObese": "肥満",
-
   "todayShareTooltip": "今日をシェア",
   "todayCopyTooltip": "昨日の食事をコピー",
   "logFood": "食事を記録",
@@ -140,20 +124,17 @@
   "copyYesterdayNone": "昨日は記録がありません。",
   "copyAction": "コピー",
   "copiedSnack": "{count, plural, other{昨日の{count}件をコピーしました。}}",
-
   "kcalEaten": "kcal 摂取",
   "netKcal": "正味 kcal",
   "kcalLeft": "残り {n}",
   "kcalOver": "{n} オーバー",
   "kcalBurnedLine": "−{n} 消費",
-
   "bodyWeight": "体重",
   "notLoggedToday": "今日は未記録",
   "logWeight": "体重を記録",
   "weightInvalid": "有効な体重を入力してください。",
   "weightSubtitleToday": "{kg} kg  ·  今日記録",
   "weightSubtitleDate": "{kg} kg  ·  {date} 記録",
-
   "healthSync": "ヘルス同期",
   "healthConnectApple": "Appleヘルスを連携して、消費カロリーを取り込み、栄養データを同期します。",
   "healthConnectGoogle": "Google Health Connectを連携して、消費カロリーを取り込み、栄養データを同期します。",
@@ -166,7 +147,6 @@
   "healthSynced": "栄養をヘルスに同期しました！",
   "healthWriteFailed": "ヘルスに書き込めませんでした。",
   "healthNotGranted": "ヘルスのアクセスが許可されていません。権限を確認してください。",
-
   "activity": "アクティビティ",
   "noActivityToday": "今日のアクティビティ記録はありません。",
   "addActivity": "アクティビティを追加",
@@ -190,7 +170,6 @@
   "actYoga": "ヨガ",
   "actHIIT": "HIIT",
   "actHiking": "ハイキング",
-
   "mealBreakfast": "朝食",
   "mealLunch": "昼食",
   "mealDinner": "夕食",
@@ -199,7 +178,6 @@
   "deleteEntryBody": "{meal}から「{name}」を削除しますか？",
   "holdToEdit": "長押しで編集",
   "servingSizeLabel": "分量",
-
   "addFoodTitle": "食事を追加",
   "pickIngredientTitle": "材料を選択",
   "tabSearch": "検索",
@@ -224,7 +202,6 @@
   "recipePerServing": "{kcal} kcal/1食分  ·  {count, plural, other{{count}食分}}",
   "recipeKcalPerServing": "1食分あたり {kcal} kcal",
   "servingsToLog": "記録する食数",
-
   "createRecipeTitle": "レシピを作成",
   "editRecipeTitle": "レシピを編集",
   "recipeNameLabel": "レシピ名",
@@ -238,7 +215,6 @@
   "total": "合計",
   "perServing": "1食分あたり",
   "perServingCount": "1食分あたり（{count}食分）",
-
   "createCustomFoodTitle": "カスタム食品を作成",
   "foodDetailsSection": "食品の詳細",
   "valuesPer100": "値は100g/100mlあたりです。",
@@ -248,7 +224,6 @@
   "fieldRequired": "必須",
   "enterValidNumber": "有効な数値を入力してください",
   "saveAndLog": "保存して分量を記録",
-
   "removeFavourite": "お気に入りから削除",
   "addToFavourites": "お気に入りに追加",
   "servingSizeG": "分量（g）",
@@ -258,12 +233,16 @@
   "unitCup": "カップ",
   "unitPiece": "個",
   "approxGrams": "≈ {grams} g",
-  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
+  "@approxGrams": {
+    "placeholders": {
+      "grams": {
+        "type": "int"
+      }
+    }
+  },
   "addToLabel": "追加先",
   "addToMeal": "{meal}に追加",
-
   "scanBarcodeTitle": "バーコードをスキャン",
-
   "historyTitle": "履歴",
   "noLoggedDays": "まだ記録した日がありません。",
   "noEntriesThatDay": "この日に記録された食品はありません。",
@@ -278,7 +257,6 @@
   "weightTrend": "体重の推移",
   "prevMonth": "前の月",
   "nextMonth": "次の月",
-
   "shareDayTitle": "今日をシェア",
   "dayStreak": "{count, plural, other{{count}日}}",
   "goalHit": "目標達成！",
@@ -287,7 +265,6 @@
   "preparing": "準備中…",
   "share": "シェア",
   "shareText": "今日の栄養 — PlateSimpleで記録 🥗\n{url}",
-
   "premiumTitle": "PlateSimple プレミアム",
   "premiumSubtitle": "すべての機能を解放",
   "featInsightsTitle": "週間インサイト（7日間）",
@@ -311,14 +288,16 @@
   "bestValue": "おトク",
   "billedYearly": "年1回の請求",
   "billedMonthly": "毎月の請求",
-
   "freeTrial": "無料トライアル",
   "legendUnder": "不足",
   "legendOnTarget": "目標どおり",
   "legendOver": "超過",
-
   "notifTitle": "食事を記録する時間です 🥗",
   "notifBody": "連続記録を続けよう — 今日食べたものを記録しましょう！",
   "notifChannelName": "毎日のリマインダー",
-  "notifChannelDesc": "毎日、食事の記録をお知らせします"
+  "notifChannelDesc": "毎日、食事の記録をお知らせします",
+  "servingOne": "1食分",
+  "servingMany": "{count}食分",
+  "gramsPerServingLabel": "1食分のグラム数",
+  "gramsPerServingHint": "任意。分量を「100 g（2食分）」のように表示できます。"
 }

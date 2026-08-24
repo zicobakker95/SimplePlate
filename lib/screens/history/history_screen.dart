@@ -13,6 +13,7 @@ import '../../services/food_store.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/edit_entry_sheet.dart';
+import '../../utils/serving_format.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -285,11 +286,15 @@ class _DaySheet extends StatelessWidget {
           onDismissed: (_) => store.deleteEntry(e.id),
           child: ListTile(
             dense: true,
+            // Tap as well as long-press. Editing a past entry was already
+            // possible but only on long-press, with nothing to suggest it --
+            // a user emailed twice to ask for a feature the app already had.
+            onTap: () => showEditEntrySheet(context, e),
             onLongPress: () => showEditEntrySheet(context, e),
             title: Text(e.foodName,
                 maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text(
-              '${e.servingGrams.round()} g'
+              '${gramsWithServings(l10n, e.servingGrams, e.servingSizeGrams)}'
               '  ·  P ${e.protein.toStringAsFixed(1)}g'
               '  C ${e.carbs.toStringAsFixed(1)}g'
               '  F ${e.fat.toStringAsFixed(1)}g',

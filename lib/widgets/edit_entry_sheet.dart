@@ -5,6 +5,7 @@ import '../l10n/l10n.dart';
 import '../models/food_entry.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
+import '../utils/serving_format.dart';
 
 /// Bottom sheet for changing the serving size of an existing [FoodEntry].
 ///
@@ -113,6 +114,17 @@ class _EditEntrySheetState extends State<_EditEntrySheet> {
               suffixText: 'g',
             ),
           ),
+          // Same serving equivalent the log screen shows, so editing an entry
+          // reads the same way as creating one. Uses the size snapshotted on
+          // the entry, not the food, so an old entry keeps its own meaning.
+          if (servingLabel(l10n, grams, e.servingSizeGrams) != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              gramsWithServings(l10n, grams, e.servingSizeGrams),
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textSecondary),
+            ),
+          ],
           const SizedBox(height: 14),
           // Live preview of what this serving works out to.
           Row(

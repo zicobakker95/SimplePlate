@@ -1,8 +1,6 @@
 {
   "@@locale": "pt",
-
   "appTitle": "PlateSimple",
-
   "cancel": "Cancelar",
   "save": "Salvar",
   "delete": "Excluir",
@@ -18,11 +16,9 @@
   "skipForNow": "Pular por enquanto",
   "openSettings": "Abrir Ajustes",
   "tryAgain": "Tentar de novo",
-
   "navToday": "Hoje",
   "navHistory": "Histórico",
   "navGoals": "Metas",
-
   "macroCalories": "Calorias",
   "macroProtein": "Proteína",
   "macroCarbs": "Carbs",
@@ -36,7 +32,6 @@
   "fieldCarbsPct": "Carboidratos %",
   "fieldFatPct": "Gordura %",
   "calculatedCalories": "Calorias calculadas",
-
   "goalModeManual": "Manual",
   "goalModePercent": "% → Macros",
   "goalModeMacros": "Macros → kcal",
@@ -48,20 +43,17 @@
   "pctHintProtein": "  → {grams} g de proteína",
   "pctHintCarbs": "  → {grams} g de carboidratos",
   "pctHintFat": "  → {grams} g de gordura",
-
   "welcomeTitle": "Boas-vindas ao PlateSimple",
   "welcomeSubtitle": "Contagem de calorias rápida e limpa.\nLeitura de código de barras grátis. Sem bagunça.",
   "onbSetGoalsTitle": "Defina suas metas diárias",
   "onbSetGoalsSubtitle": "Você pode alterá-las quando quiser em Metas.",
   "onbStayOnTrackTitle": "Mantenha o foco",
   "onbStayOnTrackBody": "Permita as notificações para lembrarmos você de registrar as refeições e manter sua sequência viva.",
-
   "goalsDailyTargets": "Metas nutricionais diárias",
   "goalsChooseHow": "Escolha como deseja definir suas metas.",
   "goalsCalcTdee": "Calcular com TDEE / IMC",
   "goalsSaveBtn": "Salvar metas",
   "goalsSavedSnack": "Metas salvas!",
-
   "waterTrackingTitle": "Controle de água",
   "waterTrackingSubtitle": "Acompanhe seu consumo diário de água na tela inicial.",
   "waterShowTracker": "Mostrar controle de água",
@@ -72,31 +64,25 @@
   "waterCount": "{glasses} / {goal} copos",
   "resetWaterTitle": "Redefinir água?",
   "resetWaterBody": "Voltar a contagem de água de hoje para 0?",
-
   "reminderTitle": "Lembrete diário",
   "reminderSubtitle": "Receba um lembrete diário para registrar suas refeições.",
   "reminderEnable": "Ativar lembrete",
   "reminderEnableSub": "Envia uma notificação diária",
   "reminderTimeLabel": "Horário do lembrete",
-
   "feedbackTitle": "Comentários",
   "feedbackBody": "Sou um desenvolvedor solo e seu comentário ajuda a melhorar o PlateSimple. Leva menos de um minuto!",
   "feedbackShare": "Compartilhar comentário",
-
   "dataExportTitle": "Exportar dados",
   "dataExportSubtitle": "Exporte seu diário alimentar, peso e atividades.",
   "exportCsv": "Exportar como CSV",
   "exportCsvSub": "Compatível com planilhas",
   "exportJson": "Exportar como JSON",
   "exportJsonSub": "Backup completo",
-
   "aboutTitle": "Sobre o PlateSimple",
-
   "premiumBannerUpgradeTitle": "Assinar o Premium",
   "premiumBannerMemberTitle": "Você é membro Premium",
   "premiumBannerUpgradeSub": "Análises semanais · Sem anúncios · Apoie o dev",
   "premiumBannerMemberSub": "Análises semanais desbloqueadas · Sem anúncios",
-
   "tdeeTitle": "Calculadora de TDEE",
   "tdeeSubtitle": "Insira seus dados para calcular seu gasto energético diário total e definir sua meta de calorias automaticamente.",
   "sexMale": "Masculino",
@@ -116,7 +102,6 @@
   "suggestedGoals": "Metas sugeridas",
   "applyGoals": "Aplicar estas metas",
   "tdeeAppliedSnack": "Metas atualizadas pela calculadora de TDEE!",
-
   "activitySedentary": "Sedentário (pouco ou nenhum exercício)",
   "activityLight": "Levemente ativo (1–3 dias/semana)",
   "activityModerate": "Moderadamente ativo (3–5 dias/semana)",
@@ -129,7 +114,6 @@
   "bmiNormal": "Peso normal",
   "bmiOverweight": "Sobrepeso",
   "bmiObese": "Obesidade",
-
   "todayShareTooltip": "Compartilhe seu dia",
   "todayCopyTooltip": "Copiar refeições de ontem",
   "logFood": "Registrar comida",
@@ -140,20 +124,17 @@
   "copyYesterdayNone": "Nada registrado ontem.",
   "copyAction": "Copiar",
   "copiedSnack": "{count, plural, =1{1 item de ontem copiado.} other{{count} itens de ontem copiados.}}",
-
   "kcalEaten": "kcal ingeridas",
   "netKcal": "kcal líquidas",
   "kcalLeft": "{n} restantes",
   "kcalOver": "{n} a mais",
   "kcalBurnedLine": "−{n} queimadas",
-
   "bodyWeight": "Peso corporal",
   "notLoggedToday": "Não registrado hoje",
   "logWeight": "Registrar peso",
   "weightInvalid": "Insira um peso válido.",
   "weightSubtitleToday": "{kg} kg  ·  registrado hoje",
   "weightSubtitleDate": "{kg} kg  ·  registrado em {date}",
-
   "healthSync": "Sincronização com Saúde",
   "healthConnectApple": "Conecte o Apple Saúde para importar calorias queimadas e sincronizar sua nutrição.",
   "healthConnectGoogle": "Conecte o Google Health Connect para importar calorias queimadas e sincronizar sua nutrição.",
@@ -166,7 +147,6 @@
   "healthSynced": "Nutrição sincronizada com Saúde!",
   "healthWriteFailed": "Não foi possível gravar no Saúde.",
   "healthNotGranted": "Acesso ao Saúde não concedido. Verifique as permissões.",
-
   "activity": "Atividade",
   "noActivityToday": "Nenhuma atividade registrada hoje.",
   "addActivity": "Adicionar atividade",
@@ -190,7 +170,6 @@
   "actYoga": "Ioga",
   "actHIIT": "HIIT",
   "actHiking": "Trilha",
-
   "mealBreakfast": "Café da manhã",
   "mealLunch": "Almoço",
   "mealDinner": "Jantar",
@@ -199,7 +178,6 @@
   "deleteEntryBody": "Remover \"{name}\" de {meal}?",
   "holdToEdit": "segure para editar",
   "servingSizeLabel": "Tamanho da porção",
-
   "addFoodTitle": "Adicionar comida",
   "pickIngredientTitle": "Escolher ingrediente",
   "tabSearch": "Buscar",
@@ -224,7 +202,6 @@
   "recipePerServing": "{kcal} kcal/porção  ·  {count, plural, =1{1 porção} other{{count} porções}}",
   "recipeKcalPerServing": "{kcal} kcal por porção",
   "servingsToLog": "Porções a registrar",
-
   "createRecipeTitle": "Criar receita",
   "editRecipeTitle": "Editar receita",
   "recipeNameLabel": "Nome da receita",
@@ -238,7 +215,6 @@
   "total": "Total",
   "perServing": "Por porção",
   "perServingCount": "Por porção ({count} porções)",
-
   "createCustomFoodTitle": "Criar alimento personalizado",
   "foodDetailsSection": "Detalhes do alimento",
   "valuesPer100": "Os valores são por 100 g / 100 ml.",
@@ -248,7 +224,6 @@
   "fieldRequired": "Obrigatório",
   "enterValidNumber": "Insira um número válido",
   "saveAndLog": "Salvar e registrar porção",
-
   "removeFavourite": "Remover dos favoritos",
   "addToFavourites": "Adicionar aos favoritos",
   "servingSizeG": "Tamanho da porção (g)",
@@ -258,12 +233,16 @@
   "unitCup": "Xícara",
   "unitPiece": "Unidade",
   "approxGrams": "≈ {grams} g",
-  "@approxGrams": { "placeholders": { "grams": { "type": "int" } } },
+  "@approxGrams": {
+    "placeholders": {
+      "grams": {
+        "type": "int"
+      }
+    }
+  },
   "addToLabel": "Adicionar a",
   "addToMeal": "Adicionar a {meal}",
-
   "scanBarcodeTitle": "Escanear código de barras",
-
   "historyTitle": "Histórico",
   "noLoggedDays": "Ainda sem dias registrados.",
   "noEntriesThatDay": "Nenhum alimento registrado neste dia.",
@@ -278,7 +257,6 @@
   "weightTrend": "Tendência de peso",
   "prevMonth": "Mês anterior",
   "nextMonth": "Próximo mês",
-
   "shareDayTitle": "Compartilhe seu dia",
   "dayStreak": "{count, plural, =1{1 dia} other{{count} dias}}",
   "goalHit": "Meta batida!",
@@ -287,7 +265,6 @@
   "preparing": "Preparando…",
   "share": "Compartilhar",
   "shareText": "Minha nutrição hoje — registrada com PlateSimple 🥗\n{url}",
-
   "premiumTitle": "PlateSimple Premium",
   "premiumSubtitle": "Desbloqueie a experiência completa",
   "featInsightsTitle": "Análises semanais (7 dias)",
@@ -311,14 +288,16 @@
   "bestValue": "MELHOR VALOR",
   "billedYearly": "Cobrado uma vez por ano",
   "billedMonthly": "Cobrado mensalmente",
-
   "freeTrial": "Teste grátis",
   "legendUnder": "Abaixo",
   "legendOnTarget": "Na meta",
   "legendOver": "Acima",
-
   "notifTitle": "Hora de registrar suas refeições 🥗",
   "notifBody": "Mantenha sua sequência — registre o que você comeu hoje!",
   "notifChannelName": "Lembretes diários",
-  "notifChannelDesc": "Lembra você de registrar suas refeições todos os dias"
+  "notifChannelDesc": "Lembra você de registrar suas refeições todos os dias",
+  "servingOne": "1 porção",
+  "servingMany": "{count} porções",
+  "gramsPerServingLabel": "Tamanho da porção (g)",
+  "gramsPerServingHint": "Opcional. Mostra as quantidades também como porções, ex. 100 g (2 porções)."
 }
