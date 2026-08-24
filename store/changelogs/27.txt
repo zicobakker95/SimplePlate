@@ -1,0 +1,47 @@
+<en-US>
+• Amounts can now show servings next to grams, like "100 g (2 servings)", whenever the food tells us its serving size.
+• Custom foods can set their own serving size, so they show servings too.
+• Tap any logged entry to edit it — including entries from previous days. Editing was already possible, but only by long-pressing, which was easy to miss.
+</en-US>
+
+<de-DE>
+• Mengen können jetzt neben Gramm auch Portionen anzeigen, z. B. „100 g (2 Portionen)“, sofern das Lebensmittel eine Portionsgröße angibt.
+• Eigene Lebensmittel können eine eigene Portionsgröße festlegen und zeigen dann ebenfalls Portionen an.
+• Tippe auf einen Eintrag, um ihn zu bearbeiten – auch bei früheren Tagen. Das ging vorher nur per langem Drücken und war leicht zu übersehen.
+</de-DE>
+
+<es-ES>
+• Las cantidades ahora pueden mostrar raciones junto a los gramos, como «100 g (2 raciones)», siempre que el alimento indique su tamaño de ración.
+• Los alimentos personalizados pueden definir su propio tamaño de ración y así mostrar raciones también.
+• Toca cualquier entrada registrada para editarla, incluidas las de días anteriores. Ya se podía editar, pero solo manteniendo pulsado, algo fácil de pasar por alto.
+</es-ES>
+
+<fr-FR>
+• Les quantités peuvent désormais afficher les portions à côté des grammes, par exemple « 100 g (2 portions) », lorsque l'aliment indique sa taille de portion.
+• Les aliments personnalisés peuvent définir leur propre taille de portion et affichent donc aussi les portions.
+• Touche une entrée pour la modifier, y compris celles des jours précédents. C'était déjà possible, mais uniquement par appui long, ce qui passait facilement inaperçu.
+</fr-FR>
+
+<it-IT>
+• Le quantità ora possono mostrare le porzioni accanto ai grammi, ad esempio "100 g (2 porzioni)", quando l'alimento indica la dimensione della porzione.
+• Gli alimenti personalizzati possono impostare la propria dimensione della porzione e mostrare così anche le porzioni.
+• Tocca una voce registrata per modificarla, anche nei giorni precedenti. Era già possibile, ma solo con una pressione prolungata, facile da non notare.
+</it-IT>
+
+<ja-JP>
+• 食品が1食分のグラム数を持っている場合、分量を「100 g（2食分）」のようにグラムと一緒に表示できるようになりました。
+• 自分で追加した食品にも1食分のグラム数を設定でき、食分が表示されるようになります。
+• 記録した項目をタップして編集できるようになりました。過去の日付の記録も編集できます。これまでも長押しで編集できましたが、気づきにくい操作でした。
+</ja-JP>
+
+<nl-NL>
+• Hoeveelheden kunnen nu porties naast grammen tonen, zoals "100 g (2 porties)", als het voedingsmiddel een portiegrootte doorgeeft.
+• Eigen voedingsmiddelen kunnen hun eigen portiegrootte instellen en tonen dan ook porties.
+• Tik op een gelogde invoer om die te bewerken, ook van eerdere dagen. Bewerken kon al, maar alleen met lang indrukken, wat makkelijk te missen was.
+</nl-NL>
+
+<pt-BR>
+• As quantidades agora podem mostrar porções ao lado dos gramas, como "100 g (2 porções)", quando o alimento informa o tamanho da porção.
+• Alimentos personalizados podem definir o próprio tamanho de porção e assim também exibir porções.
+• Toque em qualquer registro para editá-lo, inclusive de dias anteriores. Já era possível editar, mas apenas com um toque longo, fácil de não perceber.
+</pt-BR>
