@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,6 +21,22 @@ class AdService {
   static String get _rewardedId => Platform.isAndroid
       ? 'ca-app-pub-8031424661917979/2257975161'
       : 'ca-app-pub-8031424661917979/6253060492';
+
+  /// Anchored adaptive banner, shown only on reading screens.
+  static String get bannerId => Platform.isAndroid
+      ? (kDebugMode
+          ? _testBannerAndroid
+          : 'ca-app-pub-8031424661917979/1959849813')
+      : (kDebugMode
+          ? _testBannerIOS
+          : 'ca-app-pub-8031424661917979/7131346093');
+
+  /// Google's public test units. Development traffic against the production
+  /// units is exactly what AdMob's invalid-traffic detection looks for, and
+  /// the penalty lands on the account rather than the build. Test units also
+  /// always fill, which is what makes a placement verifiable on an emulator.
+  static const _testBannerAndroid = 'ca-app-pub-3940256099942544/6300978111';
+  static const _testBannerIOS = 'ca-app-pub-3940256099942544/2934735716';
 
   static const _kScannerUnlockDate = 'sp.ads.scanner.unlock.date';
 

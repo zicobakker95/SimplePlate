@@ -13,6 +13,7 @@ import 'barcode_screen.dart';
 import 'create_custom_food_screen.dart';
 import 'create_recipe_screen.dart';
 import 'food_detail_screen.dart';
+import '../../widgets/ad_banner.dart';
 
 class AddFoodScreen extends StatefulWidget {
   const AddFoodScreen({
@@ -167,6 +168,9 @@ class _AddFoodScreenState extends State<AddFoodScreen>
           ];
 
     return Scaffold(
+      // Reading screen: search results, not a logging decision. The bottom
+      // bar keeps the list above it.
+      bottomNavigationBar: AdBanner.bar(),
       appBar: AppBar(
         title: Text(widget.pickMode ? l10n.pickIngredientTitle : l10n.addFoodTitle),
         bottom: TabBar(

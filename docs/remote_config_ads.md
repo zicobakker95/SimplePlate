@@ -67,9 +67,19 @@ Measured against the code, not guessed:
    time, watching D1/D7 rather than impressions. Impressions rise by
    construction; they answer nothing on their own.
 
-## Blocked: there is no banner ad unit
+## Banners
 
-`ad_service.dart` carries an interstitial and a rewarded unit. There is no
-banner unit for PlateSimple in AdMob, so `ad_banner_enabled` currently has
-nothing to switch on. Creating one in AdMob and adding the Android + iOS ids
-is the one manual step before banners can ship.
+Live as of the change that added this section. One banner instance lives in
+`home_shell`, directly above the nav bar, so all three tabs share it and
+switching tabs does not dispose and re-request it — repeated requests that
+never get shown are what ruins a match rate. The food search screen has its
+own.
+
+Never on: the food detail screen (an "Add to meal" button sits there and a
+misplaced tap logs the wrong thing), the custom food and recipe forms (they
+open a keyboard), the barcode camera, or the Premium screen — selling an
+ad-free upgrade next to an ad argues against itself.
+
+Debug builds use Google's test units, so development traffic never hits the
+production ones; that is what AdMob's invalid-traffic detection looks for and
+the penalty lands on the account.
