@@ -21,6 +21,8 @@ dependencies:
   firebase_core: ^4.2.1
   firebase_analytics: ^12.4.6
   firebase_crashlytics: ^5.2.7
+  # Server-tunable ad frequency + A/B tests without shipping a build.
+  firebase_remote_config: ^6.0.4
 
   # State
   provider: ^6.1.5+1

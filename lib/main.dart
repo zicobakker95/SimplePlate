@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +10,7 @@ import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/home/home_shell.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+import 'services/ad_config.dart';
 import 'services/ad_service.dart';
 import 'services/analytics_service.dart';
 import 'services/food_store.dart';
@@ -39,6 +41,11 @@ Future<void> main() async {
 
   final storage = await StorageService.init();
   await NotificationService.instance.init();
+  // Ad frequency comes from Remote Config so it can be tuned and A/B tested
+  // without a build. Fire-and-forget: it activates whatever was fetched last
+  // launch and refreshes in the background, falling back to the shipped
+  // defaults until one arrives. Startup never waits on the network.
+  unawaited(AdConfig.instance.init());
   await AdService.instance.initialize();
   await WidgetService.instance.init();
   // Subscriptions are initialized in parallel; don't await to keep startup fast

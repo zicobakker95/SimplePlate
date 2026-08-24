@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'ad_config.dart';
 import 'subscription_service.dart';
 
 /// Manages AdMob interstitial (post-log, once per session) and
@@ -52,14 +53,33 @@ class AdService {
 
   /// Shows the interstitial once per session after a food is logged.
   /// [onComplete] is always called regardless of whether the ad shows.
+  /// Foods logged since the last post-log interstitial. Drives the
+  /// every-Nth gate; the once-per-session cap is applied on top.
+  int _logsSinceInterstitial = 0;
+
   Future<void> showPostLogInterstitial({required VoidCallback onComplete}) async {
     // Premium users never see ads.
-    if (SubscriptionService.instance.isPremium ||
-        _interstitialShownThisSession ||
-        _interstitial == null) {
+    if (SubscriptionService.instance.isPremium || _interstitial == null) {
       onComplete();
       return;
     }
+
+    final cfg = AdConfig.instance;
+    // The shipped behaviour, and the reason impressions are low: one
+    // interstitial per app session no matter how many meals get logged. It is
+    // now a Remote Config flag so it can be relaxed and measured rather than
+    // guessed at.
+    if (cfg.logInterstitialOncePerSession && _interstitialShownThisSession) {
+      onComplete();
+      return;
+    }
+
+    _logsSinceInterstitial += 1;
+    if (_logsSinceInterstitial < cfg.logInterstitialEvery) {
+      onComplete();
+      return;
+    }
+    _logsSinceInterstitial = 0;
     _interstitialShownThisSession = true;
     _interstitial!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
