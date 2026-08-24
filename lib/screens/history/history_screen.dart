@@ -14,6 +14,9 @@ import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/edit_entry_sheet.dart';
 import '../../utils/serving_format.dart';
+import '../../services/ad_service.dart';
+import '../../services/ad_config.dart';
+import '../../services/analytics_service.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -28,113 +31,148 @@ class HistoryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.historyTitle)),
-      body: Column(
-        children: [
-          Padding(
+      // One scroll for the whole page. This used to be a fixed-height header
+      // above an Expanded list, which had no room to give: adding the banner
+      // took ~50px and the header started overflowing. Slivers also mean the
+      // date list is still built lazily rather than all at once.
+      body: CustomScrollView(
+        slivers: [
+          SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Column(
-              children: [
-                ListenableBuilder(
-                  listenable: SubscriptionService.instance,
-                  builder: (context, _) {
-                    final isPremium = SubscriptionService.instance.isPremium;
-                    if (isPremium) {
-                      return _WeeklySummaryCard(store: store, goals: goals);
-                    }
-                    return _WeeklyInsightsTeaser();
-                  },
-                ),
-                const SizedBox(height: 12),
-                // Weight trend chart (always visible when data exists)
-                if (store.recentWeightEntries.isNotEmpty)
-                  _WeightTrendCard(entries: store.recentWeightEntries),
-                const SizedBox(height: 12),
-                // Monthly calendar heatmap
-                _CalendarHeatmap(store: store, goals: goals),
-                const SizedBox(height: 12),
-              ],
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  ListenableBuilder(
+                    // AdService too: a rewarded day-unlock has to swap the
+                    // teaser for the real card immediately, without a restart.
+                    listenable: Listenable.merge([
+                      SubscriptionService.instance,
+                      AdService.instance,
+                    ]),
+                    builder: (context, _) {
+                      final unlocked =
+                          SubscriptionService.instance.isPremium ||
+                          AdService.instance.isUnlocked(
+                            AdService.insightsUnlockKey,
+                          );
+                      if (unlocked) {
+                        return _WeeklySummaryCard(
+                          store: store,
+                          goals: goals,
+                          temporary: !SubscriptionService.instance.isPremium,
+                        );
+                      }
+                      return _WeeklyInsightsTeaser();
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  // Weight trend chart (always visible when data exists)
+                  if (store.recentWeightEntries.isNotEmpty)
+                    _WeightTrendCard(entries: store.recentWeightEntries),
+                  const SizedBox(height: 12),
+                  // Monthly calendar heatmap
+                  _CalendarHeatmap(store: store, goals: goals),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           ),
-          Expanded(
-            child: dates.isEmpty
-                ? Center(
-                    child: Text(l10n.noLoggedDays,
-                        style: const TextStyle(color: AppColors.textMuted)))
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: dates.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
-                    itemBuilder: (_, i) {
-                      final date = dates[i];
-                      final entries = store.entriesForDay(date);
-                      final cals =
-                          entries.fold<double>(0, (s, e) => s + e.calories);
-                      final pct =
-                          (cals / goals.dailyCalories.toDouble()).clamp(0.0, 1.0);
-                      final isToday = _isSameDay(date, DateTime.now());
+          if (dates.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Text(
+                  l10n.noLoggedDays,
+                  style: const TextStyle(color: AppColors.textMuted),
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverList.separated(
+                itemCount: dates.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (_, i) {
+                  final date = dates[i];
+                  final entries = store.entriesForDay(date);
+                  final cals = entries.fold<double>(
+                    0,
+                    (s, e) => s + e.calories,
+                  );
+                  final pct = (cals / goals.dailyCalories.toDouble()).clamp(
+                    0.0,
+                    1.0,
+                  );
+                  final isToday = _isSameDay(date, DateTime.now());
 
-                      return Card(
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () => showDaySheet(context, date),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
+                  return Card(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => showDaySheet(context, date),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      isToday
-                                          ? l10n.today
-                                          : DateFormat('EEE, MMM d', locale)
-                                              .format(date),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w700),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.itemsCount(entries.length),
-                                      style: const TextStyle(
-                                          color: AppColors.textSecondary,
-                                          fontSize: 12),
-                                    ),
-                                  ],
+                                Text(
+                                  isToday
+                                      ? l10n.today
+                                      : DateFormat(
+                                          'EEE, MMM d',
+                                          locale,
+                                        ).format(date),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                                const Spacer(),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '${cals.round()} kcal',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.calories),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    SizedBox(
-                                      width: 100,
-                                      child: LinearProgressIndicator(
-                                        value: pct,
-                                        backgroundColor: AppColors.border,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation<Color>(
-                                                AppColors.primary),
-                                        minHeight: 4,
-                                        borderRadius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.itemsCount(entries.length),
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${cals.round()} kcal',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.calories,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                SizedBox(
+                                  width: 100,
+                                  child: LinearProgressIndicator(
+                                    value: pct,
+                                    backgroundColor: AppColors.border,
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          AppColors.primary,
+                                        ),
+                                    minHeight: 4,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-          ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -142,7 +180,6 @@ class HistoryScreen extends StatelessWidget {
 
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
-
 }
 
 /// Opens the editable day sheet for [date].
@@ -155,7 +192,8 @@ void showDaySheet(BuildContext context, DateTime date) {
     isScrollControlled: true,
     backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
     builder: (_) => _DaySheet(date: date),
   );
 }
@@ -195,31 +233,48 @@ class _DaySheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2)),
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          Text(DateFormat('EEEE, MMMM d, y', locale).format(date),
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            DateFormat('EEEE, MMMM d, y', locale).format(date),
+            style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 4),
           Text(
             '${l10n.itemsCount(entries.length)}  ·  '
             '${cals.round()} / ${goals.dailyCalories} kcal',
             style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 12),
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 14),
           // Day totals — recomputed on every store change.
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _Stat(l10n.macroCalories, '${cals.round()}', 'kcal',
-                  AppColors.calories),
-              _Stat(l10n.macroProtein, protein.toStringAsFixed(1), 'g',
-                  AppColors.protein),
-              _Stat(l10n.macroCarbs, carbs.toStringAsFixed(1), 'g',
-                  AppColors.carbs),
+              _Stat(
+                l10n.macroCalories,
+                '${cals.round()}',
+                'kcal',
+                AppColors.calories,
+              ),
+              _Stat(
+                l10n.macroProtein,
+                protein.toStringAsFixed(1),
+                'g',
+                AppColors.protein,
+              ),
+              _Stat(
+                l10n.macroCarbs,
+                carbs.toStringAsFixed(1),
+                'g',
+                AppColors.carbs,
+              ),
               _Stat(l10n.macroFat, fat.toStringAsFixed(1), 'g', AppColors.fat),
             ],
           ),
@@ -229,22 +284,30 @@ class _DaySheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Center(
-                child: Text(l10n.noEntriesThatDay,
-                    style: const TextStyle(color: AppColors.textMuted)),
+                child: Text(
+                  l10n.noEntriesThatDay,
+                  style: const TextStyle(color: AppColors.textMuted),
+                ),
               ),
             )
           else
             // Grouped by meal so the day reads the same way the Today tab does.
             for (final meal in MealType.values)
-              ..._mealBlock(context, meal,
-                  entries.where((e) => e.meal == meal).toList()),
+              ..._mealBlock(
+                context,
+                meal,
+                entries.where((e) => e.meal == meal).toList(),
+              ),
         ],
       ),
     );
   }
 
   List<Widget> _mealBlock(
-      BuildContext context, MealType meal, List<FoodEntry> entries) {
+    BuildContext context,
+    MealType meal,
+    List<FoodEntry> entries,
+  ) {
     if (entries.isEmpty) return const [];
     final l10n = context.l10n;
     final store = context.read<FoodStore>();
@@ -257,15 +320,19 @@ class _DaySheet extends StatelessWidget {
           children: [
             Text(meal.emoji, style: const TextStyle(fontSize: 14)),
             const SizedBox(width: 8),
-            Text(meal.localizedLabel(l10n),
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 13)),
+            Text(
+              meal.localizedLabel(l10n),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+            ),
             const Spacer(),
-            Text('${mealCals.round()} kcal',
-                style: const TextStyle(
-                    color: AppColors.calories,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12)),
+            Text(
+              '${mealCals.round()} kcal',
+              style: const TextStyle(
+                color: AppColors.calories,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
       ),
@@ -291,28 +358,40 @@ class _DaySheet extends StatelessWidget {
             // a user emailed twice to ask for a feature the app already had.
             onTap: () => showEditEntrySheet(context, e),
             onLongPress: () => showEditEntrySheet(context, e),
-            title: Text(e.foodName,
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(
+              e.foodName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             subtitle: Text(
               '${gramsWithServings(l10n, e.servingGrams, e.servingSizeGrams)}'
               '  ·  P ${e.protein.toStringAsFixed(1)}g'
               '  C ${e.carbs.toStringAsFixed(1)}g'
               '  F ${e.fat.toStringAsFixed(1)}g',
               style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 11),
+                color: AppColors.textSecondary,
+                fontSize: 11,
+              ),
             ),
             trailing: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('${e.calories.round()} kcal',
-                    style: const TextStyle(
-                        color: AppColors.calories,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600)),
-                Text(l10n.holdToEdit,
-                    style: const TextStyle(
-                        fontSize: 9, color: AppColors.textMuted)),
+                Text(
+                  '${e.calories.round()} kcal',
+                  style: const TextStyle(
+                    color: AppColors.calories,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  l10n.holdToEdit,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textMuted,
+                  ),
+                ),
               ],
             ),
             contentPadding: EdgeInsets.zero,
@@ -331,18 +410,45 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value,
-            style: TextStyle(
-                fontWeight: FontWeight.w700, color: color, fontSize: 18)),
-        Text(unit,
-            style: const TextStyle(
-                color: AppColors.textMuted, fontSize: 10)),
-        Text(label,
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 11)),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: color,
+            fontSize: 18,
+          ),
+        ),
+        Text(
+          unit,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+        ),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+        ),
       ],
     );
   }
+}
+
+/// Offers the weekly insights for [AdConfig.insightsUnlockDays] in exchange
+/// for a rewarded ad. The History gate listens to AdService, so a successful
+/// unlock swaps this teaser for the real card with no restart.
+Future<void> _unlockInsightsWithAd(BuildContext context) async {
+  final l10n = context.l10n;
+  final messenger = ScaffoldMessenger.of(context);
+  await AdService.instance.showRewardedUnlock(
+    key: AdService.insightsUnlockKey,
+    days: AdConfig.instance.insightsUnlockDays,
+    onUnlocked: () {
+      AnalyticsService.instance.logEvent('rewarded_ad_watched', {
+        'placement': 'weekly_insights',
+      });
+    },
+    onCancelled: () {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.unlockAdUnavailable)));
+    },
+  );
 }
 
 class _WeeklyInsightsTeaser extends StatelessWidget {
@@ -350,65 +456,90 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return ConstrainedBox(
+      // A floor for the dimmed chart behind the lock, which is now the
+      // Positioned.fill child and would otherwise be squeezed. The overlay
+      // sizes the card upward from here, so a longer translation or a larger
+      // text scale makes the card taller instead of overflowing it.
       constraints: const BoxConstraints(minHeight: 180),
       child: Card(
-      clipBehavior: Clip.hardEdge,
-      child: Stack(
-        children: [
-          // Dimmed fake chart behind the lock
-          Opacity(
-            opacity: 0.15,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          children: [
+            // Dimmed fake chart behind the lock
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.15,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.sevenDayAverage,
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                      const Spacer(),
-                      Text(l10n.kcalAvgEmpty,
-                          style: const TextStyle(
+                      Row(
+                        children: [
+                          Text(
+                            l10n.sevenDayAverage,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          const Spacer(),
+                          Text(
+                            l10n.kcalAvgEmpty,
+                            style: const TextStyle(
                               color: AppColors.calories,
                               fontWeight: FontWeight.w600,
-                              fontSize: 13)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 64,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: List.generate(7, (i) {
-                        final heights = [20.0, 30.0, 15.0, 35.0, 28.0, 40.0, 22.0];
-                        return Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(left: i > 0 ? 4 : 0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Container(
-                                  height: heights[i],
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                              ],
+                              fontSize: 13,
                             ),
                           ),
-                        );
-                      }),
-                    ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 64,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: List.generate(7, (i) {
+                            final heights = [
+                              20.0,
+                              30.0,
+                              15.0,
+                              35.0,
+                              28.0,
+                              40.0,
+                              22.0,
+                            ];
+                            return Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: i > 0 ? 4 : 0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      height: heights[i],
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary,
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-          // Lock overlay
-          Positioned.fill(
-            child: Container(
+            // The overlay, not the chart, sizes the card. It used to be
+            // Positioned.fill, which meant a taller overlay -- a longer
+            // translation, a bigger text scale, or the watch-an-ad action
+            // added here -- overflowed instead of making the card taller.
+            Container(
+              // Full width, natural height: as the Stack's only unpositioned child
+              // it decides both, and without this it shrink-wraps to the text,
+              // leaving a narrow card with the chart squeezed behind it.
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.55),
               ),
@@ -421,19 +552,26 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.workspace_premium_rounded,
-                        color: AppColors.primary, size: 28),
+                    child: const Icon(
+                      Icons.workspace_premium_rounded,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  Text(l10n.weeklyInsights,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15)),
+                  Text(
+                    l10n.weeklyInsights,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(l10n.premiumFeature,
-                      style: const TextStyle(
-                          color: Colors.white60, fontSize: 12)),
+                  Text(
+                    l10n.premiumFeature,
+                    style: const TextStyle(color: Colors.white60, fontSize: 12),
+                  ),
                   const SizedBox(height: 14),
                   FilledButton.icon(
                     icon: const Icon(Icons.workspace_premium_rounded, size: 16),
@@ -442,39 +580,65 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
+                  // The same day-unlock deal the barcode scanner offers. This card
+                  // already existed purely to advertise a feature free users cannot
+                  // have; letting them earn it for a day turns the advert into a
+                  // trial, and a trial sells the subscription better than a lock does.
+                  if (AdConfig.instance.insightsRewardedEnabled) ...[
+                    const SizedBox(height: 4),
+                    TextButton(
+                      onPressed: () => _unlockInsightsWithAd(context),
+                      child: Text(
+                        l10n.unlockWithAdToday,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-          ),
-        ],
-      ),   // Stack
-    ),     // Card
-    );     // ConstrainedBox
+          ],
+        ), // Stack)
+      ), // Card
+    ); // ConstrainedBox
   }
 } // _WeeklyInsightsTeaser
 
 class _WeeklySummaryCard extends StatelessWidget {
-  const _WeeklySummaryCard({required this.store, required this.goals});
+  const _WeeklySummaryCard({
+    required this.store,
+    required this.goals,
+    this.temporary = false,
+  });
   final FoodStore store;
   final NutritionGoals goals;
+
+  /// True when this is showing because of a rewarded day-unlock rather than
+  /// Premium. Labelled so nobody thinks they bought something they did not,
+  /// and so the card still reads as a trial of a paid feature.
+  final bool temporary;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
-    final days = List.generate(
-      7,
-      (i) {
-        final d = now.subtract(Duration(days: 6 - i));
-        return DateTime(d.year, d.month, d.day);
-      },
-    );
+    final days = List.generate(7, (i) {
+      final d = now.subtract(Duration(days: 6 - i));
+      return DateTime(d.year, d.month, d.day);
+    });
     final cals = days.map((d) => store.caloriesTotalsForDay(d)).toList();
     final avg = cals.reduce((a, b) => a + b) / 7;
     final maxCals = cals.reduce(max);
@@ -488,15 +652,39 @@ class _WeeklySummaryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(l10n.sevenDayAverage,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(
+                  l10n.sevenDayAverage,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                if (temporary) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      l10n.unlockedForToday,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 Text(
                   l10n.kcalAvg(avg.round()),
                   style: const TextStyle(
-                      color: AppColors.calories,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13),
+                    color: AppColors.calories,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
@@ -535,15 +723,18 @@ class _WeeklySummaryCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(3),
                               border: isToday
                                   ? Border.all(
-                                      color: AppColors.primary, width: 1.5)
+                                      color: AppColors.primary,
+                                      width: 1.5,
+                                    )
                                   : null,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('E', locale)
-                                .format(days[i])
-                                .substring(0, 1),
+                            DateFormat(
+                              'E',
+                              locale,
+                            ).format(days[i]).substring(0, 1),
                             style: TextStyle(
                               fontSize: 10,
                               color: isToday
@@ -588,15 +779,18 @@ class _WeightTrendCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(l10n.weightTrend,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(
+                  l10n.weightTrend,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
                 const Spacer(),
                 Text(
                   '${entries.last.kg} kg',
                   style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
@@ -619,12 +813,16 @@ class _WeightTrendCard extends StatelessWidget {
                 Text(
                   DateFormat('MMM d', locale).format(entries.first.loggedAt),
                   style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 10),
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                  ),
                 ),
                 Text(
                   DateFormat('MMM d', locale).format(entries.last.loggedAt),
                   style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 10),
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                  ),
                 ),
               ],
             ),
@@ -664,8 +862,12 @@ class _WeightLinePainter extends CustomPainter {
     final path = Path();
     for (var i = 0; i < entries.length; i++) {
       final x = i / (entries.length - 1) * size.width;
-      final y = size.height -
-          ((entries[i].kg - minKg) / range * size.height).clamp(4.0, size.height - 4.0);
+      final y =
+          size.height -
+          ((entries[i].kg - minKg) / range * size.height).clamp(
+            4.0,
+            size.height - 4.0,
+          );
       if (i == 0) {
         path.moveTo(x, y);
       } else {
@@ -735,8 +937,9 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left_rounded, size: 20),
-                  onPressed: () => setState(() =>
-                      _month = DateTime(_month.year, _month.month - 1)),
+                  onPressed: () => setState(
+                    () => _month = DateTime(_month.year, _month.month - 1),
+                  ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   tooltip: l10n.prevMonth,
@@ -749,11 +952,16 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.chevron_right_rounded, size: 20),
-                  onPressed: DateTime(_month.year, _month.month + 1)
-                          .isAfter(DateTime.now())
+                  onPressed:
+                      DateTime(
+                        _month.year,
+                        _month.month + 1,
+                      ).isAfter(DateTime.now())
                       ? null
-                      : () => setState(() =>
-                          _month = DateTime(_month.year, _month.month + 1)),
+                      : () => setState(
+                          () =>
+                              _month = DateTime(_month.year, _month.month + 1),
+                        ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   tooltip: l10n.nextMonth,
@@ -764,15 +972,20 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
             // Day-of-week headers
             Row(
               children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                  .map((d) => Expanded(
-                        child: Center(
-                          child: Text(d,
-                              style: const TextStyle(
-                                  color: AppColors.textMuted,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600)),
+                  .map(
+                    (d) => Expanded(
+                      child: Center(
+                        child: Text(
+                          d,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ))
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
             const SizedBox(height: 6),
@@ -824,8 +1037,9 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
                       '$day',
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight:
-                            isToday ? FontWeight.w800 : FontWeight.normal,
+                        fontWeight: isToday
+                            ? FontWeight.w800
+                            : FontWeight.normal,
                         color: cals > 0 && !isFuture
                             ? Colors.white
                             : AppColors.textMuted,
@@ -840,10 +1054,15 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _LegendDot(AppColors.primary.withOpacity(0.3), l10n.legendUnder),
+                _LegendDot(
+                  AppColors.primary.withOpacity(0.3),
+                  l10n.legendUnder,
+                ),
                 const SizedBox(width: 8),
                 _LegendDot(
-                    AppColors.primary.withOpacity(0.75), l10n.legendOnTarget),
+                  AppColors.primary.withOpacity(0.75),
+                  l10n.legendOnTarget,
+                ),
                 const SizedBox(width: 8),
                 _LegendDot(AppColors.danger.withOpacity(0.6), l10n.legendOver),
               ],
@@ -867,13 +1086,16 @@ class _LegendDot extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration:
-              BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
         const SizedBox(width: 4),
-        Text(label,
-            style: const TextStyle(
-                fontSize: 9, color: AppColors.textMuted)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+        ),
       ],
     );
   }

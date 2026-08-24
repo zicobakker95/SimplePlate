@@ -299,5 +299,8 @@
   "servingOne": "1 portie",
   "servingMany": "{count} porties",
   "gramsPerServingLabel": "Portiegrootte (g)",
-  "gramsPerServingHint": "Optioneel. Toont hoeveelheden ook als porties, bijv. 100 g (2 porties)."
+  "gramsPerServingHint": "Optioneel. Toont hoeveelheden ook als porties, bijv. 100 g (2 porties).",
+  "unlockWithAdToday": "Bekijk een advertentie om het vandaag te zien",
+  "unlockedForToday": "Vandaag ontgrendeld",
+  "unlockAdUnavailable": "Nu geen video beschikbaar. Probeer het zo nog eens."
 }

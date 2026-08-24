@@ -1001,4 +1001,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get gramsPerServingHint =>
       'Opcional. Muestra las cantidades también como raciones, p. ej. 100 g (2 raciones).';
+
+  @override
+  String get unlockWithAdToday => 'Ver un anuncio para verlo hoy';
+
+  @override
+  String get unlockedForToday => 'Desbloqueado por hoy';
+
+  @override
+  String get unlockAdUnavailable =>
+      'No hay ningún vídeo disponible ahora. Inténtalo en un momento.';
 }

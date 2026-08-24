@@ -299,5 +299,8 @@
   "servingOne": "1 porzione",
   "servingMany": "{count} porzioni",
   "gramsPerServingLabel": "Dimensione porzione (g)",
-  "gramsPerServingHint": "Facoltativo. Mostra le quantità anche come porzioni, es. 100 g (2 porzioni)."
+  "gramsPerServingHint": "Facoltativo. Mostra le quantità anche come porzioni, es. 100 g (2 porzioni).",
+  "unlockWithAdToday": "Guarda un annuncio per vederlo oggi",
+  "unlockedForToday": "Sbloccato per oggi",
+  "unlockAdUnavailable": "Nessun video disponibile al momento. Riprova tra poco."
 }

@@ -1867,6 +1867,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Optional. Lets amounts show as servings, e.g. 100 g (2 servings).'**
   String get gramsPerServingHint;
+
+  /// No description provided for @unlockWithAdToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad to see it today'**
+  String get unlockWithAdToday;
+
+  /// No description provided for @unlockedForToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked for today'**
+  String get unlockedForToday;
+
+  /// No description provided for @unlockAdUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No video available right now. Try again in a moment.'**
+  String get unlockAdUnavailable;
 }
 
 class _AppLocalizationsDelegate

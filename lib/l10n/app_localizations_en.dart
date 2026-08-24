@@ -994,4 +994,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get gramsPerServingHint =>
       'Optional. Lets amounts show as servings, e.g. 100 g (2 servings).';
+
+  @override
+  String get unlockWithAdToday => 'Watch an ad to see it today';
+
+  @override
+  String get unlockedForToday => 'Unlocked for today';
+
+  @override
+  String get unlockAdUnavailable =>
+      'No video available right now. Try again in a moment.';
 }

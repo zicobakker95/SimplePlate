@@ -493,5 +493,8 @@
     }
   },
   "gramsPerServingLabel": "Serving size (g)",
-  "gramsPerServingHint": "Optional. Lets amounts show as servings, e.g. 100 g (2 servings)."
+  "gramsPerServingHint": "Optional. Lets amounts show as servings, e.g. 100 g (2 servings).",
+  "unlockWithAdToday": "Watch an ad to see it today",
+  "unlockedForToday": "Unlocked for today",
+  "unlockAdUnavailable": "No video available right now. Try again in a moment."
 }

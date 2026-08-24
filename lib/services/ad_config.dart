@@ -45,6 +45,12 @@ class AdConfig {
   /// Days a rewarded scanner unlock lasts. 1 = the rest of today.
   static const kScannerUnlockDays = 'ad_scanner_unlock_days';
 
+  /// Rewarded day-unlock for the weekly insights card, the one real feature
+  /// Premium gates. The History teaser already advertises it; this lets a free
+  /// user have it for a day in exchange for an ad.
+  static const kInsightsRewardedEnabled = 'ad_insights_rewarded_enabled';
+  static const kInsightsUnlockDays = 'ad_insights_unlock_days';
+
   /// Shipped behaviour. Also what Remote Config falls back to.
   static const Map<String, dynamic> defaults = <String, dynamic>{
     kLogInterstitialEvery: 1,
@@ -52,6 +58,8 @@ class AdConfig {
     kBannerEnabled: true,
     kScannerRewardedEnabled: true,
     kScannerUnlockDays: 1,
+    kInsightsRewardedEnabled: true,
+    kInsightsUnlockDays: 1,
   };
 
   // ---- clamps -------------------------------------------------------------
@@ -138,6 +146,11 @@ class AdConfig {
   int get scannerUnlockDays =>
       _int(kScannerUnlockDays).clamp(1, maxScannerUnlockDays);
 
+  bool get insightsRewardedEnabled => _bool(kInsightsRewardedEnabled);
+
+  int get insightsUnlockDays =>
+      _int(kInsightsUnlockDays).clamp(1, maxScannerUnlockDays);
+
   /// Everything currently in force, for the debug menu and for reading a
   /// session's numbers against the config it ran under.
   Map<String, Object> snapshot() => <String, Object>{
@@ -146,6 +159,8 @@ class AdConfig {
         kBannerEnabled: bannerEnabled,
         kScannerRewardedEnabled: scannerRewardedEnabled,
         kScannerUnlockDays: scannerUnlockDays,
+        kInsightsRewardedEnabled: insightsRewardedEnabled,
+        kInsightsUnlockDays: insightsUnlockDays,
       };
 
   /// Forces values without a Firebase project, so the clamps and fallbacks can

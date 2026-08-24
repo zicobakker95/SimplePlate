@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'ad_config.dart';
 import 'subscription_service.dart';
 
 /// Manages AdMob interstitial (post-log, once per session) and
 /// rewarded ad (barcode scanner unlock, once per day).
-class AdService {
+class AdService extends ChangeNotifier {
   AdService._();
   static final instance = AdService._();
 
@@ -38,7 +38,15 @@ class AdService {
   static const _testBannerAndroid = 'ca-app-pub-3940256099942544/6300978111';
   static const _testBannerIOS = 'ca-app-pub-3940256099942544/2934735716';
 
-  static const _kScannerUnlockDate = 'sp.ads.scanner.unlock.date';
+  /// Rewarded day-unlocks, keyed by feature. The stored value is the date the
+  /// unlock EXPIRES (inclusive), so a multi-day unlock is expressible; the
+  /// scanner key keeps its original name so existing unlocks survive the
+  /// upgrade.
+  static const scannerUnlockKey = 'sp.ads.scanner.unlock.date';
+  static const insightsUnlockKey = 'sp.ads.insights.unlock.date';
+
+  /// Cached in memory so the UI can ask synchronously while building.
+  final Map<String, String> _unlockExpiry = {};
 
   // ── State ──────────────────────────────────────────────────────────────────
   InterstitialAd? _interstitial;
@@ -47,6 +55,13 @@ class AdService {
 
   // ── Init ───────────────────────────────────────────────────────────────────
   Future<void> initialize() async {
+    // Load unlock state up front so the UI can ask synchronously rather than
+    // flashing a locked card while a Future resolves.
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in const [scannerUnlockKey, insightsUnlockKey]) {
+      final v = prefs.getString(key);
+      if (v != null) _unlockExpiry[key] = v;
+    }
     await MobileAds.instance.initialize();
     _loadInterstitial();
     _loadRewarded();
@@ -127,20 +142,39 @@ class AdService {
   }
 
   /// Returns true if the user has already unlocked the scanner today.
-  Future<bool> isScannerUnlockedToday() async {
-    // Premium users always have the scanner unlocked.
+  Future<bool> isScannerUnlockedToday() async =>
+      isUnlocked(scannerUnlockKey);
+
+  /// True while [key] is unlocked. Premium unlocks everything.
+  ///
+  /// Dates are stored as YYYY-MM-DD, so a lexicographic compare is also a
+  /// chronological one — no parsing, and no timezone arithmetic to get wrong.
+  bool isUnlocked(String key) {
     if (SubscriptionService.instance.isPremium) return true;
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getString(_kScannerUnlockDate);
-    final today = _dateKey(DateTime.now());
-    return stored == today;
+    final expiry = _unlockExpiry[key];
+    if (expiry == null) return false;
+    return expiry.compareTo(_dateKey(DateTime.now())) >= 0;
+  }
+
+  /// Unlocks [key] for [days] days, inclusive of today. days = 1 means the
+  /// rest of today, which is what the scanner always did.
+  Future<void> unlockFor(String key, int days) async {
+    final until = DateTime.now().add(Duration(days: days - 1));
+    final value = _dateKey(until);
+    _unlockExpiry[key] = value;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(key, value);
+    } catch (e) {
+      // The in-memory grant still stands for this session; only persistence
+      // failed, and the user has already watched the ad.
+      debugPrint('[ads] could not persist unlock for $key: $e');
+    }
   }
 
   /// Unlocks the scanner for today by saving today's date.
-  Future<void> _unlockScannerToday() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kScannerUnlockDate, _dateKey(DateTime.now()));
-  }
+
 
   /// Shows the rewarded ad to unlock the scanner for the day.
   /// Calls [onUnlocked] if the user earns the reward.
@@ -148,10 +182,26 @@ class AdService {
   Future<void> showScannerRewardedAd({
     required VoidCallback onUnlocked,
     required VoidCallback onCancelled,
+  }) =>
+      showRewardedUnlock(
+        key: scannerUnlockKey,
+        days: AdConfig.instance.scannerUnlockDays,
+        onUnlocked: onUnlocked,
+        onCancelled: onCancelled,
+      );
+
+  /// Shows a rewarded ad and, if the user earns the reward, unlocks [key] for
+  /// [days]. One flow for every day-unlock so a second placement cannot drift
+  /// from the first — the scanner and the weekly insights share this.
+  Future<void> showRewardedUnlock({
+    required String key,
+    required int days,
+    required VoidCallback onUnlocked,
+    required VoidCallback onCancelled,
   }) async {
     if (_rewarded == null) {
       // Ad not loaded yet — grant access gracefully
-      await _unlockScannerToday();
+      await unlockFor(key, days);
       onUnlocked();
       return;
     }
@@ -180,7 +230,7 @@ class AdService {
     await _rewarded!.show(
       onUserEarnedReward: (_, reward) async {
         rewarded = true;
-        await _unlockScannerToday();
+        await unlockFor(key, days);
       },
     );
   }

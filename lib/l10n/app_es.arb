@@ -299,5 +299,8 @@
   "servingOne": "1 ración",
   "servingMany": "{count} raciones",
   "gramsPerServingLabel": "Tamaño de ración (g)",
-  "gramsPerServingHint": "Opcional. Muestra las cantidades también como raciones, p. ej. 100 g (2 raciones)."
+  "gramsPerServingHint": "Opcional. Muestra las cantidades también como raciones, p. ej. 100 g (2 raciones).",
+  "unlockWithAdToday": "Ver un anuncio para verlo hoy",
+  "unlockedForToday": "Desbloqueado por hoy",
+  "unlockAdUnavailable": "No hay ningún vídeo disponible ahora. Inténtalo en un momento."
 }

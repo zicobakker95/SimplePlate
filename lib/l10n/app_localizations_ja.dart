@@ -969,4 +969,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get gramsPerServingHint => '任意。分量を「100 g（2食分）」のように表示できます。';
+
+  @override
+  String get unlockWithAdToday => '広告を見て今日だけ表示';
+
+  @override
+  String get unlockedForToday => '今日だけ利用可能';
+
+  @override
+  String get unlockAdUnavailable => '今は動画を表示できません。少し後でもう一度お試しください。';
 }

@@ -62,6 +62,27 @@ void main() {
     expect(AdConfig.instance.scannerRewardedEnabled, isFalse);
   });
 
+  group('the weekly-insights day unlock', () {
+    test('is on by default, for one day', () {
+      expect(AdConfig.instance.insightsRewardedEnabled, isTrue);
+      expect(AdConfig.instance.insightsUnlockDays, 1);
+    });
+
+    test('can be switched off without a build', () {
+      AdConfig.debugOverrides = {AdConfig.kInsightsRewardedEnabled: false};
+      expect(AdConfig.instance.insightsRewardedEnabled, isFalse);
+    });
+
+    test('cannot be granted for years, or for zero days', () {
+      AdConfig.debugOverrides = {AdConfig.kInsightsUnlockDays: 9999};
+      expect(AdConfig.instance.insightsUnlockDays,
+          AdConfig.maxScannerUnlockDays);
+      AdConfig.debugOverrides = {AdConfig.kInsightsUnlockDays: 0};
+      expect(AdConfig.instance.insightsUnlockDays, 1,
+          reason: 'a zero-day unlock would make the reward useless');
+    });
+  });
+
   test('every exposed key has a default', () {
     for (final key in AdConfig.instance.snapshot().keys) {
       expect(AdConfig.defaults.containsKey(key), isTrue,
