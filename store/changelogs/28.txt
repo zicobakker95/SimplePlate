@@ -1,0 +1,31 @@
+<en-US>
+• Fixed: losing your connection while the app was starting up could raise an error. It is now handled quietly, so a moment without signal no longer interrupts anything.
+</en-US>
+
+<de-DE>
+• Behoben: Ein Verbindungsabbruch beim Start konnte einen Fehler auslösen. Das wird jetzt still behandelt, ein kurzer Moment ohne Empfang unterbricht also nichts mehr.
+</de-DE>
+
+<es-ES>
+• Corregido: perder la conexión mientras la app se iniciaba podía provocar un error. Ahora se gestiona en silencio, así que un momento sin señal ya no interrumpe nada.
+</es-ES>
+
+<fr-FR>
+• Corrigé : une perte de connexion au démarrage pouvait provoquer une erreur. C'est désormais géré discrètement, un instant sans réseau n'interrompt donc plus rien.
+</fr-FR>
+
+<it-IT>
+• Corretto: perdere la connessione durante l'avvio poteva causare un errore. Ora viene gestito in silenzio, quindi un momento senza segnale non interrompe più nulla.
+</it-IT>
+
+<ja-JP>
+• 修正：起動中に接続が切れるとエラーが発生することがありました。現在は静かに処理されるため、少しのあいだ電波がなくても動作が中断されることはありません。
+</ja-JP>
+
+<nl-NL>
+• Opgelost: verbinding verliezen tijdens het opstarten kon een foutmelding geven. Dat wordt nu stil afgehandeld, dus even geen bereik onderbreekt niets meer.
+</nl-NL>
+
+<pt-BR>
+• Corrigido: perder a conexão durante a inicialização podia gerar um erro. Agora isso é tratado em silêncio, então um momento sem sinal não interrompe mais nada.
+</pt-BR>
