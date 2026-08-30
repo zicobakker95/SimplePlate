@@ -19,6 +19,7 @@ import 'services/storage_service.dart';
 import 'services/subscription_service.dart';
 import 'services/widget_service.dart';
 import 'theme/app_theme.dart';
+import 'utils/crash_severity.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +33,12 @@ Future<void> main() async {
     );
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      // Errors the app recovers from on its own — a dropped Open Food Facts
+      // lookup, a Remote Config refresh that failed — are still reported, but
+      // never as fatal. Recording them fatal is what took Deadlight's
+      // crash-free users to 89.9%; see crash_severity.dart.
+      FirebaseCrashlytics.instance
+          .recordError(error, stack, fatal: !isRecoverableError(error));
       return true;
     };
   } catch (e) {

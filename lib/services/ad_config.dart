@@ -93,7 +93,19 @@ class AdConfig {
       // Activate whatever was fetched last run, then refresh in the background
       // for next launch. Startup never waits on the network.
       await rc.activate();
-      unawaited(rc.fetchAndActivate());
+      // The background refresh must swallow its own failures. Un-awaited, a
+      // rejected future has nowhere to go but PlatformDispatcher.onError. In
+      // Deadlight this exact line turned a transient `remote-config-server-error`
+      // into 471 fatal crash reports across 273 users in one week, while no
+      // user ever saw anything go wrong. A failed refresh is a non-event: the
+      // previous fetch is already active and every getter falls back to a
+      // shipped default.
+      unawaited(
+        rc.fetchAndActivate().catchError((Object e) {
+          debugPrint('[ad_config] background refresh failed: $e');
+          return false;
+        }),
+      );
     } catch (e) {
       debugPrint('[ad_config] Remote Config unavailable, using defaults: $e');
       _rc = null;
