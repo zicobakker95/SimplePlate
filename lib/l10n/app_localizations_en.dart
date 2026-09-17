@@ -271,10 +271,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumBannerUpgradeSub =>
-      'Weekly insights · No ads · Support dev';
+      'Weekly insights · Weight trend · Health sync · No ads';
 
   @override
-  String get premiumBannerMemberSub => 'Weekly insights unlocked · No ads';
+  String get premiumBannerMemberSub =>
+      'Weekly insights · Weight trend · Health sync · No ads';
 
   @override
   String get tdeeTitle => 'TDEE Calculator';
@@ -452,12 +453,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String weightSubtitleToday(String kg) {
-    return '$kg kg  ·  logged today';
+    return '$kg  ·  logged today';
   }
 
   @override
   String weightSubtitleDate(String kg, String date) {
-    return '$kg kg  ·  logged $date';
+    return '$kg  ·  logged $date';
   }
 
   @override
@@ -877,7 +878,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumTitle => 'PlateSimple Premium';
 
   @override
-  String get premiumSubtitle => 'Unlock the full experience';
+  String get premiumSubtitle =>
+      'Weekly insights · Weight trend · Health sync · No ads';
 
   @override
   String get featInsightsTitle => '7-day weekly insights';
@@ -1040,4 +1042,92 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get optionalMacros => 'Macros (optional)';
+
+  @override
+  String get weightUnitTitle => 'Weight unit';
+
+  @override
+  String get weightUnitSub => 'For logging and the trend chart.';
+
+  @override
+  String get goalsWeightSubtitle =>
+      'Log a weigh-in here or from Today. The trend chart is under History.';
+
+  @override
+  String weightTrendDays(int n) {
+    return '$n days';
+  }
+
+  @override
+  String weightTrendChange(String delta, int days) {
+    return '$delta over $days days';
+  }
+
+  @override
+  String get weightTrendNoChange =>
+      'Log again in a few days to see the change.';
+
+  @override
+  String get weightTrendNeedMore =>
+      'Log your weight a couple more times and the trend will show here.';
+
+  @override
+  String get weightTrendTeaserSub =>
+      '30- and 90-day chart with a 7-day average that smooths out daily swings.';
+
+  @override
+  String get weightTrendLoggedLegend => 'Logged';
+
+  @override
+  String get weightTrendAverageLegend => '7-day average';
+
+  @override
+  String get healthSyncSettingApple => 'Sync with Apple Health';
+
+  @override
+  String get healthSyncSettingGoogle => 'Sync with Health Connect';
+
+  @override
+  String get healthSyncSettingSubtitle =>
+      'Keep your health app in step with what you log here.';
+
+  @override
+  String get healthSyncExplainApple =>
+      'When on, PlateSimple writes the calories, macros and weight you log to Apple Health, and reads your steps, active calories and weight from it. You choose exactly what to allow in the Health prompt. Nothing is sent anywhere else.';
+
+  @override
+  String get healthSyncExplainGoogle =>
+      'When on, PlateSimple writes the calories, macros and weight you log to Health Connect, and reads your active calories and weight from it. You choose exactly what to allow in the Health Connect prompt. Nothing is sent anywhere else.';
+
+  @override
+  String get healthSyncPremiumOnly => 'Health sync is part of Premium.';
+
+  @override
+  String get healthSyncTeaserSub =>
+      'Send what you log to Apple Health or Health Connect, and bring steps and weight back.';
+
+  @override
+  String get statWeight => 'Weight';
+
+  @override
+  String get healthWeightImported => 'Weight from Health added to your log.';
+
+  @override
+  String healthAddWeightToLog(String weight) {
+    return 'Add $weight to log';
+  }
+
+  @override
+  String get featWeightTrendTitle => 'Weight trend';
+
+  @override
+  String get featWeightTrendSub =>
+      '30- and 90-day chart with a 7-day average and your change over the period.';
+
+  @override
+  String get featHealthSyncTitle => 'Health sync';
+
+  @override
+  String get featHealthSyncSub =>
+      'Logged calories and weight go to Apple Health or Health Connect; steps and weight come back.';
 }

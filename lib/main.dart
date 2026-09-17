@@ -14,6 +14,7 @@ import 'services/ad_config.dart';
 import 'services/ad_service.dart';
 import 'services/analytics_service.dart';
 import 'services/food_store.dart';
+import 'services/health_sync_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'services/subscription_service.dart';
@@ -47,6 +48,10 @@ Future<void> main() async {
 
   final storage = await StorageService.init();
   await NotificationService.instance.init();
+  // Health sync (Premium) re-checks its grant in the background so the first
+  // food logged today is written without a prompt. Never awaited: a slow
+  // Health Connect must not hold the first frame.
+  if (storage.healthSyncEnabled) unawaited(HealthSyncService.instance.restore());
   // Ad frequency comes from Remote Config so it can be tuned and A/B tested
   // without a build. Fire-and-forget: it activates whatever was fetched last
   // launch and refreshes in the background, falling back to the shipped

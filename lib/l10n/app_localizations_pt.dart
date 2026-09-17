@@ -273,11 +273,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get premiumBannerUpgradeSub =>
-      'Análises semanais · Sem anúncios · Apoie o dev';
+      'Análises semanais · Tendência de peso · Sincronização com Saúde · Sem anúncios';
 
   @override
   String get premiumBannerMemberSub =>
-      'Análises semanais desbloqueadas · Sem anúncios';
+      'Análises semanais · Tendência de peso · Sincronização com Saúde · Sem anúncios';
 
   @override
   String get tdeeTitle => 'Calculadora de TDEE';
@@ -455,12 +455,12 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String weightSubtitleToday(String kg) {
-    return '$kg kg  ·  registrado hoje';
+    return '$kg  ·  registrado hoje';
   }
 
   @override
   String weightSubtitleDate(String kg, String date) {
-    return '$kg kg  ·  registrado em $date';
+    return '$kg  ·  registrado em $date';
   }
 
   @override
@@ -880,7 +880,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get premiumTitle => 'PlateSimple Premium';
 
   @override
-  String get premiumSubtitle => 'Desbloqueie a experiência completa';
+  String get premiumSubtitle =>
+      'Análises semanais · Tendência de peso · Sincronização com Saúde · Sem anúncios';
 
   @override
   String get featInsightsTitle => 'Análises semanais (7 dias)';
@@ -1046,4 +1047,94 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get optionalMacros => 'Macros (opcional)';
+
+  @override
+  String get weightUnitTitle => 'Unidade de peso';
+
+  @override
+  String get weightUnitSub => 'Para o registro e o gráfico de tendência.';
+
+  @override
+  String get goalsWeightSubtitle =>
+      'Registre seu peso aqui ou na tela Hoje. O gráfico de tendência fica em Histórico.';
+
+  @override
+  String weightTrendDays(int n) {
+    return '$n dias';
+  }
+
+  @override
+  String weightTrendChange(String delta, int days) {
+    return '$delta em $days dias';
+  }
+
+  @override
+  String get weightTrendNoChange =>
+      'Registre de novo em alguns dias para ver a variação.';
+
+  @override
+  String get weightTrendNeedMore =>
+      'Registre seu peso mais algumas vezes e a tendência aparecerá aqui.';
+
+  @override
+  String get weightTrendTeaserSub =>
+      'Gráfico de 30 e 90 dias com média de 7 dias que suaviza as oscilações diárias.';
+
+  @override
+  String get weightTrendLoggedLegend => 'Registrado';
+
+  @override
+  String get weightTrendAverageLegend => 'Média de 7 dias';
+
+  @override
+  String get healthSyncSettingApple => 'Sincronizar com o Apple Saúde';
+
+  @override
+  String get healthSyncSettingGoogle => 'Sincronizar com o Health Connect';
+
+  @override
+  String get healthSyncSettingSubtitle =>
+      'Mantenha seu app de saúde em dia com o que você registra aqui.';
+
+  @override
+  String get healthSyncExplainApple =>
+      'Quando ativo, o PlateSimple grava no Apple Saúde as calorias, os macros e o peso que você registra, e lê de lá seus passos, calorias ativas e peso. Você escolhe exatamente o que permitir no aviso do Saúde. Nada é enviado para outro lugar.';
+
+  @override
+  String get healthSyncExplainGoogle =>
+      'Quando ativo, o PlateSimple grava no Health Connect as calorias, os macros e o peso que você registra, e lê de lá suas calorias ativas e peso. Você escolhe exatamente o que permitir no aviso do Health Connect. Nada é enviado para outro lugar.';
+
+  @override
+  String get healthSyncPremiumOnly =>
+      'A sincronização com Saúde faz parte do Premium.';
+
+  @override
+  String get healthSyncTeaserSub =>
+      'Envie o que você registra para o Apple Saúde ou Health Connect e traga passos e peso de volta.';
+
+  @override
+  String get statWeight => 'Peso';
+
+  @override
+  String get healthWeightImported =>
+      'Peso do Saúde adicionado ao seu registro.';
+
+  @override
+  String healthAddWeightToLog(String weight) {
+    return 'Adicionar $weight ao registro';
+  }
+
+  @override
+  String get featWeightTrendTitle => 'Tendência de peso';
+
+  @override
+  String get featWeightTrendSub =>
+      'Gráfico de 30 e 90 dias com média de 7 dias e sua variação no período.';
+
+  @override
+  String get featHealthSyncTitle => 'Sincronização com Saúde';
+
+  @override
+  String get featHealthSyncSub =>
+      'Calorias e peso registrados vão para o Apple Saúde ou Health Connect; passos e peso voltam.';
 }

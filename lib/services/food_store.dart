@@ -10,8 +10,10 @@ import '../models/food_item.dart';
 import '../models/nutrition_goals.dart';
 import '../models/recipe.dart';
 import '../models/user_profile.dart';
-import 'analytics_service.dart';
 import '../models/weight_entry.dart';
+import '../utils/weight_math.dart';
+import 'analytics_service.dart';
+import 'health_sync_service.dart';
 import 'storage_service.dart';
 import 'widget_service.dart';
 
@@ -28,6 +30,7 @@ class FoodStore extends ChangeNotifier {
     _activities = _storage.loadActivities();
     _recipes = _storage.loadRecipes();
     _userProfile = _storage.loadUserProfile();
+    _weightUnit = WeightUnit.parse(_storage.weightUnit);
     _streak = _storage.streak;
     _lastLoggedDate = _storage.lastLoggedDate;
 
@@ -51,6 +54,7 @@ class FoodStore extends ChangeNotifier {
   late List<WeightEntry> _weightLog;
   late List<ActivityEntry> _activities;
   late List<Recipe> _recipes;
+  late WeightUnit _weightUnit;
   UserProfile? _userProfile;
   late int _streak;
   String? _lastLoggedDate;
@@ -68,6 +72,7 @@ class FoodStore extends ChangeNotifier {
   List<FoodItem> get recents => List.unmodifiable(_recents);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   List<WeightEntry> get weightLog => List.unmodifiable(_weightLog);
+  WeightUnit get weightUnit => _weightUnit;
   List<ActivityEntry> get activities => List.unmodifiable(_activities);
   List<Recipe> get recipes => List.unmodifiable(_recipes);
   UserProfile? get userProfile => _userProfile;
@@ -156,6 +161,16 @@ class FoodStore extends ChangeNotifier {
     return sorted.length > 30 ? sorted.sublist(sorted.length - 30) : sorted;
   }
 
+  /// The trend chart's input: the last [days] days, oldest first, with the
+  /// 7-day moving average worked out. See [weightTrend].
+  WeightTrend weightTrendFor(int days) => weightTrend(_weightLog, days: days);
+
+  /// Whether a weight has been logged on the calendar day of [date].
+  bool hasWeightOn(DateTime date) {
+    final key = _dayKey(date);
+    return _weightLog.any((e) => _dayKey(e.loggedAt) == key);
+  }
+
   // --- Mutators ---
   /// Logs [item] at [grams] into [meal].
   ///
@@ -232,6 +247,7 @@ class FoodStore extends ChangeNotifier {
       carbs: todayCarbs(),
       fat: todayFat(),
     ));
+    _pushHealthTotals();
   }
 
   Future<void> deleteEntry(String entryId) async {
@@ -328,6 +344,7 @@ class FoodStore extends ChangeNotifier {
     _allEntries = [..._allEntries, ...newEntries];
     await _storage.saveEntries(_allEntries);
     await _updateStreak();
+    _pushWidgetTotals();
     notifyListeners();
     return newEntries.length;
   }
@@ -360,15 +377,46 @@ class FoodStore extends ChangeNotifier {
   }
 
   // --- Weight logging ---
-  Future<void> logWeight(double kg) async {
+  /// Records [kg] at [at] (default: now). Always kilograms — the card
+  /// converts from the user's unit before calling this, so the log never
+  /// mixes units. [fromHealth] marks an entry read back from Apple Health /
+  /// Health Connect, which must not be written to Health again.
+  Future<void> logWeight(double kg,
+      {DateTime? at, bool fromHealth = false}) async {
     final entry = WeightEntry(
-      id: _uuid.v4(),
+      id: fromHealth ? 'health-${_uuid.v4()}' : _uuid.v4(),
       kg: kg,
-      loggedAt: DateTime.now(),
+      loggedAt: at ?? DateTime.now(),
     );
     _weightLog = [..._weightLog, entry];
     await _storage.saveWeightLog(_weightLog);
+    if (!fromHealth) HealthSyncService.instance.onWeightLogged(entry);
     notifyListeners();
+  }
+
+  Future<void> setWeightUnit(WeightUnit unit) async {
+    if (unit == _weightUnit) return;
+    _weightUnit = unit;
+    await _storage.setWeightUnit(unit.name);
+    notifyListeners();
+  }
+
+  // --- Health sync (Premium) ---
+  bool get healthSyncEnabled => _storage.healthSyncEnabled;
+
+  Future<void> setHealthSyncEnabled(bool enabled) async {
+    await _storage.setHealthSyncEnabled(enabled);
+    if (enabled) _pushHealthTotals();
+    notifyListeners();
+  }
+
+  /// Mirrors today's diary to Apple Health / Health Connect when the user
+  /// has turned that on. Fire-and-forget, like the widget: the log must
+  /// never wait on, or fail because of, a health store.
+  void _pushHealthTotals() {
+    if (!_storage.healthSyncEnabled) return;
+    final now = DateTime.now();
+    HealthSyncService.instance.onDayChanged(now, entriesForDay(now));
   }
 
   // --- Custom foods ---

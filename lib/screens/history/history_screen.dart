@@ -7,12 +7,12 @@ import 'package:provider/provider.dart';
 import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/nutrition_goals.dart';
-import '../../models/weight_entry.dart';
 import '../../screens/premium/premium_screen.dart';
 import '../../services/food_store.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/edit_entry_sheet.dart';
+import '../../widgets/weight_trend_card.dart';
 import '../../utils/serving_format.dart';
 import '../../services/ad_service.dart';
 import '../../services/ad_config.dart';
@@ -66,9 +66,8 @@ class HistoryScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 12),
-                  // Weight trend chart (always visible when data exists)
-                  if (store.recentWeightEntries.isNotEmpty)
-                    _WeightTrendCard(entries: store.recentWeightEntries),
+                  // Weight trend: Premium, with a locked preview otherwise.
+                  const WeightTrendCard(),
                   const SizedBox(height: 12),
                   // Monthly calendar heatmap
                   _CalendarHeatmap(store: store, goals: goals),
@@ -757,135 +756,6 @@ class _WeeklySummaryCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Line chart showing the last 30 weight entries.
-class _WeightTrendCard extends StatelessWidget {
-  const _WeightTrendCard({required this.entries});
-  final List<WeightEntry> entries;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
-    final minKg = entries.map((e) => e.kg).reduce(min);
-    final maxKg = entries.map((e) => e.kg).reduce(max);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  l10n.weightTrend,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const Spacer(),
-                Text(
-                  '${entries.last.kg} kg',
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 60,
-              child: CustomPaint(
-                painter: _WeightLinePainter(
-                  entries: entries,
-                  minKg: minKg,
-                  maxKg: maxKg,
-                ),
-                child: const SizedBox.expand(),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  DateFormat('MMM d', locale).format(entries.first.loggedAt),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                  ),
-                ),
-                Text(
-                  DateFormat('MMM d', locale).format(entries.last.loggedAt),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _WeightLinePainter extends CustomPainter {
-  const _WeightLinePainter({
-    required this.entries,
-    required this.minKg,
-    required this.maxKg,
-  });
-
-  final List<WeightEntry> entries;
-  final double minKg;
-  final double maxKg;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (entries.length < 2) return;
-
-    final range = (maxKg - minKg).clamp(1.0, double.infinity);
-    final paint = Paint()
-      ..color = AppColors.primary
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final dotPaint = Paint()
-      ..color = AppColors.primary
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    for (var i = 0; i < entries.length; i++) {
-      final x = i / (entries.length - 1) * size.width;
-      final y =
-          size.height -
-          ((entries[i].kg - minKg) / range * size.height).clamp(
-            4.0,
-            size.height - 4.0,
-          );
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-      if (i == entries.length - 1) {
-        canvas.drawCircle(Offset(x, y), 4, dotPaint);
-      }
-    }
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(_WeightLinePainter old) =>
-      old.entries.length != entries.length ||
-      old.minKg != minKg ||
-      old.maxKg != maxKg;
 }
 
 /// Monthly calendar grid colour-coded by calorie adherence.

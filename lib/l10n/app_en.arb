@@ -119,8 +119,8 @@
   "aboutTitle": "About PlateSimple",
   "premiumBannerUpgradeTitle": "Upgrade to Premium",
   "premiumBannerMemberTitle": "You're a Premium member",
-  "premiumBannerUpgradeSub": "Weekly insights · No ads · Support dev",
-  "premiumBannerMemberSub": "Weekly insights unlocked · No ads",
+  "premiumBannerUpgradeSub": "Weekly insights · Weight trend · Health sync · No ads",
+  "premiumBannerMemberSub": "Weekly insights · Weight trend · Health sync · No ads",
   "tdeeTitle": "TDEE Calculator",
   "tdeeSubtitle": "Enter your stats to calculate Total Daily Energy Expenditure and auto-set your calorie goal.",
   "sexMale": "Male",
@@ -206,7 +206,7 @@
   "notLoggedToday": "Not logged today",
   "logWeight": "Log weight",
   "weightInvalid": "Enter a valid weight.",
-  "weightSubtitleToday": "{kg} kg  ·  logged today",
+  "weightSubtitleToday": "{kg}  ·  logged today",
   "@weightSubtitleToday": {
     "placeholders": {
       "kg": {
@@ -214,7 +214,7 @@
       }
     }
   },
-  "weightSubtitleDate": "{kg} kg  ·  logged {date}",
+  "weightSubtitleDate": "{kg}  ·  logged {date}",
   "@weightSubtitleDate": {
     "placeholders": {
       "kg": {
@@ -437,7 +437,7 @@
     }
   },
   "premiumTitle": "PlateSimple Premium",
-  "premiumSubtitle": "Unlock the full experience",
+  "premiumSubtitle": "Weekly insights · Weight trend · Health sync · No ads",
   "featInsightsTitle": "7-day weekly insights",
   "featInsightsSub": "See your calorie sparkline and 7-day average at a glance.",
   "featAdFreeTitle": "Ad-free experience",
@@ -501,5 +501,53 @@
   "quickAddCalories": "Quick add calories",
   "quickAddTitle": "Quick add",
   "quickAddNameLabel": "Name (optional)",
-  "optionalMacros": "Macros (optional)"
+  "optionalMacros": "Macros (optional)",
+  "weightUnitTitle": "Weight unit",
+  "weightUnitSub": "For logging and the trend chart.",
+  "goalsWeightSubtitle": "Log a weigh-in here or from Today. The trend chart is under History.",
+  "weightTrendDays": "{n} days",
+  "@weightTrendDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "weightTrendChange": "{delta} over {days} days",
+  "@weightTrendChange": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "weightTrendNoChange": "Log again in a few days to see the change.",
+  "weightTrendNeedMore": "Log your weight a couple more times and the trend will show here.",
+  "weightTrendTeaserSub": "30- and 90-day chart with a 7-day average that smooths out daily swings.",
+  "weightTrendLoggedLegend": "Logged",
+  "weightTrendAverageLegend": "7-day average",
+  "healthSyncSettingApple": "Sync with Apple Health",
+  "healthSyncSettingGoogle": "Sync with Health Connect",
+  "healthSyncSettingSubtitle": "Keep your health app in step with what you log here.",
+  "healthSyncExplainApple": "When on, PlateSimple writes the calories, macros and weight you log to Apple Health, and reads your steps, active calories and weight from it. You choose exactly what to allow in the Health prompt. Nothing is sent anywhere else.",
+  "healthSyncExplainGoogle": "When on, PlateSimple writes the calories, macros and weight you log to Health Connect, and reads your active calories and weight from it. You choose exactly what to allow in the Health Connect prompt. Nothing is sent anywhere else.",
+  "healthSyncPremiumOnly": "Health sync is part of Premium.",
+  "healthSyncTeaserSub": "Send what you log to Apple Health or Health Connect, and bring steps and weight back.",
+  "statWeight": "Weight",
+  "healthWeightImported": "Weight from Health added to your log.",
+  "healthAddWeightToLog": "Add {weight} to log",
+  "@healthAddWeightToLog": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "featWeightTrendTitle": "Weight trend",
+  "featWeightTrendSub": "30- and 90-day chart with a 7-day average and your change over the period.",
+  "featHealthSyncTitle": "Health sync",
+  "featHealthSyncSub": "Logged calories and weight go to Apple Health or Health Connect; steps and weight come back."
 }

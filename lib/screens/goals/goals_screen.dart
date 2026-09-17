@@ -13,6 +13,9 @@ import '../../services/notification_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_colors.dart';
 import '../../debug/debug_menu_screen.dart';
+import '../../utils/weight_math.dart';
+import '../../widgets/health_sync_setting.dart';
+import '../../widgets/weight_card.dart';
 
 enum _GoalMode { manual, percentages, macrosToCalories }
 
@@ -306,6 +309,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    final store = context.watch<FoodStore>();
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navGoals)),
       body: ListView(
@@ -525,6 +529,53 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ],
             ),
           ),
+
+          // ── Body weight ────────────────────────────────────────────────────
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          Text(l10n.bodyWeight,
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(l10n.goalsWeightSubtitle,
+              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.straighten_rounded,
+                  color: AppColors.primary),
+              title: Text(l10n.weightUnitTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(l10n.weightUnitSub),
+              trailing: SegmentedButton<WeightUnit>(
+                segments: [
+                  for (final u in WeightUnit.values)
+                    ButtonSegment(value: u, label: Text(u.symbol)),
+                ],
+                selected: {store.weightUnit},
+                onSelectionChanged: (s) => store.setWeightUnit(s.first),
+                showSelectedIcon: false,
+                style: const ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 12)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const WeightCard(),
+
+          // ── Health sync (Premium) ──────────────────────────────────────────
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 16),
+          Text(l10n.healthSync,
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(l10n.healthSyncSettingSubtitle,
+              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+          const HealthSyncSetting(),
 
           // ── Reminders ──────────────────────────────────────────────────────
           const SizedBox(height: 32),

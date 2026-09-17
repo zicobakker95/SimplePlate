@@ -273,11 +273,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get premiumBannerUpgradeSub =>
-      'Wöchentliche Einblicke · Keine Werbung · Dev unterstützen';
+      'Wöchentliche Einblicke · Gewichtstrend · Health-Sync · Keine Werbung';
 
   @override
   String get premiumBannerMemberSub =>
-      'Wöchentliche Einblicke freigeschaltet · Keine Werbung';
+      'Wöchentliche Einblicke · Gewichtstrend · Health-Sync · Keine Werbung';
 
   @override
   String get tdeeTitle => 'TDEE-Rechner';
@@ -455,12 +455,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String weightSubtitleToday(String kg) {
-    return '$kg kg  ·  heute erfasst';
+    return '$kg  ·  heute erfasst';
   }
 
   @override
   String weightSubtitleDate(String kg, String date) {
-    return '$kg kg  ·  erfasst am $date';
+    return '$kg  ·  erfasst am $date';
   }
 
   @override
@@ -881,7 +881,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get premiumTitle => 'PlateSimple Premium';
 
   @override
-  String get premiumSubtitle => 'Schalte das volle Erlebnis frei';
+  String get premiumSubtitle =>
+      'Wöchentliche Einblicke · Gewichtstrend · Health-Sync · Keine Werbung';
 
   @override
   String get featInsightsTitle => 'Wöchentliche Einblicke (7 Tage)';
@@ -1047,4 +1048,93 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get optionalMacros => 'Makros (optional)';
+
+  @override
+  String get weightUnitTitle => 'Gewichtseinheit';
+
+  @override
+  String get weightUnitSub => 'Fürs Erfassen und das Trenddiagramm.';
+
+  @override
+  String get goalsWeightSubtitle =>
+      'Wiege dich hier oder unter Heute. Das Trenddiagramm findest du im Verlauf.';
+
+  @override
+  String weightTrendDays(int n) {
+    return '$n Tage';
+  }
+
+  @override
+  String weightTrendChange(String delta, int days) {
+    return '$delta in $days Tagen';
+  }
+
+  @override
+  String get weightTrendNoChange =>
+      'Erfasse in ein paar Tagen erneut, um die Veränderung zu sehen.';
+
+  @override
+  String get weightTrendNeedMore =>
+      'Erfasse dein Gewicht noch ein paar Mal, dann erscheint hier der Trend.';
+
+  @override
+  String get weightTrendTeaserSub =>
+      '30- und 90-Tage-Diagramm mit 7-Tage-Durchschnitt, der tägliche Schwankungen glättet.';
+
+  @override
+  String get weightTrendLoggedLegend => 'Erfasst';
+
+  @override
+  String get weightTrendAverageLegend => '7-Tage-Durchschnitt';
+
+  @override
+  String get healthSyncSettingApple => 'Mit Apple Health synchronisieren';
+
+  @override
+  String get healthSyncSettingGoogle => 'Mit Health Connect synchronisieren';
+
+  @override
+  String get healthSyncSettingSubtitle =>
+      'Halte deine Gesundheits-App auf dem Stand deines Protokolls.';
+
+  @override
+  String get healthSyncExplainApple =>
+      'Wenn aktiv, schreibt PlateSimple die erfassten Kalorien, Makros und dein Gewicht in Apple Health und liest daraus Schritte, aktive Kalorien und Gewicht. Was genau erlaubt ist, entscheidest du in der Health-Abfrage. Nichts wird woandershin gesendet.';
+
+  @override
+  String get healthSyncExplainGoogle =>
+      'Wenn aktiv, schreibt PlateSimple die erfassten Kalorien, Makros und dein Gewicht in Health Connect und liest daraus aktive Kalorien und Gewicht. Was genau erlaubt ist, entscheidest du in der Health-Connect-Abfrage. Nichts wird woandershin gesendet.';
+
+  @override
+  String get healthSyncPremiumOnly => 'Health-Sync ist Teil von Premium.';
+
+  @override
+  String get healthSyncTeaserSub =>
+      'Schicke dein Protokoll an Apple Health oder Health Connect und hole Schritte und Gewicht zurück.';
+
+  @override
+  String get statWeight => 'Gewicht';
+
+  @override
+  String get healthWeightImported =>
+      'Gewicht aus Health zu deinem Protokoll hinzugefügt.';
+
+  @override
+  String healthAddWeightToLog(String weight) {
+    return '$weight ins Protokoll';
+  }
+
+  @override
+  String get featWeightTrendTitle => 'Gewichtstrend';
+
+  @override
+  String get featWeightTrendSub =>
+      '30- und 90-Tage-Diagramm mit 7-Tage-Durchschnitt und deiner Veränderung im Zeitraum.';
+
+  @override
+  String get featHealthSyncTitle => 'Health-Sync';
+
+  @override
+  String get featHealthSyncSub =>
+      'Erfasste Kalorien und Gewicht gehen an Apple Health oder Health Connect; Schritte und Gewicht kommen zurück.';
 }

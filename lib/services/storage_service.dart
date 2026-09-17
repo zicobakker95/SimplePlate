@@ -36,6 +36,8 @@ class StorageService {
   static const _kCustomFoods = 'sp.customFoods.v1';
   static const _kLastReviewDate = 'sp.lastReviewDate.v1';
   static const _kRecipes = 'sp.recipes.v1';
+  static const _kWeightUnit = 'sp.weightUnit.v1';
+  static const _kHealthSync = 'sp.healthSync.enabled.v1';
 
   final SharedPreferences _prefs;
 
@@ -143,6 +145,14 @@ class StorageService {
   Future<void> saveWeightLog(List<WeightEntry> entries) =>
       _prefs.setStringList(
           _kWeightLog, entries.map((e) => jsonEncode(e.toJson())).toList());
+
+  /// 'kg' or 'lb'. Read through [WeightUnit.parse] so a bad value is kg.
+  String? get weightUnit => _prefs.getString(_kWeightUnit);
+  Future<void> setWeightUnit(String unit) => _prefs.setString(_kWeightUnit, unit);
+
+  // --- Health sync (Premium) ---
+  bool get healthSyncEnabled => _prefs.getBool(_kHealthSync) ?? false;
+  Future<void> setHealthSyncEnabled(bool v) => _prefs.setBool(_kHealthSync, v);
 
   // --- Activity entries ---
   List<ActivityEntry> loadActivities() =>

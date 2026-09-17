@@ -272,11 +272,11 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get premiumBannerUpgradeSub =>
-      'Wekelijkse inzichten · Geen advertenties · Steun de dev';
+      'Wekelijkse inzichten · Gewichtstrend · Health-synchronisatie · Geen advertenties';
 
   @override
   String get premiumBannerMemberSub =>
-      'Wekelijkse inzichten ontgrendeld · Geen advertenties';
+      'Wekelijkse inzichten · Gewichtstrend · Health-synchronisatie · Geen advertenties';
 
   @override
   String get tdeeTitle => 'TDEE-calculator';
@@ -454,12 +454,12 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String weightSubtitleToday(String kg) {
-    return '$kg kg  ·  gelogd vandaag';
+    return '$kg  ·  gelogd vandaag';
   }
 
   @override
   String weightSubtitleDate(String kg, String date) {
-    return '$kg kg  ·  gelogd $date';
+    return '$kg  ·  gelogd $date';
   }
 
   @override
@@ -879,7 +879,8 @@ class AppLocalizationsNl extends AppLocalizations {
   String get premiumTitle => 'PlateSimple Premium';
 
   @override
-  String get premiumSubtitle => 'Ontgrendel de volledige ervaring';
+  String get premiumSubtitle =>
+      'Wekelijkse inzichten · Gewichtstrend · Health-synchronisatie · Geen advertenties';
 
   @override
   String get featInsightsTitle => 'Wekelijkse inzichten (7 dagen)';
@@ -1047,4 +1048,94 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get optionalMacros => 'Macro\'s (optioneel)';
+
+  @override
+  String get weightUnitTitle => 'Gewichtseenheid';
+
+  @override
+  String get weightUnitSub => 'Voor het loggen en de trendgrafiek.';
+
+  @override
+  String get goalsWeightSubtitle =>
+      'Log je gewicht hier of vanaf Vandaag. De trendgrafiek staat onder Geschiedenis.';
+
+  @override
+  String weightTrendDays(int n) {
+    return '$n dagen';
+  }
+
+  @override
+  String weightTrendChange(String delta, int days) {
+    return '$delta in $days dagen';
+  }
+
+  @override
+  String get weightTrendNoChange =>
+      'Log over een paar dagen opnieuw om de verandering te zien.';
+
+  @override
+  String get weightTrendNeedMore =>
+      'Log je gewicht nog een paar keer, dan verschijnt hier de trend.';
+
+  @override
+  String get weightTrendTeaserSub =>
+      'Grafiek over 30 en 90 dagen met een 7-daags gemiddelde dat dagelijkse schommelingen gladstrijkt.';
+
+  @override
+  String get weightTrendLoggedLegend => 'Gelogd';
+
+  @override
+  String get weightTrendAverageLegend => '7-daags gemiddelde';
+
+  @override
+  String get healthSyncSettingApple => 'Synchroniseren met Apple Health';
+
+  @override
+  String get healthSyncSettingGoogle => 'Synchroniseren met Health Connect';
+
+  @override
+  String get healthSyncSettingSubtitle =>
+      'Houd je gezondheidsapp gelijk met wat je hier logt.';
+
+  @override
+  String get healthSyncExplainApple =>
+      'Als dit aanstaat, schrijft PlateSimple de calorieën, macro\'s en het gewicht dat je logt naar Apple Health en leest het daaruit je stappen, actieve calorieën en gewicht. Wat precies mag, kies je in het Health-venster. Er wordt niets ergens anders heen gestuurd.';
+
+  @override
+  String get healthSyncExplainGoogle =>
+      'Als dit aanstaat, schrijft PlateSimple de calorieën, macro\'s en het gewicht dat je logt naar Health Connect en leest het daaruit je actieve calorieën en gewicht. Wat precies mag, kies je in het Health Connect-venster. Er wordt niets ergens anders heen gestuurd.';
+
+  @override
+  String get healthSyncPremiumOnly =>
+      'Health-synchronisatie hoort bij Premium.';
+
+  @override
+  String get healthSyncTeaserSub =>
+      'Stuur wat je logt naar Apple Health of Health Connect en haal stappen en gewicht terug.';
+
+  @override
+  String get statWeight => 'Gewicht';
+
+  @override
+  String get healthWeightImported =>
+      'Gewicht uit Health toegevoegd aan je logboek.';
+
+  @override
+  String healthAddWeightToLog(String weight) {
+    return '$weight toevoegen aan logboek';
+  }
+
+  @override
+  String get featWeightTrendTitle => 'Gewichtstrend';
+
+  @override
+  String get featWeightTrendSub =>
+      'Grafiek over 30 en 90 dagen met 7-daags gemiddelde en je verandering in die periode.';
+
+  @override
+  String get featHealthSyncTitle => 'Health-synchronisatie';
+
+  @override
+  String get featHealthSyncSub =>
+      'Gelogde calorieën en gewicht gaan naar Apple Health of Health Connect; stappen en gewicht komen terug.';
 }

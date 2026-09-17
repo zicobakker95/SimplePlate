@@ -6,8 +6,11 @@ import '../l10n/l10n.dart';
 import '../models/weight_entry.dart';
 import '../services/food_store.dart';
 import '../theme/app_colors.dart';
+import '../utils/weight_math.dart';
 
-/// Small card on the Today screen for logging and displaying body weight.
+/// Small card for logging and displaying body weight, in the user's unit.
+/// Lives on Today and again under Goals, so a weigh-in is never more than
+/// one tap from wherever the app was opened.
 class WeightCard extends StatefulWidget {
   const WeightCard({super.key});
 
@@ -25,28 +28,31 @@ class _WeightCardState extends State<WeightCard> {
     super.dispose();
   }
 
-  String _weightSubtitle(WeightEntry entry) {
+  String _weightSubtitle(WeightEntry entry, WeightUnit unit) {
     final l10n = context.l10n;
     final today = DateTime.now();
     final logged = entry.loggedAt;
     final isToday = logged.year == today.year &&
         logged.month == today.month &&
         logged.day == today.day;
-    final kg = entry.kg.toString();
-    if (isToday) return l10n.weightSubtitleToday(kg);
+    final weight = unit.format(entry.kg);
+    if (isToday) return l10n.weightSubtitleToday(weight);
     final locale = Localizations.localeOf(context).toString();
     return l10n.weightSubtitleDate(
-        kg, DateFormat('MMM d', locale).format(logged));
+        weight, DateFormat('MMM d', locale).format(logged));
   }
 
   Future<void> _log() async {
-    final kg = double.tryParse(_ctrl.text);
+    final store = context.read<FoodStore>();
+    final typed = double.tryParse(_ctrl.text.trim().replaceAll(',', '.'));
+    // Bounds are checked in kilograms so they mean the same in either unit.
+    final kg = typed == null ? null : store.weightUnit.toKg(typed);
     if (kg == null || kg < 20 || kg > 500) {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.l10n.weightInvalid)));
       return;
     }
-    await context.read<FoodStore>().logWeight(kg);
+    await store.logWeight(kg);
     if (!mounted) return;
     setState(() {
       _editing = false;
@@ -59,6 +65,7 @@ class _WeightCardState extends State<WeightCard> {
     final store = context.watch<FoodStore>();
     final l10n = context.l10n;
     final latest = store.latestWeight;
+    final unit = store.weightUnit;
 
     return Card(
       child: Padding(
@@ -76,7 +83,7 @@ class _WeightCardState extends State<WeightCard> {
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         labelText: l10n.fieldWeight,
-                        suffixText: 'kg',
+                        suffixText: unit.symbol,
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 10),
@@ -91,7 +98,7 @@ class _WeightCardState extends State<WeightCard> {
                                 fontWeight: FontWeight.w600, fontSize: 13)),
                         if (latest != null)
                           Text(
-                            _weightSubtitle(latest),
+                            _weightSubtitle(latest, unit),
                             style: const TextStyle(
                                 color: AppColors.textSecondary, fontSize: 11),
                           )

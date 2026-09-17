@@ -599,13 +599,13 @@ abstract class AppLocalizations {
   /// No description provided for @premiumBannerUpgradeSub.
   ///
   /// In en, this message translates to:
-  /// **'Weekly insights · No ads · Support dev'**
+  /// **'Weekly insights · Weight trend · Health sync · No ads'**
   String get premiumBannerUpgradeSub;
 
   /// No description provided for @premiumBannerMemberSub.
   ///
   /// In en, this message translates to:
-  /// **'Weekly insights unlocked · No ads'**
+  /// **'Weekly insights · Weight trend · Health sync · No ads'**
   String get premiumBannerMemberSub;
 
   /// No description provided for @tdeeTitle.
@@ -911,13 +911,13 @@ abstract class AppLocalizations {
   /// No description provided for @weightSubtitleToday.
   ///
   /// In en, this message translates to:
-  /// **'{kg} kg  ·  logged today'**
+  /// **'{kg}  ·  logged today'**
   String weightSubtitleToday(String kg);
 
   /// No description provided for @weightSubtitleDate.
   ///
   /// In en, this message translates to:
-  /// **'{kg} kg  ·  logged {date}'**
+  /// **'{kg}  ·  logged {date}'**
   String weightSubtitleDate(String kg, String date);
 
   /// No description provided for @healthSync.
@@ -1655,7 +1655,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Unlock the full experience'**
+  /// **'Weekly insights · Weight trend · Health sync · No ads'**
   String get premiumSubtitle;
 
   /// No description provided for @featInsightsTitle.
@@ -1957,6 +1957,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Macros (optional)'**
   String get optionalMacros;
+
+  /// No description provided for @weightUnitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight unit'**
+  String get weightUnitTitle;
+
+  /// No description provided for @weightUnitSub.
+  ///
+  /// In en, this message translates to:
+  /// **'For logging and the trend chart.'**
+  String get weightUnitSub;
+
+  /// No description provided for @goalsWeightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a weigh-in here or from Today. The trend chart is under History.'**
+  String get goalsWeightSubtitle;
+
+  /// No description provided for @weightTrendDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} days'**
+  String weightTrendDays(int n);
+
+  /// No description provided for @weightTrendChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} over {days} days'**
+  String weightTrendChange(String delta, int days);
+
+  /// No description provided for @weightTrendNoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Log again in a few days to see the change.'**
+  String get weightTrendNoChange;
+
+  /// No description provided for @weightTrendNeedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your weight a couple more times and the trend will show here.'**
+  String get weightTrendNeedMore;
+
+  /// No description provided for @weightTrendTeaserSub.
+  ///
+  /// In en, this message translates to:
+  /// **'30- and 90-day chart with a 7-day average that smooths out daily swings.'**
+  String get weightTrendTeaserSub;
+
+  /// No description provided for @weightTrendLoggedLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged'**
+  String get weightTrendLoggedLegend;
+
+  /// No description provided for @weightTrendAverageLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day average'**
+  String get weightTrendAverageLegend;
+
+  /// No description provided for @healthSyncSettingApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with Apple Health'**
+  String get healthSyncSettingApple;
+
+  /// No description provided for @healthSyncSettingGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with Health Connect'**
+  String get healthSyncSettingGoogle;
+
+  /// No description provided for @healthSyncSettingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your health app in step with what you log here.'**
+  String get healthSyncSettingSubtitle;
+
+  /// No description provided for @healthSyncExplainApple.
+  ///
+  /// In en, this message translates to:
+  /// **'When on, PlateSimple writes the calories, macros and weight you log to Apple Health, and reads your steps, active calories and weight from it. You choose exactly what to allow in the Health prompt. Nothing is sent anywhere else.'**
+  String get healthSyncExplainApple;
+
+  /// No description provided for @healthSyncExplainGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'When on, PlateSimple writes the calories, macros and weight you log to Health Connect, and reads your active calories and weight from it. You choose exactly what to allow in the Health Connect prompt. Nothing is sent anywhere else.'**
+  String get healthSyncExplainGoogle;
+
+  /// No description provided for @healthSyncPremiumOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Health sync is part of Premium.'**
+  String get healthSyncPremiumOnly;
+
+  /// No description provided for @healthSyncTeaserSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Send what you log to Apple Health or Health Connect, and bring steps and weight back.'**
+  String get healthSyncTeaserSub;
+
+  /// No description provided for @statWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get statWeight;
+
+  /// No description provided for @healthWeightImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight from Health added to your log.'**
+  String get healthWeightImported;
+
+  /// No description provided for @healthAddWeightToLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {weight} to log'**
+  String healthAddWeightToLog(String weight);
+
+  /// No description provided for @featWeightTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight trend'**
+  String get featWeightTrendTitle;
+
+  /// No description provided for @featWeightTrendSub.
+  ///
+  /// In en, this message translates to:
+  /// **'30- and 90-day chart with a 7-day average and your change over the period.'**
+  String get featWeightTrendSub;
+
+  /// No description provided for @featHealthSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Health sync'**
+  String get featHealthSyncTitle;
+
+  /// No description provided for @featHealthSyncSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged calories and weight go to Apple Health or Health Connect; steps and weight come back.'**
+  String get featHealthSyncSub;
 }
 
 class _AppLocalizationsDelegate

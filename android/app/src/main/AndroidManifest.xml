@@ -16,6 +16,11 @@
          different devices. Active energy alone is the whole feature. -->
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.WRITE_NUTRITION" />
+    <!-- Body weight (1.1.0): the app keeps its own weight log and trend
+         chart. WRITE puts a weigh-in logged here into Health Connect; READ
+         lets a smart scale's reading be added to the log with one tap. -->
+    <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+    <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
 
     <application
         android:label="PlateSimple"

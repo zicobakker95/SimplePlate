@@ -263,10 +263,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premiumBannerMemberTitle => 'あなたはプレミアム会員です';
 
   @override
-  String get premiumBannerUpgradeSub => '週間インサイト・広告なし・開発者を応援';
+  String get premiumBannerUpgradeSub => '週間インサイト・体重の推移・ヘルス同期・広告なし';
 
   @override
-  String get premiumBannerMemberSub => '週間インサイト解放・広告なし';
+  String get premiumBannerMemberSub => '週間インサイト・体重の推移・ヘルス同期・広告なし';
 
   @override
   String get tdeeTitle => 'TDEE計算機';
@@ -440,12 +440,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String weightSubtitleToday(String kg) {
-    return '$kg kg  ·  今日記録';
+    return '$kg  ·  今日記録';
   }
 
   @override
   String weightSubtitleDate(String kg, String date) {
-    return '$kg kg  ·  $date 記録';
+    return '$kg  ·  $date 記録';
   }
 
   @override
@@ -857,7 +857,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premiumTitle => 'PlateSimple プレミアム';
 
   @override
-  String get premiumSubtitle => 'すべての機能を解放';
+  String get premiumSubtitle => '週間インサイト・体重の推移・ヘルス同期・広告なし';
 
   @override
   String get featInsightsTitle => '週間インサイト（7日間）';
@@ -1013,4 +1013,85 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get optionalMacros => 'マクロ（任意）';
+
+  @override
+  String get weightUnitTitle => '体重の単位';
+
+  @override
+  String get weightUnitSub => '記録と推移グラフに使います。';
+
+  @override
+  String get goalsWeightSubtitle => 'ここか「今日」画面から体重を記録できます。推移グラフは「履歴」にあります。';
+
+  @override
+  String weightTrendDays(int n) {
+    return '$n日間';
+  }
+
+  @override
+  String weightTrendChange(String delta, int days) {
+    return '$days日間で $delta';
+  }
+
+  @override
+  String get weightTrendNoChange => '数日後にもう一度記録すると変化が表示されます。';
+
+  @override
+  String get weightTrendNeedMore => '体重をあと数回記録すると、ここに推移が表示されます。';
+
+  @override
+  String get weightTrendTeaserSub => '日々のばらつきをならす7日間平均つきの、30日・90日グラフ。';
+
+  @override
+  String get weightTrendLoggedLegend => '記録';
+
+  @override
+  String get weightTrendAverageLegend => '7日間平均';
+
+  @override
+  String get healthSyncSettingApple => 'Apple ヘルスケアと同期';
+
+  @override
+  String get healthSyncSettingGoogle => 'ヘルスコネクトと同期';
+
+  @override
+  String get healthSyncSettingSubtitle => 'ここで記録した内容をヘルスアプリにも反映します。';
+
+  @override
+  String get healthSyncExplainApple =>
+      'オンにすると、PlateSimple は記録したカロリー・栄養素・体重を Apple ヘルスケアに書き込み、歩数・アクティブカロリー・体重を読み取ります。何を許可するかはヘルスケアの確認画面で選べます。他の場所には送信されません。';
+
+  @override
+  String get healthSyncExplainGoogle =>
+      'オンにすると、PlateSimple は記録したカロリー・栄養素・体重をヘルスコネクトに書き込み、アクティブカロリーと体重を読み取ります。何を許可するかはヘルスコネクトの確認画面で選べます。他の場所には送信されません。';
+
+  @override
+  String get healthSyncPremiumOnly => 'ヘルス同期はプレミアム機能です。';
+
+  @override
+  String get healthSyncTeaserSub => '記録を Apple ヘルスケアやヘルスコネクトに送り、歩数と体重を取り込みます。';
+
+  @override
+  String get statWeight => '体重';
+
+  @override
+  String get healthWeightImported => 'ヘルスの体重を記録に追加しました。';
+
+  @override
+  String healthAddWeightToLog(String weight) {
+    return '$weight を記録に追加';
+  }
+
+  @override
+  String get featWeightTrendTitle => '体重の推移';
+
+  @override
+  String get featWeightTrendSub => '7日間平均と期間中の変化がわかる、30日・90日グラフ。';
+
+  @override
+  String get featHealthSyncTitle => 'ヘルス同期';
+
+  @override
+  String get featHealthSyncSub =>
+      '記録したカロリーと体重を Apple ヘルスケアやヘルスコネクトへ。歩数と体重を取り込みます。';
 }

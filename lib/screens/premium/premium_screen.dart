@@ -129,6 +129,20 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                   const SizedBox(height: 16),
                   _Feature(
+                    icon: Icons.monitor_weight_outlined,
+                    color: AppColors.accent,
+                    title: l10n.featWeightTrendTitle,
+                    subtitle: l10n.featWeightTrendSub,
+                  ),
+                  const SizedBox(height: 16),
+                  _Feature(
+                    icon: Icons.favorite_rounded,
+                    color: Colors.redAccent,
+                    title: l10n.featHealthSyncTitle,
+                    subtitle: l10n.featHealthSyncSub,
+                  ),
+                  const SizedBox(height: 16),
+                  _Feature(
                     icon: Icons.block_rounded,
                     color: Colors.orangeAccent,
                     title: l10n.featAdFreeTitle,
@@ -136,8 +150,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                   const SizedBox(height: 16),
                   _Feature(
-                    icon: Icons.favorite_rounded,
-                    color: Colors.redAccent,
+                    icon: Icons.volunteer_activism_rounded,
+                    color: Colors.pinkAccent,
                     title: l10n.featSupportTitle,
                     subtitle: l10n.featSupportSub,
                   ),

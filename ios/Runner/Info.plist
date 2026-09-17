@@ -33,9 +33,9 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>PlateSimple can read barcodes from photos in your library.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>PlateSimple reads your activity and workout data to show net calories and accurate energy burn.</string>
+	<string>PlateSimple reads your active calories, steps and weight to show net calories next to what you ate and to bring a scale reading into your weight log.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>PlateSimple can write your logged nutrition data to Apple Health so all your health data stays in one place.</string>
+	<string>PlateSimple can write the calories, macros and weight you log to Apple Health so all your health data stays in one place.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
