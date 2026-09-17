@@ -250,8 +250,12 @@ class OpenFoodFactsService {
       score += 100; // query appears somewhere (e.g. inside another word)
     }
 
-    // All four macros stated: the entry will move every bar, not just the ring.
-    if (item.hasCompleteNutrition) score += 200;
+    // All four macros stated: the entry will move every bar, not just the
+    // ring. Worth more than the gap between a prefix and a whole-word match
+    // (600 vs 350), so "Grilled chicken" with everything stated beats
+    // "Chicken breast fillet" with only an energy value — but never an
+    // exact name.
+    if (item.hasCompleteNutrition) score += 300;
 
     // Prefer simple, generic names — fewer words usually means the raw food.
     score -= (words.length - 1).clamp(0, 12) * 8;

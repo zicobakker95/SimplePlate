@@ -791,7 +791,7 @@ class _FoodTile extends StatelessWidget {
             const TextStyle(color: AppColors.textSecondary, fontSize: 12),
       ),
       trailing: Consumer<FoodStore>(
-        builder: (_, store, __) => IconButton(
+        builder: (_, store, _) => IconButton(
           icon: Icon(
             store.isFavourite(item.id)
                 ? Icons.star_rounded
