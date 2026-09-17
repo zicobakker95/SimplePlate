@@ -575,7 +575,8 @@ class _WeeklyInsightsTeaser extends StatelessWidget {
                   FilledButton.icon(
                     icon: const Icon(Icons.workspace_premium_rounded, size: 16),
                     label: Text(l10n.upgradeToPremium),
-                    onPressed: () => PremiumScreen.show(context),
+                    onPressed: () =>
+                        PremiumScreen.show(context, source: 'weekly_insights'),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(

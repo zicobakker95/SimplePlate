@@ -321,7 +321,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
             builder: (context, _) {
               final isPremium = SubscriptionService.instance.isPremium;
               return GestureDetector(
-                onTap: isPremium ? null : () => PremiumScreen.show(context),
+                onTap: isPremium
+                    ? null
+                    : () => PremiumScreen.show(context, source: 'goals_banner'),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 24),
                   padding: const EdgeInsets.all(16),

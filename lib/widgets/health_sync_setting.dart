@@ -34,7 +34,7 @@ class _HealthSyncSettingState extends State<HealthSyncSetting> {
       return;
     }
     if (!SubscriptionService.instance.isPremium) {
-      PremiumScreen.show(context);
+      PremiumScreen.show(context, source: 'health_sync_setting');
       return;
     }
     setState(() {

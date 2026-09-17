@@ -3,18 +3,24 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/l10n.dart';
 import '../../services/subscription_service.dart';
+import '../../services/analytics_service.dart';
 import '../../theme/app_colors.dart';
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
 
   /// Push the paywall as a full-screen modal route.
-  static Future<void> show(BuildContext context) => Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => const PremiumScreen(),
-        ),
-      );
+  /// Opens the paywall. [source] names the thing the user tapped, so the
+  /// funnel can be read per placement rather than as one number.
+  static Future<void> show(BuildContext context, {String source = 'other'}) {
+    AnalyticsService.instance.logPaywallView(source);
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => const PremiumScreen(),
+      ),
+    );
+  }
 
   @override
   State<PremiumScreen> createState() => _PremiumScreenState();
@@ -288,6 +294,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _purchase() async {
     final svc = SubscriptionService.instance;
     final plan = svc.planOptions.firstWhere((p) => p.id == _selectedId);
+    final price = svc.priceOf(plan.id);
+    await AnalyticsService.instance.logBeginCheckout(
+      productId: plan.id,
+      value: price?.value ?? 0,
+      currency: price?.currency ?? 'EUR',
+    );
     await svc.purchase(plan.purchaseTarget);
   }
 

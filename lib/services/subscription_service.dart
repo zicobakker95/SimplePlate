@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+
+import 'analytics_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Manages monthly/yearly premium subscriptions via in_app_purchase.
@@ -85,6 +87,16 @@ class SubscriptionService extends ChangeNotifier {
     return result;
   }
 
+  /// The recurring price of [id] as the store reports it, for analytics.
+  /// Null when the product list has not loaded (offline, store unavailable),
+  /// in which case the purchase event still fires with a zero value rather
+  /// than not firing at all.
+  ({double value, String currency})? priceOf(String id) {
+    final p = _byId(id);
+    if (p == null) return null;
+    return (value: p.rawPrice, currency: p.currencyCode);
+  }
+
   ProductDetails? _byId(String id) {
     try {
       return _products.firstWhere((p) => p.id == id);
@@ -152,6 +164,19 @@ class SubscriptionService extends ChangeNotifier {
         if (p.status == PurchaseStatus.purchased ||
             p.status == PurchaseStatus.restored) {
           await _setPremium(true);
+          // Only a NEW purchase is a conversion. A restore is the same
+          // subscriber on a second device, and counting it would teach the
+          // bidder that reinstalls are revenue.
+          if (p.status == PurchaseStatus.purchased) {
+            final price = priceOf(p.productID);
+            await AnalyticsService.instance.logPurchase(
+              productId: p.productID,
+              value: price?.value ?? 0,
+              currency: price?.currency ?? 'EUR',
+              transactionId: p.purchaseID,
+              isTrial: (price?.value ?? 0) == 0,
+            );
+          }
         }
         // Note: cancellation / expiry is handled via subscription management
         // in the store — we don't clear premium on error to avoid false
