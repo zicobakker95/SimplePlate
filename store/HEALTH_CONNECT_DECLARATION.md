@@ -58,6 +58,32 @@ their other health apps. Only food the user entered themselves is
 written. Nothing is written when the toggle is off.
 ```
 
+## READ — Weight (added in 1.1.0+29)
+
+```
+Used by the "Health sync" card on the Today screen.
+
+PlateSimple keeps a body-weight log (the user types their weight in)
+and draws a trend chart from it. When Health sync is on, the newest
+weight in Health Connect — typically from a smart scale — is shown on
+the Today screen, and if the app's own log has no entry for that day
+the user can add it with one tap instead of typing it a second time.
+Only the most recent sample is used; it is displayed and, if the user
+chooses, copied into the on-device log. Nothing is sent off the device.
+```
+
+## WRITE — Weight (added in 1.1.0+29)
+
+```
+Used by the "Health sync" toggle in Goals.
+
+When the toggle is on, each weight the user logs in PlateSimple is
+written to Health Connect as one Weight record, so their weight history
+is in one place alongside their other health apps. Only weights the
+user entered themselves are written; entries that came from Health
+Connect are never written back.
+```
+
 ---
 
 ## What changed in the app (state this in the appeal/resubmission note)
@@ -67,12 +93,18 @@ written. Nothing is written when the toggle is off.
 the body at rest, which a food diary cannot act on. Active calories
 alone are what the energy-balance screen needs.
 
-The remaining Health Connect permissions are exactly two:
+The Health Connect permissions are exactly four:
 
 | Permission | Direction | Feature |
 |---|---|---|
 | `READ_ACTIVE_CALORIES_BURNED` | read | "Calories burned" on Today + weekly summary |
-| `WRITE_NUTRITION` | write | "Sync to Health Connect" toggle in Settings |
+| `WRITE_NUTRITION` | write | "Health sync" toggle in Goals |
+| `READ_WEIGHT` | read | Scale reading on Today, one-tap add to the weight log (1.1.0+29) |
+| `WRITE_WEIGHT` | write | Logged weigh-ins appear in Health Connect (1.1.0+29) |
+
+Health sync is a Premium feature; the toggle explains, before any
+prompt, exactly what is read and written. Steps remain unread on
+Android.
 
 History of narrowing, if the reviewer asks:
 

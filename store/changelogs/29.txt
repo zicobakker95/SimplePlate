@@ -1,0 +1,63 @@
+<en-US>
+• Food search: your recent foods appear before you type, your own foods come first while you type, and results now favour exact names and complete nutrition. Searches and scans are remembered for 30 days, so they work offline too.
+• No match? Add it as a custom food or quick-add the calories on the spot.
+• Weight log in kg or lb, with a quick entry on Today and in Goals.
+• Premium: weight trend chart over 30 or 90 days with a 7-day average.
+• Premium: Health sync — logged calories and weight go to Apple Health or Health Connect; steps and weight come back.
+</en-US>
+
+<de-DE>
+• Lebensmittelsuche: Deine letzten Lebensmittel erscheinen schon vor dem Tippen, deine eigenen zuerst beim Tippen, und Treffer mit exaktem Namen und vollständigen Nährwerten stehen vorn. Suchen und Scans werden 30 Tage gemerkt und funktionieren so auch offline.
+• Kein Treffer? Als eigenes Lebensmittel anlegen oder die Kalorien direkt eintragen.
+• Gewichtsprotokoll in kg oder lb, mit Schnelleingabe unter Heute und Ziele.
+• Premium: Gewichtstrend über 30 oder 90 Tage mit 7-Tage-Durchschnitt.
+• Premium: Health-Sync — erfasste Kalorien und Gewicht gehen an Apple Health oder Health Connect, Schritte und Gewicht kommen zurück.
+</de-DE>
+
+<es-ES>
+• Búsqueda de alimentos: tus alimentos recientes aparecen antes de escribir, los tuyos van primero mientras escribes, y los resultados priorizan nombres exactos y nutrición completa. Las búsquedas y los escaneos se recuerdan 30 días, así que también funcionan sin conexión.
+• ¿Sin resultados? Añádelo como alimento personalizado o registra las calorías al momento.
+• Registro de peso en kg o lb, con entrada rápida en Hoy y en Objetivos.
+• Premium: gráfico de tendencia de peso a 30 o 90 días con media de 7 días.
+• Premium: sincronización de Salud — las calorías y el peso registrados van a Apple Salud o Health Connect; los pasos y el peso vuelven.
+</es-ES>
+
+<fr-FR>
+• Recherche d'aliments : tes aliments récents s'affichent avant même de taper, les tiens passent en premier pendant la saisie, et les résultats privilégient les noms exacts et une nutrition complète. Recherches et scans sont mémorisés 30 jours, donc ça marche aussi hors ligne.
+• Aucun résultat ? Ajoute-le comme aliment personnalisé ou saisis les calories sur-le-champ.
+• Journal de poids en kg ou lb, avec saisie rapide dans Aujourd'hui et Objectifs.
+• Premium : tendance du poids sur 30 ou 90 jours avec moyenne sur 7 jours.
+• Premium : synchro Santé — les calories et le poids enregistrés partent vers Apple Santé ou Santé Connect ; les pas et le poids reviennent.
+</fr-FR>
+
+<it-IT>
+• Ricerca alimenti: i tuoi alimenti recenti compaiono prima di scrivere, i tuoi vengono per primi mentre scrivi, e i risultati privilegiano i nomi esatti e i valori nutrizionali completi. Ricerche e scansioni vengono ricordate per 30 giorni, quindi funzionano anche offline.
+• Nessun risultato? Aggiungilo come alimento personalizzato o inserisci subito le calorie.
+• Diario del peso in kg o lb, con inserimento rapido in Oggi e in Obiettivi.
+• Premium: andamento del peso a 30 o 90 giorni con media a 7 giorni.
+• Premium: sincronizzazione Salute — calorie e peso registrati vanno in Apple Salute o Health Connect; passi e peso tornano indietro.
+</it-IT>
+
+<ja-JP>
+• 食品検索：入力前に最近の食品が表示され、入力中は自分の食品が最初に並び、名前が一致し栄養情報がそろった結果を優先します。検索とスキャンは30日間記憶されるため、オフラインでも使えます。
+• 見つからない？ カスタム食品として追加するか、その場でカロリーをクイック追加できます。
+• 体重記録が kg / lb に対応。「今日」と「目標」から素早く入力できます。
+• プレミアム：7日間平均つきの30日・90日体重推移グラフ。
+• プレミアム：ヘルス同期 — 記録したカロリーと体重を Apple ヘルスケアやヘルスコネクトへ。歩数と体重を取り込みます。
+</ja-JP>
+
+<nl-NL>
+• Voedsel zoeken: je recente voedingsmiddelen staan er al voordat je typt, je eigen voedingsmiddelen komen eerst terwijl je typt, en resultaten met een exacte naam en volledige voedingswaarden staan bovenaan. Zoekopdrachten en scans worden 30 dagen onthouden, dus ze werken ook offline.
+• Niets gevonden? Voeg het toe als eigen voedingsmiddel of log de calorieën direct.
+• Gewichtslogboek in kg of lb, met snelle invoer onder Vandaag en Doelen.
+• Premium: gewichtstrend over 30 of 90 dagen met 7-daags gemiddelde.
+• Premium: Health-synchronisatie — gelogde calorieën en gewicht gaan naar Apple Health of Health Connect; stappen en gewicht komen terug.
+</nl-NL>
+
+<pt-BR>
+• Busca de alimentos: seus alimentos recentes aparecem antes de digitar, os seus vêm primeiro enquanto você digita, e os resultados priorizam nomes exatos e nutrição completa. Buscas e escaneamentos ficam salvos por 30 dias, então funcionam offline também.
+• Não encontrou? Adicione como alimento personalizado ou registre as calorias na hora.
+• Registro de peso em kg ou lb, com entrada rápida em Hoje e em Metas.
+• Premium: gráfico de tendência de peso em 30 ou 90 dias com média de 7 dias.
+• Premium: sincronização com Saúde — calorias e peso registrados vão para o Apple Saúde ou Health Connect; passos e peso voltam.
+</pt-BR>
