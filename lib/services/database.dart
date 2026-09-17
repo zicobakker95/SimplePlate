@@ -55,6 +55,29 @@ class CustomFoods extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Open Food Facts text searches, one row per normalised query. Results are
+/// stored as the JSON the app already uses for favourites, so a cached hit
+/// is the same [FoodItem] list a live search would have produced.
+class SearchCacheEntries extends Table {
+  TextColumn get normalisedQuery => text()();
+  TextColumn get resultsJson => text()();
+  DateTimeColumn get fetchedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {normalisedQuery};
+}
+
+/// Barcode lookups that found a product. Misses are not cached: a product
+/// scanned today may well be in the database next week.
+class BarcodeCacheEntries extends Table {
+  TextColumn get barcode => text()();
+  TextColumn get productJson => text()();
+  DateTimeColumn get fetchedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {barcode};
+}
+
 class Recipes extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -74,12 +97,28 @@ class Recipes extends Table {
   ActivityEntries,
   CustomFoods,
   Recipes,
+  SearchCacheEntries,
+  BarcodeCacheEntries,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  /// For tests: `AppDatabase.withExecutor(NativeDatabase.memory())`.
+  AppDatabase.withExecutor(super.executor);
+
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(searchCacheEntries);
+            await m.createTable(barcodeCacheEntries);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'plate_simple_db');
@@ -146,6 +185,34 @@ class AppDatabase extends _$AppDatabase {
           ..where((t) => t.id.equals(id)))
         .go();
     return count > 0;
+  }
+
+  // ── Search / barcode cache ────────────────────────────────────────────────
+
+  Future<SearchCacheEntry?> searchCacheFor(String normalisedQuery) =>
+      (select(searchCacheEntries)
+            ..where((t) => t.normalisedQuery.equals(normalisedQuery)))
+          .getSingleOrNull();
+
+  Future<void> upsertSearchCache(SearchCacheEntriesCompanion entry) =>
+      into(searchCacheEntries).insertOnConflictUpdate(entry);
+
+  Future<BarcodeCacheEntry?> barcodeCacheFor(String barcode) =>
+      (select(barcodeCacheEntries)..where((t) => t.barcode.equals(barcode)))
+          .getSingleOrNull();
+
+  Future<void> upsertBarcodeCache(BarcodeCacheEntriesCompanion entry) =>
+      into(barcodeCacheEntries).insertOnConflictUpdate(entry);
+
+  /// Removes cache rows fetched before [cutoff]. Returns rows deleted.
+  Future<int> pruneCacheBefore(DateTime cutoff) async {
+    final a = await (delete(searchCacheEntries)
+          ..where((t) => t.fetchedAt.isSmallerThanValue(cutoff)))
+        .go();
+    final b = await (delete(barcodeCacheEntries)
+          ..where((t) => t.fetchedAt.isSmallerThanValue(cutoff)))
+        .go();
+    return a + b;
   }
 
   // ── Recipes ───────────────────────────────────────────────────────────────

@@ -609,16 +609,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scanTooltip => 'バーコードをスキャン';
 
   @override
-  String noResults(String query) {
-    return '「$query」の結果がありません。\nより具体的な語句を試すか、バーコードをスキャンしてください。';
-  }
-
-  @override
-  String searchErrorRetry(String error) {
-    return '$error\n下に引っ張って再試行してください。';
-  }
-
-  @override
   String get createCustomFood => 'カスタム食品を作成';
 
   @override
@@ -978,4 +968,49 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get unlockAdUnavailable => '今は動画を表示できません。少し後でもう一度お試しください。';
+
+  @override
+  String get retry => '再試行';
+
+  @override
+  String get sectionYourFoods => 'あなたの食品';
+
+  @override
+  String get sectionOpenFoodFacts => 'Open Food Facts';
+
+  @override
+  String get searchCachedLabel => '保存済みの結果';
+
+  @override
+  String get searchOfflineCached => 'オフライン・保存済みの結果';
+
+  @override
+  String get searchTypeMore => '入力に合わせてOpen Food Factsを検索しています…';
+
+  @override
+  String get searchEmptyPrompt =>
+      'Open Food Factsを検索するか、バーコードをスキャンしてください。\n記録した食品はここに表示されます。';
+
+  @override
+  String noMatchFor(String query) {
+    return '「$query」に一致する食品はありません';
+  }
+
+  @override
+  String get noMatchHint => '自分で追加できます。数秒で済み、あとから再利用できます。';
+
+  @override
+  String get addAsCustomFood => 'カスタム食品として追加';
+
+  @override
+  String get quickAddCalories => 'カロリーをすばやく追加';
+
+  @override
+  String get quickAddTitle => 'クイック追加';
+
+  @override
+  String get quickAddNameLabel => '名前（任意）';
+
+  @override
+  String get optionalMacros => 'マクロ（任意）';
 }

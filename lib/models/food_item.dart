@@ -18,6 +18,13 @@ class FoodItem {
   /// and a serving count invented from nothing would be worse than none.
   final double? servingSizeGrams;
 
+  /// Whether the source stated all four of calories, protein, carbs and fat.
+  /// Open Food Facts products are crowd-sourced and often carry only an
+  /// energy value; a zero macro then means "unknown", not "none". Search
+  /// ranks complete products first so the entry you log is the one whose
+  /// macro bars will actually move. Custom foods are always complete.
+  final bool hasCompleteNutrition;
+
   const FoodItem({
     required this.id,
     required this.name,
@@ -30,6 +37,7 @@ class FoodItem {
     this.isFavourite = false,
     this.isCustom = false,
     this.servingSizeGrams,
+    this.hasCompleteNutrition = true,
   });
 
   /// True when this food can express an amount in servings.
@@ -60,6 +68,7 @@ class FoodItem {
         isFavourite: isFavourite ?? this.isFavourite,
         isCustom: isCustom,
         servingSizeGrams: servingSizeGrams,
+        hasCompleteNutrition: hasCompleteNutrition,
       );
 
   Map<String, dynamic> toJson() => {
@@ -74,6 +83,7 @@ class FoodItem {
         'isFavourite': isFavourite,
         'isCustom': isCustom,
         'servingSizeGrams': servingSizeGrams,
+        'hasCompleteNutrition': hasCompleteNutrition,
       };
 
   factory FoodItem.fromJson(Map<String, dynamic> j) => FoodItem(
@@ -90,6 +100,7 @@ class FoodItem {
         // Absent in everything saved before servings existed, which is what
         // null already means.
         servingSizeGrams: (j['servingSizeGrams'] as num?)?.toDouble(),
+        hasCompleteNutrition: (j['hasCompleteNutrition'] as bool?) ?? true,
       );
 
   @override

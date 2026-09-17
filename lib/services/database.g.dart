@@ -2148,6 +2148,565 @@ class RecipesCompanion extends UpdateCompanion<Recipe> {
   }
 }
 
+class $SearchCacheEntriesTable extends SearchCacheEntries
+    with TableInfo<$SearchCacheEntriesTable, SearchCacheEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SearchCacheEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _normalisedQueryMeta = const VerificationMeta(
+    'normalisedQuery',
+  );
+  @override
+  late final GeneratedColumn<String> normalisedQuery = GeneratedColumn<String>(
+    'normalised_query',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resultsJsonMeta = const VerificationMeta(
+    'resultsJson',
+  );
+  @override
+  late final GeneratedColumn<String> resultsJson = GeneratedColumn<String>(
+    'results_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    normalisedQuery,
+    resultsJson,
+    fetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'search_cache_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SearchCacheEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('normalised_query')) {
+      context.handle(
+        _normalisedQueryMeta,
+        normalisedQuery.isAcceptableOrUnknown(
+          data['normalised_query']!,
+          _normalisedQueryMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_normalisedQueryMeta);
+    }
+    if (data.containsKey('results_json')) {
+      context.handle(
+        _resultsJsonMeta,
+        resultsJson.isAcceptableOrUnknown(
+          data['results_json']!,
+          _resultsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_resultsJsonMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {normalisedQuery};
+  @override
+  SearchCacheEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SearchCacheEntry(
+      normalisedQuery: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}normalised_query'],
+      )!,
+      resultsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}results_json'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SearchCacheEntriesTable createAlias(String alias) {
+    return $SearchCacheEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class SearchCacheEntry extends DataClass
+    implements Insertable<SearchCacheEntry> {
+  final String normalisedQuery;
+  final String resultsJson;
+  final DateTime fetchedAt;
+  const SearchCacheEntry({
+    required this.normalisedQuery,
+    required this.resultsJson,
+    required this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['normalised_query'] = Variable<String>(normalisedQuery);
+    map['results_json'] = Variable<String>(resultsJson);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    return map;
+  }
+
+  SearchCacheEntriesCompanion toCompanion(bool nullToAbsent) {
+    return SearchCacheEntriesCompanion(
+      normalisedQuery: Value(normalisedQuery),
+      resultsJson: Value(resultsJson),
+      fetchedAt: Value(fetchedAt),
+    );
+  }
+
+  factory SearchCacheEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SearchCacheEntry(
+      normalisedQuery: serializer.fromJson<String>(json['normalisedQuery']),
+      resultsJson: serializer.fromJson<String>(json['resultsJson']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'normalisedQuery': serializer.toJson<String>(normalisedQuery),
+      'resultsJson': serializer.toJson<String>(resultsJson),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+    };
+  }
+
+  SearchCacheEntry copyWith({
+    String? normalisedQuery,
+    String? resultsJson,
+    DateTime? fetchedAt,
+  }) => SearchCacheEntry(
+    normalisedQuery: normalisedQuery ?? this.normalisedQuery,
+    resultsJson: resultsJson ?? this.resultsJson,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+  );
+  SearchCacheEntry copyWithCompanion(SearchCacheEntriesCompanion data) {
+    return SearchCacheEntry(
+      normalisedQuery: data.normalisedQuery.present
+          ? data.normalisedQuery.value
+          : this.normalisedQuery,
+      resultsJson: data.resultsJson.present
+          ? data.resultsJson.value
+          : this.resultsJson,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchCacheEntry(')
+          ..write('normalisedQuery: $normalisedQuery, ')
+          ..write('resultsJson: $resultsJson, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(normalisedQuery, resultsJson, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SearchCacheEntry &&
+          other.normalisedQuery == this.normalisedQuery &&
+          other.resultsJson == this.resultsJson &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class SearchCacheEntriesCompanion extends UpdateCompanion<SearchCacheEntry> {
+  final Value<String> normalisedQuery;
+  final Value<String> resultsJson;
+  final Value<DateTime> fetchedAt;
+  final Value<int> rowid;
+  const SearchCacheEntriesCompanion({
+    this.normalisedQuery = const Value.absent(),
+    this.resultsJson = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SearchCacheEntriesCompanion.insert({
+    required String normalisedQuery,
+    required String resultsJson,
+    required DateTime fetchedAt,
+    this.rowid = const Value.absent(),
+  }) : normalisedQuery = Value(normalisedQuery),
+       resultsJson = Value(resultsJson),
+       fetchedAt = Value(fetchedAt);
+  static Insertable<SearchCacheEntry> custom({
+    Expression<String>? normalisedQuery,
+    Expression<String>? resultsJson,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (normalisedQuery != null) 'normalised_query': normalisedQuery,
+      if (resultsJson != null) 'results_json': resultsJson,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SearchCacheEntriesCompanion copyWith({
+    Value<String>? normalisedQuery,
+    Value<String>? resultsJson,
+    Value<DateTime>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return SearchCacheEntriesCompanion(
+      normalisedQuery: normalisedQuery ?? this.normalisedQuery,
+      resultsJson: resultsJson ?? this.resultsJson,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (normalisedQuery.present) {
+      map['normalised_query'] = Variable<String>(normalisedQuery.value);
+    }
+    if (resultsJson.present) {
+      map['results_json'] = Variable<String>(resultsJson.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchCacheEntriesCompanion(')
+          ..write('normalisedQuery: $normalisedQuery, ')
+          ..write('resultsJson: $resultsJson, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BarcodeCacheEntriesTable extends BarcodeCacheEntries
+    with TableInfo<$BarcodeCacheEntriesTable, BarcodeCacheEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BarcodeCacheEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _barcodeMeta = const VerificationMeta(
+    'barcode',
+  );
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+    'barcode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productJsonMeta = const VerificationMeta(
+    'productJson',
+  );
+  @override
+  late final GeneratedColumn<String> productJson = GeneratedColumn<String>(
+    'product_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [barcode, productJson, fetchedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'barcode_cache_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BarcodeCacheEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('barcode')) {
+      context.handle(
+        _barcodeMeta,
+        barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_barcodeMeta);
+    }
+    if (data.containsKey('product_json')) {
+      context.handle(
+        _productJsonMeta,
+        productJson.isAcceptableOrUnknown(
+          data['product_json']!,
+          _productJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_productJsonMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {barcode};
+  @override
+  BarcodeCacheEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BarcodeCacheEntry(
+      barcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}barcode'],
+      )!,
+      productJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_json'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BarcodeCacheEntriesTable createAlias(String alias) {
+    return $BarcodeCacheEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class BarcodeCacheEntry extends DataClass
+    implements Insertable<BarcodeCacheEntry> {
+  final String barcode;
+  final String productJson;
+  final DateTime fetchedAt;
+  const BarcodeCacheEntry({
+    required this.barcode,
+    required this.productJson,
+    required this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['barcode'] = Variable<String>(barcode);
+    map['product_json'] = Variable<String>(productJson);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    return map;
+  }
+
+  BarcodeCacheEntriesCompanion toCompanion(bool nullToAbsent) {
+    return BarcodeCacheEntriesCompanion(
+      barcode: Value(barcode),
+      productJson: Value(productJson),
+      fetchedAt: Value(fetchedAt),
+    );
+  }
+
+  factory BarcodeCacheEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BarcodeCacheEntry(
+      barcode: serializer.fromJson<String>(json['barcode']),
+      productJson: serializer.fromJson<String>(json['productJson']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'barcode': serializer.toJson<String>(barcode),
+      'productJson': serializer.toJson<String>(productJson),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+    };
+  }
+
+  BarcodeCacheEntry copyWith({
+    String? barcode,
+    String? productJson,
+    DateTime? fetchedAt,
+  }) => BarcodeCacheEntry(
+    barcode: barcode ?? this.barcode,
+    productJson: productJson ?? this.productJson,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+  );
+  BarcodeCacheEntry copyWithCompanion(BarcodeCacheEntriesCompanion data) {
+    return BarcodeCacheEntry(
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      productJson: data.productJson.present
+          ? data.productJson.value
+          : this.productJson,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BarcodeCacheEntry(')
+          ..write('barcode: $barcode, ')
+          ..write('productJson: $productJson, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(barcode, productJson, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BarcodeCacheEntry &&
+          other.barcode == this.barcode &&
+          other.productJson == this.productJson &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class BarcodeCacheEntriesCompanion extends UpdateCompanion<BarcodeCacheEntry> {
+  final Value<String> barcode;
+  final Value<String> productJson;
+  final Value<DateTime> fetchedAt;
+  final Value<int> rowid;
+  const BarcodeCacheEntriesCompanion({
+    this.barcode = const Value.absent(),
+    this.productJson = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BarcodeCacheEntriesCompanion.insert({
+    required String barcode,
+    required String productJson,
+    required DateTime fetchedAt,
+    this.rowid = const Value.absent(),
+  }) : barcode = Value(barcode),
+       productJson = Value(productJson),
+       fetchedAt = Value(fetchedAt);
+  static Insertable<BarcodeCacheEntry> custom({
+    Expression<String>? barcode,
+    Expression<String>? productJson,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (barcode != null) 'barcode': barcode,
+      if (productJson != null) 'product_json': productJson,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BarcodeCacheEntriesCompanion copyWith({
+    Value<String>? barcode,
+    Value<String>? productJson,
+    Value<DateTime>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return BarcodeCacheEntriesCompanion(
+      barcode: barcode ?? this.barcode,
+      productJson: productJson ?? this.productJson,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (productJson.present) {
+      map['product_json'] = Variable<String>(productJson.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BarcodeCacheEntriesCompanion(')
+          ..write('barcode: $barcode, ')
+          ..write('productJson: $productJson, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2158,6 +2717,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CustomFoodsTable customFoods = $CustomFoodsTable(this);
   late final $RecipesTable recipes = $RecipesTable(this);
+  late final $SearchCacheEntriesTable searchCacheEntries =
+      $SearchCacheEntriesTable(this);
+  late final $BarcodeCacheEntriesTable barcodeCacheEntries =
+      $BarcodeCacheEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2168,6 +2731,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     activityEntries,
     customFoods,
     recipes,
+    searchCacheEntries,
+    barcodeCacheEntries,
   ];
 }
 
@@ -3302,6 +3867,365 @@ typedef $$RecipesTableProcessedTableManager =
       Recipe,
       PrefetchHooks Function()
     >;
+typedef $$SearchCacheEntriesTableCreateCompanionBuilder =
+    SearchCacheEntriesCompanion Function({
+      required String normalisedQuery,
+      required String resultsJson,
+      required DateTime fetchedAt,
+      Value<int> rowid,
+    });
+typedef $$SearchCacheEntriesTableUpdateCompanionBuilder =
+    SearchCacheEntriesCompanion Function({
+      Value<String> normalisedQuery,
+      Value<String> resultsJson,
+      Value<DateTime> fetchedAt,
+      Value<int> rowid,
+    });
+
+class $$SearchCacheEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $SearchCacheEntriesTable> {
+  $$SearchCacheEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get normalisedQuery => $composableBuilder(
+    column: $table.normalisedQuery,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resultsJson => $composableBuilder(
+    column: $table.resultsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SearchCacheEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SearchCacheEntriesTable> {
+  $$SearchCacheEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get normalisedQuery => $composableBuilder(
+    column: $table.normalisedQuery,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resultsJson => $composableBuilder(
+    column: $table.resultsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SearchCacheEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SearchCacheEntriesTable> {
+  $$SearchCacheEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get normalisedQuery => $composableBuilder(
+    column: $table.normalisedQuery,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resultsJson => $composableBuilder(
+    column: $table.resultsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $$SearchCacheEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SearchCacheEntriesTable,
+          SearchCacheEntry,
+          $$SearchCacheEntriesTableFilterComposer,
+          $$SearchCacheEntriesTableOrderingComposer,
+          $$SearchCacheEntriesTableAnnotationComposer,
+          $$SearchCacheEntriesTableCreateCompanionBuilder,
+          $$SearchCacheEntriesTableUpdateCompanionBuilder,
+          (
+            SearchCacheEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $SearchCacheEntriesTable,
+              SearchCacheEntry
+            >,
+          ),
+          SearchCacheEntry,
+          PrefetchHooks Function()
+        > {
+  $$SearchCacheEntriesTableTableManager(
+    _$AppDatabase db,
+    $SearchCacheEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SearchCacheEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SearchCacheEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SearchCacheEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> normalisedQuery = const Value.absent(),
+                Value<String> resultsJson = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SearchCacheEntriesCompanion(
+                normalisedQuery: normalisedQuery,
+                resultsJson: resultsJson,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String normalisedQuery,
+                required String resultsJson,
+                required DateTime fetchedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SearchCacheEntriesCompanion.insert(
+                normalisedQuery: normalisedQuery,
+                resultsJson: resultsJson,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SearchCacheEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SearchCacheEntriesTable,
+      SearchCacheEntry,
+      $$SearchCacheEntriesTableFilterComposer,
+      $$SearchCacheEntriesTableOrderingComposer,
+      $$SearchCacheEntriesTableAnnotationComposer,
+      $$SearchCacheEntriesTableCreateCompanionBuilder,
+      $$SearchCacheEntriesTableUpdateCompanionBuilder,
+      (
+        SearchCacheEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $SearchCacheEntriesTable,
+          SearchCacheEntry
+        >,
+      ),
+      SearchCacheEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$BarcodeCacheEntriesTableCreateCompanionBuilder =
+    BarcodeCacheEntriesCompanion Function({
+      required String barcode,
+      required String productJson,
+      required DateTime fetchedAt,
+      Value<int> rowid,
+    });
+typedef $$BarcodeCacheEntriesTableUpdateCompanionBuilder =
+    BarcodeCacheEntriesCompanion Function({
+      Value<String> barcode,
+      Value<String> productJson,
+      Value<DateTime> fetchedAt,
+      Value<int> rowid,
+    });
+
+class $$BarcodeCacheEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $BarcodeCacheEntriesTable> {
+  $$BarcodeCacheEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productJson => $composableBuilder(
+    column: $table.productJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BarcodeCacheEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $BarcodeCacheEntriesTable> {
+  $$BarcodeCacheEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productJson => $composableBuilder(
+    column: $table.productJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BarcodeCacheEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BarcodeCacheEntriesTable> {
+  $$BarcodeCacheEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get productJson => $composableBuilder(
+    column: $table.productJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $$BarcodeCacheEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BarcodeCacheEntriesTable,
+          BarcodeCacheEntry,
+          $$BarcodeCacheEntriesTableFilterComposer,
+          $$BarcodeCacheEntriesTableOrderingComposer,
+          $$BarcodeCacheEntriesTableAnnotationComposer,
+          $$BarcodeCacheEntriesTableCreateCompanionBuilder,
+          $$BarcodeCacheEntriesTableUpdateCompanionBuilder,
+          (
+            BarcodeCacheEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $BarcodeCacheEntriesTable,
+              BarcodeCacheEntry
+            >,
+          ),
+          BarcodeCacheEntry,
+          PrefetchHooks Function()
+        > {
+  $$BarcodeCacheEntriesTableTableManager(
+    _$AppDatabase db,
+    $BarcodeCacheEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BarcodeCacheEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BarcodeCacheEntriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$BarcodeCacheEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> barcode = const Value.absent(),
+                Value<String> productJson = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BarcodeCacheEntriesCompanion(
+                barcode: barcode,
+                productJson: productJson,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String barcode,
+                required String productJson,
+                required DateTime fetchedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => BarcodeCacheEntriesCompanion.insert(
+                barcode: barcode,
+                productJson: productJson,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BarcodeCacheEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BarcodeCacheEntriesTable,
+      BarcodeCacheEntry,
+      $$BarcodeCacheEntriesTableFilterComposer,
+      $$BarcodeCacheEntriesTableOrderingComposer,
+      $$BarcodeCacheEntriesTableAnnotationComposer,
+      $$BarcodeCacheEntriesTableCreateCompanionBuilder,
+      $$BarcodeCacheEntriesTableUpdateCompanionBuilder,
+      (
+        BarcodeCacheEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $BarcodeCacheEntriesTable,
+          BarcodeCacheEntry
+        >,
+      ),
+      BarcodeCacheEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3316,4 +4240,8 @@ class $AppDatabaseManager {
       $$CustomFoodsTableTableManager(_db, _db.customFoods);
   $$RecipesTableTableManager get recipes =>
       $$RecipesTableTableManager(_db, _db.recipes);
+  $$SearchCacheEntriesTableTableManager get searchCacheEntries =>
+      $$SearchCacheEntriesTableTableManager(_db, _db.searchCacheEntries);
+  $$BarcodeCacheEntriesTableTableManager get barcodeCacheEntries =>
+      $$BarcodeCacheEntriesTableTableManager(_db, _db.barcodeCacheEntries);
 }

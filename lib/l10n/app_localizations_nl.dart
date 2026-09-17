@@ -625,16 +625,6 @@ class AppLocalizationsNl extends AppLocalizations {
   String get scanTooltip => 'Barcode scannen';
 
   @override
-  String noResults(String query) {
-    return 'Geen resultaten voor \"$query\".\nProbeer een specifiekere term of scan de barcode.';
-  }
-
-  @override
-  String searchErrorRetry(String error) {
-    return '$error\nTrek omlaag om opnieuw te proberen.';
-  }
-
-  @override
   String get createCustomFood => 'Eigen voedsel maken';
 
   @override
@@ -1010,4 +1000,51 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get unlockAdUnavailable =>
       'Nu geen video beschikbaar. Probeer het zo nog eens.';
+
+  @override
+  String get retry => 'Opnieuw proberen';
+
+  @override
+  String get sectionYourFoods => 'Jouw voedingsmiddelen';
+
+  @override
+  String get sectionOpenFoodFacts => 'Open Food Facts';
+
+  @override
+  String get searchCachedLabel => 'Opgeslagen resultaten';
+
+  @override
+  String get searchOfflineCached => 'Offline · opgeslagen resultaten';
+
+  @override
+  String get searchTypeMore =>
+      'Open Food Facts wordt doorzocht terwijl je typt…';
+
+  @override
+  String get searchEmptyPrompt =>
+      'Zoek in Open Food Facts of scan een barcode.\nVoedingsmiddelen die je logt, verschijnen hier.';
+
+  @override
+  String noMatchFor(String query) {
+    return 'Geen resultaat voor \"$query\"';
+  }
+
+  @override
+  String get noMatchHint =>
+      'Voeg het zelf toe: het kost een paar seconden en je kunt het opnieuw gebruiken.';
+
+  @override
+  String get addAsCustomFood => 'Toevoegen als eigen voedingsmiddel';
+
+  @override
+  String get quickAddCalories => 'Snel calorieën toevoegen';
+
+  @override
+  String get quickAddTitle => 'Snel toevoegen';
+
+  @override
+  String get quickAddNameLabel => 'Naam (optioneel)';
+
+  @override
+  String get optionalMacros => 'Macro\'s (optioneel)';
 }

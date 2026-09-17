@@ -1226,18 +1226,6 @@ abstract class AppLocalizations {
   /// **'Scan barcode'**
   String get scanTooltip;
 
-  /// No description provided for @noResults.
-  ///
-  /// In en, this message translates to:
-  /// **'No results found for \"{query}\".\nTry a more specific term or scan the barcode.'**
-  String noResults(String query);
-
-  /// No description provided for @searchErrorRetry.
-  ///
-  /// In en, this message translates to:
-  /// **'{error}\nPull down to retry.'**
-  String searchErrorRetry(String error);
-
   /// No description provided for @createCustomFood.
   ///
   /// In en, this message translates to:
@@ -1885,6 +1873,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No video available right now. Try again in a moment.'**
   String get unlockAdUnavailable;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @sectionYourFoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Your foods'**
+  String get sectionYourFoods;
+
+  /// No description provided for @sectionOpenFoodFacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Food Facts'**
+  String get sectionOpenFoodFacts;
+
+  /// No description provided for @searchCachedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved results'**
+  String get searchCachedLabel;
+
+  /// No description provided for @searchOfflineCached.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline · saved results'**
+  String get searchOfflineCached;
+
+  /// No description provided for @searchTypeMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching Open Food Facts as you type…'**
+  String get searchTypeMore;
+
+  /// No description provided for @searchEmptyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Open Food Facts or scan a barcode.\nFoods you log will show up here.'**
+  String get searchEmptyPrompt;
+
+  /// No description provided for @noMatchFor.
+  ///
+  /// In en, this message translates to:
+  /// **'No match for \"{query}\"'**
+  String noMatchFor(String query);
+
+  /// No description provided for @noMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add it yourself — it takes a few seconds and it\'s yours to reuse.'**
+  String get noMatchHint;
+
+  /// No description provided for @addAsCustomFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Add as custom food'**
+  String get addAsCustomFood;
+
+  /// No description provided for @quickAddCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add calories'**
+  String get quickAddCalories;
+
+  /// No description provided for @quickAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add'**
+  String get quickAddTitle;
+
+  /// No description provided for @quickAddNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get quickAddNameLabel;
+
+  /// No description provided for @optionalMacros.
+  ///
+  /// In en, this message translates to:
+  /// **'Macros (optional)'**
+  String get optionalMacros;
 }
 
 class _AppLocalizationsDelegate

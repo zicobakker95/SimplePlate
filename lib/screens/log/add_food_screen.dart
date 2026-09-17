@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,14 +8,16 @@ import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
 import '../../models/recipe.dart';
 import '../../services/ad_service.dart';
+import '../../services/food_search_service.dart';
 import '../../services/food_store.dart';
 import '../../services/openfoodfacts_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/ad_banner.dart';
+import '../../widgets/quick_add_sheet.dart';
 import 'barcode_screen.dart';
 import 'create_custom_food_screen.dart';
 import 'create_recipe_screen.dart';
 import 'food_detail_screen.dart';
-import '../../widgets/ad_banner.dart';
 
 class AddFoodScreen extends StatefulWidget {
   const AddFoodScreen({
@@ -37,45 +41,91 @@ class _AddFoodScreenState extends State<AddFoodScreen>
   late final TabController _tabs =
       TabController(length: widget.pickMode ? 2 : 3, vsync: this);
 
+  /// Typing pauses this long before a live search fires. Local matches
+  /// (recents, custom foods) update on every keystroke regardless.
+  static const _debounce = Duration(milliseconds: 500);
+
   final _searchCtrl = TextEditingController();
+  Timer? _debounceTimer;
+  StreamSubscription<FoodSearchResult>? _sub;
+
+  /// The query the current [_results] / [_error] belong to.
+  String _searchedQuery = '';
   List<FoodItem> _results = [];
+  bool _fromCache = false;
+  bool _offline = false;
   bool _loading = false;
   String? _error;
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _sub?.cancel();
     _tabs.dispose();
     _searchCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _search(String query) async {
-    if (query.trim().isEmpty) {
-      setState(() => _results = []);
+  String get _query => _searchCtrl.text.trim();
+
+  void _onQueryChanged(String value) {
+    _debounceTimer?.cancel();
+    final q = value.trim();
+    if (q.isEmpty) {
+      _sub?.cancel();
+      setState(() {
+        _searchedQuery = '';
+        _results = [];
+        _error = null;
+        _loading = false;
+      });
       return;
     }
+    setState(() {}); // local matches + clear button
+    if (q.length < 2) return;
+    _debounceTimer = Timer(_debounce, () => _search(q));
+  }
+
+  Future<void> _search(String query) async {
+    final q = query.trim();
+    _debounceTimer?.cancel();
+    if (q.isEmpty) return;
+    if (q == _searchedQuery && !_loading && _error == null) return;
+
+    await _sub?.cancel();
     setState(() {
+      _searchedQuery = q;
       _loading = true;
       _error = null;
+      _fromCache = false;
+      _offline = false;
     });
-    try {
-      final items = await OpenFoodFactsService.instance.search(query.trim());
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _results = items;
-        if (items.isEmpty) {
-          _error = context.l10n.noResults(query);
-        }
-      });
-    } on OpenFoodFactsException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _results = [];
-        _error = context.l10n.searchErrorRetry('$e');
-      });
-    }
+    final locale = Localizations.localeOf(context);
+    _sub = FoodSearchService.instance.search(q, locale: locale).listen(
+      (result) {
+        if (!mounted || _searchedQuery != q) return;
+        setState(() {
+          _results = result.items;
+          _fromCache = result.fromCache;
+          _offline = result.offline;
+          // A cached answer keeps the spinner: the live one is still coming.
+          _loading = result.fromCache && !result.offline;
+          _error = null;
+        });
+      },
+      onError: (Object e) {
+        if (!mounted || _searchedQuery != q) return;
+        setState(() {
+          _loading = false;
+          _results = [];
+          _error = e is OpenFoodFactsException ? e.message : '$e';
+        });
+      },
+      onDone: () {
+        if (!mounted || _searchedQuery != q) return;
+        if (_loading) setState(() => _loading = false);
+      },
+    );
   }
 
   Future<void> _scanBarcode() async {
@@ -127,8 +177,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       _error = null;
     });
     try {
-      final item =
-          await OpenFoodFactsService.instance.fetchByBarcode(barcode);
+      final item = await FoodSearchService.instance.lookupBarcode(barcode);
       if (!mounted) return;
       setState(() => _loading = false);
       if (item == null) {
@@ -153,6 +202,22 @@ class _AddFoodScreenState extends State<AddFoodScreen>
           builder: (_) =>
               FoodDetailScreen(item: item, defaultMeal: widget.defaultMeal)));
     }
+  }
+
+  void _addAsCustomFood() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CreateCustomFoodScreen(
+        defaultMeal: widget.defaultMeal,
+        initialName: _query,
+      ),
+    ));
+  }
+
+  Future<void> _quickAdd() async {
+    final kcal = await showQuickAddSheet(context,
+        defaultMeal: widget.defaultMeal, initialName: _query);
+    if (kcal == null || !mounted) return;
+    Navigator.of(context).pop();
   }
 
   @override
@@ -204,11 +269,11 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                                   icon: const Icon(Icons.clear_rounded),
                                   onPressed: () {
                                     _searchCtrl.clear();
-                                    setState(() => _results = []);
+                                    _onQueryChanged('');
                                   })
                               : null,
                         ),
-                        onChanged: (v) => setState(() {}),
+                        onChanged: _onQueryChanged,
                       ),
                     ),
                     // Scanning is available everywhere, including when picking a
@@ -226,28 +291,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                   ],
                 ),
               ),
-              if (_loading)
-                const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: CircularProgressIndicator(),
-                )
-              else if (_error != null)
-                Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Text(_error!,
-                      style: const TextStyle(color: AppColors.textMuted),
-                      textAlign: TextAlign.center),
-                )
-              else
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _results.length,
-                    separatorBuilder: (_, __) =>
-                        const Divider(height: 1, color: AppColors.border),
-                    itemBuilder: (_, i) =>
-                        _FoodTile(item: _results[i], onTap: _handleItem),
-                  ),
-                ),
+              Expanded(child: _searchBody(store, l10n)),
             ],
           ),
 
@@ -308,15 +352,262 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     );
   }
 
-  Widget _sectionHeader(String label) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-        child: Text(label,
-            style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5)),
+  /// Everything under the search field.
+  ///
+  /// Before typing: the foods logged most recently, because the next meal is
+  /// usually a repeat. While typing: the user's own matching foods, then the
+  /// live list — with a cached list standing in while a slow mirror answers,
+  /// a retry when nothing answers, and two ways to log a food that was never
+  /// going to be found. There is no state that renders as an empty list.
+  Widget _searchBody(FoodStore store, AppLocalizations l10n) {
+    final q = _query;
+
+    if (q.isEmpty) {
+      final recents = store.recents;
+      if (recents.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(l10n.searchEmptyPrompt,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textMuted)),
+        );
+      }
+      return ListView(
+        children: [
+          _sectionHeader(l10n.sectionRecent),
+          for (final item in recents) _FoodTile(item: item, onTap: _handleItem),
+        ],
       );
+    }
+
+    final local = store.localMatches(q);
+    final showingSearched = _searchedQuery == q;
+    final children = <Widget>[
+      if (local.isNotEmpty) ...[
+        _sectionHeader(l10n.sectionYourFoods),
+        for (final item in local) _FoodTile(item: item, onTap: _handleItem),
+      ],
+      _sectionHeader(l10n.sectionOpenFoodFacts,
+          trailing: showingSearched && _fromCache
+              ? _CachedChip(
+                  label: _offline
+                      ? l10n.searchOfflineCached
+                      : l10n.searchCachedLabel)
+              : null),
+    ];
+
+    if (!showingSearched) {
+      // Debounce window, or a one-character query: nothing has been asked yet.
+      children.add(Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(l10n.searchTypeMore,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+      ));
+    } else if (_error != null) {
+      children.add(_RetryBlock(message: _error!, onRetry: () => _search(q)));
+    } else if (_results.isEmpty && !_loading) {
+      children.add(_NoMatchBlock(
+        query: q,
+        onCustom: _addAsCustomFood,
+        onQuickAdd: widget.pickMode ? null : _quickAdd,
+      ));
+    } else {
+      if (_loading && _results.isEmpty) {
+        children.add(const Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: CircularProgressIndicator()),
+        ));
+      }
+      if (_loading && _results.isNotEmpty) {
+        children.add(const LinearProgressIndicator(minHeight: 2));
+      }
+      for (final item in _results) {
+        children.add(_FoodTile(item: item, onTap: _handleItem));
+      }
+      if (!_loading && _results.isNotEmpty) {
+        // The last row is always a way out for the food that was not there.
+        children.add(_NotThereFooter(
+          onCustom: _addAsCustomFood,
+          onQuickAdd: widget.pickMode ? null : _quickAdd,
+        ));
+      }
+    }
+
+    return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: children,
+    );
+  }
+
+  Widget _sectionHeader(String label, {Widget? trailing}) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(label,
+                  style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5)),
+            ),
+            ?trailing,
+          ],
+        ),
+      );
+}
+
+class _CachedChip extends StatelessWidget {
+  const _CachedChip({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.offline_bolt_outlined,
+              size: 12, color: AppColors.textMuted),
+          const SizedBox(width: 4),
+          Text(label,
+              style: const TextStyle(
+                  color: AppColors.textMuted, fontSize: 11)),
+        ],
+      ),
+    );
+  }
+}
+
+/// A failed live search with no cache to fall back on. Says what went wrong
+/// and offers to try again — never a blank list.
+class _RetryBlock extends StatelessWidget {
+  const _RetryBlock({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 24, 32, 16),
+      child: Column(
+        children: [
+          const Icon(Icons.cloud_off_rounded,
+              color: AppColors.textMuted, size: 28),
+          const SizedBox(height: 10),
+          Text(message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textMuted)),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: Text(l10n.retry),
+            onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The search came back empty. Two ways forward, both of which end with the
+/// food in the log.
+class _NoMatchBlock extends StatelessWidget {
+  const _NoMatchBlock({
+    required this.query,
+    required this.onCustom,
+    this.onQuickAdd,
+  });
+  final String query;
+  final VoidCallback onCustom;
+  final VoidCallback? onQuickAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.noMatchFor(query),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w600, fontSize: 15)),
+          const SizedBox(height: 4),
+          Text(l10n.noMatchHint,
+              textAlign: TextAlign.center,
+              style:
+                  const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+            label: Text(l10n.addAsCustomFood),
+            onPressed: onCustom,
+            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+          ),
+          if (onQuickAdd != null) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.bolt_rounded, size: 18),
+              label: Text(l10n.quickAddCalories),
+              onPressed: onQuickAdd,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Below a non-empty result list: the same two actions, quieter.
+class _NotThereFooter extends StatelessWidget {
+  const _NotThereFooter({required this.onCustom, this.onQuickAdd});
+  final VoidCallback onCustom;
+  final VoidCallback? onQuickAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        children: [
+          TextButton.icon(
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 16),
+            label: Text(l10n.addAsCustomFood),
+            onPressed: onCustom,
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+          if (onQuickAdd != null)
+            TextButton.icon(
+              icon: const Icon(Icons.bolt_rounded, size: 16),
+              label: Text(l10n.quickAddCalories),
+              onPressed: onQuickAdd,
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 // ── Recipes tab ─────────────────────────────────────────────────────────────

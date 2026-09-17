@@ -293,22 +293,6 @@
   "tabMyFoods": "My Foods",
   "searchHint": "Search foods…",
   "scanTooltip": "Scan barcode",
-  "noResults": "No results found for \"{query}\".\nTry a more specific term or scan the barcode.",
-  "@noResults": {
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
-  "searchErrorRetry": "{error}\nPull down to retry.",
-  "@searchErrorRetry": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "createCustomFood": "Create custom food",
   "sectionFavourites": "Favourites ⭐",
   "sectionRecent": "Recent",
@@ -496,5 +480,26 @@
   "gramsPerServingHint": "Optional. Lets amounts show as servings, e.g. 100 g (2 servings).",
   "unlockWithAdToday": "Watch an ad to see it today",
   "unlockedForToday": "Unlocked for today",
-  "unlockAdUnavailable": "No video available right now. Try again in a moment."
+  "unlockAdUnavailable": "No video available right now. Try again in a moment.",
+  "retry": "Retry",
+  "sectionYourFoods": "Your foods",
+  "sectionOpenFoodFacts": "Open Food Facts",
+  "searchCachedLabel": "Saved results",
+  "searchOfflineCached": "Offline · saved results",
+  "searchTypeMore": "Searching Open Food Facts as you type…",
+  "searchEmptyPrompt": "Search Open Food Facts or scan a barcode.\nFoods you log will show up here.",
+  "noMatchFor": "No match for \"{query}\"",
+  "@noMatchFor": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "noMatchHint": "Add it yourself — it takes a few seconds and it's yours to reuse.",
+  "addAsCustomFood": "Add as custom food",
+  "quickAddCalories": "Quick add calories",
+  "quickAddTitle": "Quick add",
+  "quickAddNameLabel": "Name (optional)",
+  "optionalMacros": "Macros (optional)"
 }

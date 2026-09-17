@@ -12,8 +12,16 @@ import 'food_detail_screen.dart';
 /// Screen for creating a custom food item.
 /// After saving, opens FoodDetailScreen so the user can log a serving immediately.
 class CreateCustomFoodScreen extends StatefulWidget {
-  const CreateCustomFoodScreen({super.key, required this.defaultMeal});
+  const CreateCustomFoodScreen({
+    super.key,
+    required this.defaultMeal,
+    this.initialName,
+  });
   final MealType defaultMeal;
+
+  /// Pre-fills the name — the search screen passes the query that found
+  /// nothing, so "Add as custom food" starts with the typing already done.
+  final String? initialName;
 
   @override
   State<CreateCustomFoodScreen> createState() =>
@@ -22,7 +30,7 @@ class CreateCustomFoodScreen extends StatefulWidget {
 
 class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
+  late final _nameCtrl = TextEditingController(text: widget.initialName ?? '');
   final _brandCtrl = TextEditingController();
   final _calCtrl = TextEditingController();
   final _proteinCtrl = TextEditingController();

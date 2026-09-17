@@ -56,6 +56,11 @@ class FoodStore extends ChangeNotifier {
   String? _lastLoggedDate;
   int _waterGlasses = 0;
 
+  /// How many distinct foods the search screen remembers. Thirty covers a
+  /// couple of weeks of real eating for most people, which is what "the
+  /// thing I had on Tuesday" needs.
+  static const maxRecents = 30;
+
   // --- Public getters ---
   NutritionGoals get goals => _goals;
   List<FoodEntry> get allEntries => List.unmodifiable(_allEntries);
@@ -73,6 +78,26 @@ class FoodStore extends ChangeNotifier {
   bool get reminderEnabled => _storage.reminderEnabled;
   int get reminderHour => _storage.reminderHour;
   int get reminderMinute => _storage.reminderMinute;
+
+  /// Foods the user already has that match [query] — recents first (most
+  /// recent at the top), then custom foods, then favourites, without
+  /// duplicates. Shown above online results while typing, because the food
+  /// someone logs most is the one they logged last time.
+  List<FoodItem> localMatches(String query, {int limit = 10}) {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return const [];
+    final seen = <String>{};
+    final out = <FoodItem>[];
+    for (final item in [..._recents, ..._customFoods, ..._favourites]) {
+      if (out.length >= limit) break;
+      if (!seen.add(item.id)) continue;
+      if (item.name.toLowerCase().contains(q) ||
+          item.brand.toLowerCase().contains(q)) {
+        out.add(item);
+      }
+    }
+    return out;
+  }
 
   /// All entries for [date] (local calendar day).
   List<FoodEntry> entriesForDay(DateTime date) {
@@ -164,11 +189,11 @@ class FoodStore extends ChangeNotifier {
     _allEntries = [..._allEntries, entry];
     await _storage.saveEntries(_allEntries);
 
-    // Update recents (most recent first, max 20 unique by id).
+    // Update recents (most recent first, the last [maxRecents] unique by id).
     _recents = [
       item,
       ..._recents.where((r) => r.id != item.id),
-    ].take(20).toList();
+    ].take(maxRecents).toList();
     await _storage.saveRecents(_recents);
 
     // Update streak.

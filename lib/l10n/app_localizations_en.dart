@@ -623,16 +623,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanTooltip => 'Scan barcode';
 
   @override
-  String noResults(String query) {
-    return 'No results found for \"$query\".\nTry a more specific term or scan the barcode.';
-  }
-
-  @override
-  String searchErrorRetry(String error) {
-    return '$error\nPull down to retry.';
-  }
-
-  @override
   String get createCustomFood => 'Create custom food';
 
   @override
@@ -1004,4 +994,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get unlockAdUnavailable =>
       'No video available right now. Try again in a moment.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get sectionYourFoods => 'Your foods';
+
+  @override
+  String get sectionOpenFoodFacts => 'Open Food Facts';
+
+  @override
+  String get searchCachedLabel => 'Saved results';
+
+  @override
+  String get searchOfflineCached => 'Offline · saved results';
+
+  @override
+  String get searchTypeMore => 'Searching Open Food Facts as you type…';
+
+  @override
+  String get searchEmptyPrompt =>
+      'Search Open Food Facts or scan a barcode.\nFoods you log will show up here.';
+
+  @override
+  String noMatchFor(String query) {
+    return 'No match for \"$query\"';
+  }
+
+  @override
+  String get noMatchHint =>
+      'Add it yourself — it takes a few seconds and it\'s yours to reuse.';
+
+  @override
+  String get addAsCustomFood => 'Add as custom food';
+
+  @override
+  String get quickAddCalories => 'Quick add calories';
+
+  @override
+  String get quickAddTitle => 'Quick add';
+
+  @override
+  String get quickAddNameLabel => 'Name (optional)';
+
+  @override
+  String get optionalMacros => 'Macros (optional)';
 }

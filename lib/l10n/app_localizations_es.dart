@@ -629,16 +629,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scanTooltip => 'Escanear código de barras';
 
   @override
-  String noResults(String query) {
-    return 'Sin resultados para «$query».\nPrueba un término más específico o escanea el código de barras.';
-  }
-
-  @override
-  String searchErrorRetry(String error) {
-    return '$error\nDesliza hacia abajo para reintentar.';
-  }
-
-  @override
   String get createCustomFood => 'Crear alimento personalizado';
 
   @override
@@ -1011,4 +1001,50 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get unlockAdUnavailable =>
       'No hay ningún vídeo disponible ahora. Inténtalo en un momento.';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get sectionYourFoods => 'Tus alimentos';
+
+  @override
+  String get sectionOpenFoodFacts => 'Open Food Facts';
+
+  @override
+  String get searchCachedLabel => 'Resultados guardados';
+
+  @override
+  String get searchOfflineCached => 'Sin conexión · resultados guardados';
+
+  @override
+  String get searchTypeMore => 'Buscando en Open Food Facts mientras escribes…';
+
+  @override
+  String get searchEmptyPrompt =>
+      'Busca en Open Food Facts o escanea un código de barras.\nLos alimentos que registres aparecerán aquí.';
+
+  @override
+  String noMatchFor(String query) {
+    return 'Sin resultados para «$query»';
+  }
+
+  @override
+  String get noMatchHint =>
+      'Añádelo tú mismo: tarda unos segundos y podrás reutilizarlo.';
+
+  @override
+  String get addAsCustomFood => 'Añadir como alimento personalizado';
+
+  @override
+  String get quickAddCalories => 'Añadir calorías rápido';
+
+  @override
+  String get quickAddTitle => 'Añadir rápido';
+
+  @override
+  String get quickAddNameLabel => 'Nombre (opcional)';
+
+  @override
+  String get optionalMacros => 'Macros (opcional)';
 }
