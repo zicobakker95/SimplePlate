@@ -595,7 +595,7 @@ class AppLocalizationsNl extends AppLocalizations {
   }
 
   @override
-  String get holdToEdit => 'houd vast om te bewerken';
+  String get tapToEdit => 'tik om te bewerken';
 
   @override
   String get servingSizeLabel => 'Portiegrootte';
@@ -1138,4 +1138,11 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get featHealthSyncSub =>
       'Gelogde calorieën en gewicht gaan naar Apple Health of Health Connect; stappen en gewicht komen terug.';
+
+  @override
+  String get privacyOptions => 'Privacyopties';
+
+  @override
+  String get privacyOptionsSubtitle =>
+      'Wijzig je toestemming voor gepersonaliseerde advertenties';
 }

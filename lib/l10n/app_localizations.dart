@@ -1166,11 +1166,11 @@ abstract class AppLocalizations {
   /// **'Remove \"{name}\" from {meal}?'**
   String deleteEntryBody(String name, String meal);
 
-  /// No description provided for @holdToEdit.
+  /// No description provided for @tapToEdit.
   ///
   /// In en, this message translates to:
-  /// **'hold to edit'**
-  String get holdToEdit;
+  /// **'tap to edit'**
+  String get tapToEdit;
 
   /// No description provided for @servingSizeLabel.
   ///
@@ -2101,6 +2101,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logged calories and weight go to Apple Health or Health Connect; steps and weight come back.'**
   String get featHealthSyncSub;
+
+  /// Settings entry that reopens the ad consent form (GDPR).
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy options'**
+  String get privacyOptions;
+
+  /// No description provided for @privacyOptionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your consent for personalised ads'**
+  String get privacyOptionsSubtitle;
 }
 
 class _AppLocalizationsDelegate

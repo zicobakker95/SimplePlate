@@ -169,12 +169,14 @@ class TodayScreen extends StatelessWidget {
           const HealthSyncCard(),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addFood(context, MealType.snack),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
-        label: Text(l10n.logFood),
+      floatingActionButton: _HiddenWhileTyping(
+        child: FloatingActionButton.extended(
+          onPressed: () => _addFood(context, MealType.snack),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add_rounded),
+          label: Text(l10n.logFood),
+        ),
       ),
     );
   }
@@ -260,5 +262,46 @@ class _EmptyTodayState extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Hides the "Log food" button while the keyboard is up. It floats just above
+/// the keyboard -- right where the weight card's Save and Cancel end up -- and
+/// a field being typed into never needs it.
+///
+/// Listens to window metrics itself: this screen sits inside the shell's
+/// Scaffold, whose MediaQuery no longer carries the keyboard inset, so
+/// nothing else would rebuild the button when the keyboard opens.
+class _HiddenWhileTyping extends StatefulWidget {
+  const _HiddenWhileTyping({required this.child});
+  final Widget child;
+
+  @override
+  State<_HiddenWhileTyping> createState() => _HiddenWhileTypingState();
+}
+
+class _HiddenWhileTypingState extends State<_HiddenWhileTyping>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final typing = View.of(context).viewInsets.bottom > 0;
+    return typing ? const SizedBox.shrink() : widget.child;
   }
 }

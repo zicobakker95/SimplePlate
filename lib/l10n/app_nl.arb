@@ -176,7 +176,7 @@
   "mealSnack": "Snack",
   "deleteEntryTitle": "Item verwijderen?",
   "deleteEntryBody": "\"{name}\" verwijderen uit {meal}?",
-  "holdToEdit": "houd vast om te bewerken",
+  "tapToEdit": "tik om te bewerken",
   "servingSizeLabel": "Portiegrootte",
   "addFoodTitle": "Eten toevoegen",
   "pickIngredientTitle": "Ingrediënt kiezen",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "Gewichtstrend",
   "featWeightTrendSub": "Grafiek over 30 en 90 dagen met 7-daags gemiddelde en je verandering in die periode.",
   "featHealthSyncTitle": "Health-synchronisatie",
-  "featHealthSyncSub": "Gelogde calorieën en gewicht gaan naar Apple Health of Health Connect; stappen en gewicht komen terug."
+  "featHealthSyncSub": "Gelogde calorieën en gewicht gaan naar Apple Health of Health Connect; stappen en gewicht komen terug.",
+  "privacyOptions": "Privacyopties",
+  "privacyOptionsSubtitle": "Wijzig je toestemming voor gepersonaliseerde advertenties"
 }

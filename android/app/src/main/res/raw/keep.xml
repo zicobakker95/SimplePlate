@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Notification icons are named from Dart at runtime, so resource shrinking
+     cannot see them in use and may remove them; a notification whose icon is
+     gone silently never shows (flutter_local_notifications README). -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@mipmap/ic_launcher,@drawable/*" />

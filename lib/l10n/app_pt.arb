@@ -176,7 +176,7 @@
   "mealSnack": "Lanche",
   "deleteEntryTitle": "Excluir item?",
   "deleteEntryBody": "Remover \"{name}\" de {meal}?",
-  "holdToEdit": "segure para editar",
+  "tapToEdit": "toque para editar",
   "servingSizeLabel": "Tamanho da porção",
   "addFoodTitle": "Adicionar comida",
   "pickIngredientTitle": "Escolher ingrediente",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "Tendência de peso",
   "featWeightTrendSub": "Gráfico de 30 e 90 dias com média de 7 dias e sua variação no período.",
   "featHealthSyncTitle": "Sincronização com Saúde",
-  "featHealthSyncSub": "Calorias e peso registrados vão para o Apple Saúde ou Health Connect; passos e peso voltam."
+  "featHealthSyncSub": "Calorias e peso registrados vão para o Apple Saúde ou Health Connect; passos e peso voltam.",
+  "privacyOptions": "Opções de privacidade",
+  "privacyOptionsSubtitle": "Altere seu consentimento para anúncios personalizados"
 }

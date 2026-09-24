@@ -16,6 +16,7 @@ import '../../debug/debug_menu_screen.dart';
 import '../../utils/weight_math.dart';
 import '../../widgets/health_sync_setting.dart';
 import '../../widgets/weight_card.dart';
+import '../../services/consent_gate.dart';
 
 enum _GoalMode { manual, percentages, macrosToCalories }
 
@@ -619,6 +620,28 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 mode: LaunchMode.externalApplication,
               ),
             ),
+          ),
+          // Required by Google wherever the consent form was shown: a way to
+          // change or withdraw ad consent later.
+          ValueListenableBuilder<bool>(
+            valueListenable: ConsentGate.instance.privacyOptionsRequired,
+            builder: (context, required, _) => !required
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.privacy_tip_outlined,
+                            color: AppColors.primary),
+                        title: Text(l10n.privacyOptions,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: Text(l10n.privacyOptionsSubtitle),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => ConsentGate.instance.showPrivacyOptions(),
+                      ),
+                    ),
+                  ),
           ),
           // ── Data export ────────────────────────────────────────────────────
           const SizedBox(height: 32),

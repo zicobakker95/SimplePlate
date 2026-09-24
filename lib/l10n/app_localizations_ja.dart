@@ -579,7 +579,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get holdToEdit => '長押しで編集';
+  String get tapToEdit => 'タップで編集';
 
   @override
   String get servingSizeLabel => '分量';
@@ -1094,4 +1094,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get featHealthSyncSub =>
       '記録したカロリーと体重を Apple ヘルスケアやヘルスコネクトへ。歩数と体重を取り込みます。';
+
+  @override
+  String get privacyOptions => 'プライバシー設定';
+
+  @override
+  String get privacyOptionsSubtitle => 'パーソナライズ広告への同意を変更';
 }

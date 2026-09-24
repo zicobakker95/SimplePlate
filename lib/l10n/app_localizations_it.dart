@@ -599,7 +599,7 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get holdToEdit => 'tieni premuto per modificare';
+  String get tapToEdit => 'tocca per modificare';
 
   @override
   String get servingSizeLabel => 'Dimensione porzione';
@@ -1138,4 +1138,11 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get featHealthSyncSub =>
       'Calorie e peso registrati vanno in Apple Salute o Health Connect; passi e peso tornano indietro.';
+
+  @override
+  String get privacyOptions => 'Opzioni sulla privacy';
+
+  @override
+  String get privacyOptionsSubtitle =>
+      'Modifica il consenso per gli annunci personalizzati';
 }

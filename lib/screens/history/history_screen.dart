@@ -385,7 +385,7 @@ class _DaySheet extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  l10n.holdToEdit,
+                  l10n.tapToEdit,
                   style: const TextStyle(
                     fontSize: 9,
                     color: AppColors.textMuted,

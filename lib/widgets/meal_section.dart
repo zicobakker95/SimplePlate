@@ -107,7 +107,7 @@ class MealSection extends StatelessWidget {
                               fontSize: 12,
                               color: AppColors.calories,
                               fontWeight: FontWeight.w600)),
-                      Text(l10n.holdToEdit,
+                      Text(l10n.tapToEdit,
                           style: const TextStyle(
                               fontSize: 9,
                               color: AppColors.textMuted)),

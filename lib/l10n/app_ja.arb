@@ -176,7 +176,7 @@
   "mealSnack": "間食",
   "deleteEntryTitle": "項目を削除しますか？",
   "deleteEntryBody": "{meal}から「{name}」を削除しますか？",
-  "holdToEdit": "長押しで編集",
+  "tapToEdit": "タップで編集",
   "servingSizeLabel": "分量",
   "addFoodTitle": "食事を追加",
   "pickIngredientTitle": "材料を選択",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "体重の推移",
   "featWeightTrendSub": "7日間平均と期間中の変化がわかる、30日・90日グラフ。",
   "featHealthSyncTitle": "ヘルス同期",
-  "featHealthSyncSub": "記録したカロリーと体重を Apple ヘルスケアやヘルスコネクトへ。歩数と体重を取り込みます。"
+  "featHealthSyncSub": "記録したカロリーと体重を Apple ヘルスケアやヘルスコネクトへ。歩数と体重を取り込みます。",
+  "privacyOptions": "プライバシー設定",
+  "privacyOptionsSubtitle": "パーソナライズ広告への同意を変更"
 }

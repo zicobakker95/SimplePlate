@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/ad_config.dart';
 import '../services/ad_service.dart';
 import '../services/subscription_service.dart';
+import '../services/consent_gate.dart';
 
 /// An anchored adaptive banner for **reading screens only**.
 ///
@@ -75,6 +76,18 @@ class _AdBannerState extends State<AdBanner> {
   bool _requested = false;
 
   @override
+  void initState() {
+    super.initState();
+    ConsentGate.instance.canRequestAds.addListener(_onConsent);
+  }
+
+  /// Consent can arrive after this banner was built -- the form is still
+  /// open, or the player answered it slowly. Load the moment it does.
+  void _onConsent() {
+    if (mounted) _maybeLoad();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // The adaptive size is derived from screen width, which needs a
@@ -85,6 +98,8 @@ class _AdBannerState extends State<AdBanner> {
   Future<void> _maybeLoad() async {
     if (_requested) return;
     if (SubscriptionService.instance.isPremium) return;
+    // No request before GDPR consent allows one.
+    if (!ConsentGate.instance.canRequestAds.value) return;
     _requested = true;
 
     final width = MediaQuery.of(context).size.width.truncate();
@@ -118,6 +133,7 @@ class _AdBannerState extends State<AdBanner> {
 
   @override
   void dispose() {
+    ConsentGate.instance.canRequestAds.removeListener(_onConsent);
     _ad?.dispose();
     super.dispose();
   }

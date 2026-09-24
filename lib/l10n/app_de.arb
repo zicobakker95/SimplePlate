@@ -176,7 +176,7 @@
   "mealSnack": "Snack",
   "deleteEntryTitle": "Eintrag löschen?",
   "deleteEntryBody": "\"{name}\" aus {meal} entfernen?",
-  "holdToEdit": "halten zum Bearbeiten",
+  "tapToEdit": "tippen zum Bearbeiten",
   "servingSizeLabel": "Portionsgröße",
   "addFoodTitle": "Essen hinzufügen",
   "pickIngredientTitle": "Zutat wählen",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "Gewichtstrend",
   "featWeightTrendSub": "30- und 90-Tage-Diagramm mit 7-Tage-Durchschnitt und deiner Veränderung im Zeitraum.",
   "featHealthSyncTitle": "Health-Sync",
-  "featHealthSyncSub": "Erfasste Kalorien und Gewicht gehen an Apple Health oder Health Connect; Schritte und Gewicht kommen zurück."
+  "featHealthSyncSub": "Erfasste Kalorien und Gewicht gehen an Apple Health oder Health Connect; Schritte und Gewicht kommen zurück.",
+  "privacyOptions": "Datenschutzoptionen",
+  "privacyOptionsSubtitle": "Ändere deine Einwilligung zu personalisierter Werbung"
 }

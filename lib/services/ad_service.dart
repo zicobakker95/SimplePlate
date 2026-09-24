@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'ad_config.dart';
 import 'subscription_service.dart';
+import 'consent_gate.dart';
 
 /// Manages AdMob interstitial (post-log, once per session) and
 /// rewarded ad (barcode scanner unlock, once per day).
@@ -15,12 +17,20 @@ class AdService extends ChangeNotifier {
 
   // ── Ad unit IDs ────────────────────────────────────────────────────────────
   static String get _interstitialId => Platform.isAndroid
-      ? 'ca-app-pub-8031424661917979/3710657639'
-      : 'ca-app-pub-8031424661917979/8579840934';
+      ? (kDebugMode
+          ? _testInterstitialAndroid
+          : 'ca-app-pub-8031424661917979/3710657639')
+      : (kDebugMode
+          ? _testInterstitialIOS
+          : 'ca-app-pub-8031424661917979/8579840934');
 
   static String get _rewardedId => Platform.isAndroid
-      ? 'ca-app-pub-8031424661917979/2257975161'
-      : 'ca-app-pub-8031424661917979/6253060492';
+      ? (kDebugMode
+          ? _testRewardedAndroid
+          : 'ca-app-pub-8031424661917979/2257975161')
+      : (kDebugMode
+          ? _testRewardedIOS
+          : 'ca-app-pub-8031424661917979/6253060492');
 
   /// Anchored adaptive banner, shown only on reading screens.
   static String get bannerId => Platform.isAndroid
@@ -37,6 +47,11 @@ class AdService extends ChangeNotifier {
   /// always fill, which is what makes a placement verifiable on an emulator.
   static const _testBannerAndroid = 'ca-app-pub-3940256099942544/6300978111';
   static const _testBannerIOS = 'ca-app-pub-3940256099942544/2934735716';
+  static const _testInterstitialAndroid =
+      'ca-app-pub-3940256099942544/1033173712';
+  static const _testInterstitialIOS = 'ca-app-pub-3940256099942544/4411468910';
+  static const _testRewardedAndroid = 'ca-app-pub-3940256099942544/5224354917';
+  static const _testRewardedIOS = 'ca-app-pub-3940256099942544/1712485313';
 
   /// Rewarded day-unlocks, keyed by feature. The stored value is the date the
   /// unlock EXPIRES (inclusive), so a multi-day unlock is expressible; the
@@ -62,9 +77,14 @@ class AdService extends ChangeNotifier {
       final v = prefs.getString(key);
       if (v != null) _unlockExpiry[key] = v;
     }
-    await MobileAds.instance.initialize();
-    _loadInterstitial();
-    _loadRewarded();
+    // Nothing is requested until GDPR consent allows it -- see ConsentGate.
+    // Not awaited: the consent form, when one is needed, never holds the
+    // first frame; the SDK starts the moment the player answers.
+    unawaited(ConsentGate.instance.gather(onCanRequestAds: () async {
+      await MobileAds.instance.initialize();
+      _loadInterstitial();
+      _loadRewarded();
+    }));
   }
 
   // ── Interstitial ───────────────────────────────────────────────────────────

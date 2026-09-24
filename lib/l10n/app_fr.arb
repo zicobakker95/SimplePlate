@@ -176,7 +176,7 @@
   "mealSnack": "Collation",
   "deleteEntryTitle": "Supprimer l'entrée ?",
   "deleteEntryBody": "Retirer « {name} » de {meal} ?",
-  "holdToEdit": "maintenir pour modifier",
+  "tapToEdit": "toucher pour modifier",
   "servingSizeLabel": "Taille de portion",
   "addFoodTitle": "Ajouter un aliment",
   "pickIngredientTitle": "Choisir un ingrédient",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "Tendance du poids",
   "featWeightTrendSub": "Graphique sur 30 et 90 jours avec moyenne sur 7 jours et ton évolution sur la période.",
   "featHealthSyncTitle": "Synchro Santé",
-  "featHealthSyncSub": "Les calories et le poids enregistrés partent vers Apple Santé ou Santé Connect ; les pas et le poids reviennent."
+  "featHealthSyncSub": "Les calories et le poids enregistrés partent vers Apple Santé ou Santé Connect ; les pas et le poids reviennent.",
+  "privacyOptions": "Options de confidentialité",
+  "privacyOptionsSubtitle": "Modifie ton consentement aux annonces personnalisées"
 }

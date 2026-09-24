@@ -176,7 +176,7 @@
   "mealSnack": "Tentempié",
   "deleteEntryTitle": "¿Eliminar entrada?",
   "deleteEntryBody": "¿Quitar «{name}» de {meal}?",
-  "holdToEdit": "mantén para editar",
+  "tapToEdit": "toca para editar",
   "servingSizeLabel": "Tamaño de la ración",
   "addFoodTitle": "Añadir comida",
   "pickIngredientTitle": "Elegir ingrediente",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "Tendencia de peso",
   "featWeightTrendSub": "Gráfico de 30 y 90 días con media de 7 días y tu cambio en el periodo.",
   "featHealthSyncTitle": "Sincronización de Salud",
-  "featHealthSyncSub": "Las calorías y el peso registrados van a Apple Salud o Health Connect; los pasos y el peso vuelven."
+  "featHealthSyncSub": "Las calorías y el peso registrados van a Apple Salud o Health Connect; los pasos y el peso vuelven.",
+  "privacyOptions": "Opciones de privacidad",
+  "privacyOptionsSubtitle": "Cambia tu consentimiento para anuncios personalizados"
 }

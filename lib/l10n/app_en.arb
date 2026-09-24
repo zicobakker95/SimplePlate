@@ -283,7 +283,7 @@
       }
     }
   },
-  "holdToEdit": "hold to edit",
+  "tapToEdit": "tap to edit",
   "servingSizeLabel": "Serving size",
   "addFoodTitle": "Add food",
   "pickIngredientTitle": "Pick ingredient",
@@ -549,5 +549,10 @@
   "featWeightTrendTitle": "Weight trend",
   "featWeightTrendSub": "30- and 90-day chart with a 7-day average and your change over the period.",
   "featHealthSyncTitle": "Health sync",
-  "featHealthSyncSub": "Logged calories and weight go to Apple Health or Health Connect; steps and weight come back."
+  "featHealthSyncSub": "Logged calories and weight go to Apple Health or Health Connect; steps and weight come back.",
+  "privacyOptions": "Privacy options",
+  "@privacyOptions": {
+    "description": "Settings entry that reopens the ad consent form (GDPR)."
+  },
+  "privacyOptionsSubtitle": "Change your consent for personalised ads"
 }

@@ -601,7 +601,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get holdToEdit => 'maintenir pour modifier';
+  String get tapToEdit => 'toucher pour modifier';
 
   @override
   String get servingSizeLabel => 'Taille de portion';
@@ -1142,4 +1142,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get featHealthSyncSub =>
       'Les calories et le poids enregistrés partent vers Apple Santé ou Santé Connect ; les pas et le poids reviennent.';
+
+  @override
+  String get privacyOptions => 'Options de confidentialité';
+
+  @override
+  String get privacyOptionsSubtitle =>
+      'Modifie ton consentement aux annonces personnalisées';
 }

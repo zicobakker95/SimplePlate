@@ -176,7 +176,7 @@
   "mealSnack": "Spuntino",
   "deleteEntryTitle": "Eliminare la voce?",
   "deleteEntryBody": "Rimuovere \"{name}\" da {meal}?",
-  "holdToEdit": "tieni premuto per modificare",
+  "tapToEdit": "tocca per modificare",
   "servingSizeLabel": "Dimensione porzione",
   "addFoodTitle": "Aggiungi cibo",
   "pickIngredientTitle": "Scegli ingrediente",
@@ -338,5 +338,7 @@
   "featWeightTrendTitle": "Andamento del peso",
   "featWeightTrendSub": "Grafico a 30 e 90 giorni con media a 7 giorni e la tua variazione nel periodo.",
   "featHealthSyncTitle": "Sincronizzazione Salute",
-  "featHealthSyncSub": "Calorie e peso registrati vanno in Apple Salute o Health Connect; passi e peso tornano indietro."
+  "featHealthSyncSub": "Calorie e peso registrati vanno in Apple Salute o Health Connect; passi e peso tornano indietro.",
+  "privacyOptions": "Opzioni sulla privacy",
+  "privacyOptionsSubtitle": "Modifica il consenso per gli annunci personalizzati"
 }
