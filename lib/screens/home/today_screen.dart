@@ -169,7 +169,9 @@ class TodayScreen extends StatelessWidget {
           const HealthSyncCard(),
         ],
       ),
-      floatingActionButton: _HiddenWhileTyping(
+      // An empty day already shows its own "Log food" button in the card;
+      // the floating one landed right on top of it.
+      floatingActionButton: today.isEmpty ? null : _HiddenWhileTyping(
         child: FloatingActionButton.extended(
           onPressed: () => _addFood(context, MealType.snack),
           backgroundColor: AppColors.primary,

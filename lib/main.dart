@@ -47,21 +47,45 @@ Future<void> main() async {
   }
 
   final storage = await StorageService.init();
-  await NotificationService.instance.init();
+  // Everything below is optional at launch. Each step is guarded on its own so
+  // one that throws on a device we have never seen (a fresh install, a store
+  // that does not answer) costs that feature, never the first frame.
+  await _startupStep('notifications', NotificationService.instance.init);
   // Health sync (Premium) re-checks its grant in the background so the first
   // food logged today is written without a prompt. Never awaited: a slow
   // Health Connect must not hold the first frame.
-  if (storage.healthSyncEnabled) unawaited(HealthSyncService.instance.restore());
+  if (storage.healthSyncEnabled) {
+    unawaited(_startupStep('health sync', HealthSyncService.instance.restore));
+  }
   // Ad frequency comes from Remote Config so it can be tuned and A/B tested
   // without a build. Fire-and-forget: it activates whatever was fetched last
   // launch and refreshes in the background, falling back to the shipped
   // defaults until one arrives. Startup never waits on the network.
-  unawaited(AdConfig.instance.init());
-  await AdService.instance.initialize();
-  await WidgetService.instance.init();
+  unawaited(_startupStep('ad config', AdConfig.instance.init));
+  await _startupStep('ads', AdService.instance.initialize);
+  await _startupStep('widget', WidgetService.instance.init);
   // Subscriptions are initialized in parallel; don't await to keep startup fast
-  SubscriptionService.instance.initialize();
+  unawaited(_startupStep('subscriptions', SubscriptionService.instance.initialize));
   runApp(SimplePlateApp(storage: storage));
+}
+
+/// Runs one optional start-up step. A failure is reported (non-fatal) and
+/// swallowed; a step that hangs is abandoned after [timeout] so it can never
+/// hold the app on its launch screen.
+Future<void> _startupStep(
+  String name,
+  Future<void> Function() step, {
+  Duration timeout = const Duration(seconds: 8),
+}) async {
+  try {
+    await step().timeout(timeout);
+  } catch (e, st) {
+    debugPrint('Startup step "$name" failed: $e');
+    try {
+      await FirebaseCrashlytics.instance
+          .recordError(e, st, reason: 'startup: $name', fatal: false);
+    } catch (_) {}
+  }
 }
 
 class SimplePlateApp extends StatelessWidget {
