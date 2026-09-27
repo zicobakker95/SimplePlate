@@ -1,0 +1,71 @@
+<en-US>
+• Smarter food search: recent foods before you type, your own foods first, exact matches on top. Works offline for 30 days.
+• No match? Add a custom food or quick-add the calories.
+• Weight log in kg or lb on Today and Goals.
+• Premium: 30/90-day weight trend and Health Connect sync.
+• Daily reminders now arrive reliably.
+• Fixes: the weight Save button is no longer hidden, tap an entry to edit it, privacy options for ads.
+</en-US>
+
+<de-DE>
+• Schlauere Suche: letzte Lebensmittel vor dem Tippen, eigene zuerst, exakte Treffer oben. 30 Tage offline.
+• Kein Treffer? Eigenes Lebensmittel anlegen oder Kalorien direkt eintragen.
+• Gewicht in kg oder lb unter Heute und Ziele.
+• Premium: Gewichtstrend über 30/90 Tage und Health-Connect-Sync.
+• Tägliche Erinnerungen kommen jetzt zuverlässig an.
+• Fixes: Speichern beim Gewicht nicht mehr verdeckt, Eintrag antippen zum Bearbeiten, Datenschutz für Werbung.
+</de-DE>
+
+<es-ES>
+• Búsqueda más lista: tus recientes antes de escribir, tus alimentos primero, coincidencias exactas arriba. Sin conexión 30 días.
+• ¿Sin resultados? Crea un alimento o añade las calorías.
+• Peso en kg o lb en Hoy y Objetivos.
+• Premium: tendencia de peso a 30/90 días y sincronización con Health Connect.
+• Los recordatorios diarios ahora llegan siempre.
+• Arreglos: Guardar peso ya no queda oculto, toca un registro para editarlo, privacidad de anuncios.
+</es-ES>
+
+<fr-FR>
+• Recherche plus fine : tes aliments récents avant de taper, les tiens d'abord, les exacts en tête. Hors ligne 30 jours.
+• Aucun résultat ? Crée un aliment ou ajoute les calories.
+• Poids en kg ou lb dans Aujourd'hui et Objectifs.
+• Premium : tendance du poids sur 30/90 jours et synchro Health Connect.
+• Les rappels quotidiens arrivent enfin.
+• Corrections : Enregistrer le poids n'est plus caché, touche une entrée pour la modifier, confidentialité des pubs.
+</fr-FR>
+
+<it-IT>
+• Ricerca più furba: i recenti prima di scrivere, i tuoi alimenti per primi, corrispondenze esatte in cima. Offline per 30 giorni.
+• Nessun risultato? Crea un alimento o aggiungi le calorie.
+• Peso in kg o lb in Oggi e Obiettivi.
+• Premium: andamento del peso a 30/90 giorni e sincronizzazione con Health Connect.
+• I promemoria giornalieri ora arrivano sempre.
+• Correzioni: Salva peso non è più nascosto, tocca una voce per modificarla, privacy degli annunci.
+</it-IT>
+
+<ja-JP>
+• 賢くなった食品検索：入力前に最近の食品、自分の食品を優先、完全一致を上位に。30日間オフラインでも使えます。
+• 見つからない？ カスタム食品を追加するか、カロリーだけ記録。
+• 体重を kg または lb で、今日と目標から記録。
+• プレミアム：30日／90日の体重推移と Health Connect 連携。
+• 毎日のリマインダーが確実に届くようになりました。
+• 修正：体重の保存ボタンが隠れない、記録はタップで編集、広告のプライバシー設定。
+</ja-JP>
+
+<nl-NL>
+• Slimmer zoeken: recente producten vóór je typt, je eigen producten eerst, exacte treffers bovenaan. 30 dagen offline.
+• Geen treffer? Maak een eigen product of voer de calorieën direct in.
+• Gewicht in kg of lb bij Vandaag en Doelen.
+• Premium: gewichtstrend over 30/90 dagen en Health Connect-sync.
+• Dagelijkse herinneringen komen nu altijd aan.
+• Fixes: Opslaan bij gewicht niet meer verborgen, tik op een item om te bewerken, privacy voor advertenties.
+</nl-NL>
+
+<pt-BR>
+• Busca mais esperta: recentes antes de digitar, seus alimentos primeiro, correspondências exatas no topo. Offline por 30 dias.
+• Sem resultado? Crie um alimento ou adicione as calorias na hora.
+• Peso em kg ou lb em Hoje e Metas.
+• Premium: tendência de peso de 30/90 dias e sincronização com Health Connect.
+• Os lembretes diários agora chegam sempre.
+• Correções: Salvar peso não fica mais escondido, toque num registro para editar, privacidade de anúncios.
+</pt-BR>
