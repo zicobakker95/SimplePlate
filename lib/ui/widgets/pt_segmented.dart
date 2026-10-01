@@ -205,10 +205,13 @@ class PtChoiceChip extends StatelessWidget {
                 child: Text(
                   label,
                   style: PtText.small(
+                    // Text colour follows the chip's own lightness, so any
+                    // accent stays readable.
                     color: selected
-                        ? (p.isDark && color == null
-                              ? p.onPrimary
-                              : Colors.white)
+                        ? (ThemeData.estimateBrightnessForColor(accent) ==
+                                  Brightness.dark
+                              ? Colors.white
+                              : const Color(0xFF1A1712))
                         : p.text,
                     weight: FontWeight.w600,
                   ),

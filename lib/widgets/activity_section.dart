@@ -275,7 +275,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
                         label: _presetLabel(l10n, preset.key),
                         leading: preset.emoji,
                         selected: _selectedPreset?.key == preset.key,
-                        color: p.carbs,
+                        color: p.isDark ? p.carbs : p.carbsInk,
                         onTap: () => setState(() => _selectedPreset = preset),
                       ),
                   ],

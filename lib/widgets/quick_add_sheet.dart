@@ -6,7 +6,7 @@ import '../l10n/l10n.dart';
 import '../models/food_entry.dart';
 import '../models/food_item.dart';
 import '../services/food_store.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 
 /// Logs a calorie figure straight into a meal, with optional macros — for
 /// the restaurant plate and the friend's cooking that no database will ever
@@ -19,12 +19,9 @@ Future<double?> showQuickAddSheet(
   required MealType defaultMeal,
   String? initialName,
 }) {
-  return showModalBottomSheet<double>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppColors.surface,
-    shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+  return showPtSheet<double>(
+    context,
+    title: context.l10n.quickAddTitle,
     builder: (_) =>
         _QuickAddSheet(defaultMeal: defaultMeal, initialName: initialName),
   );
@@ -65,8 +62,12 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
     final l10n = context.l10n;
     final kcal = _num(_kcalCtrl);
     if (kcal <= 0 || kcal > 20000) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.enterValidNumber)));
+      showPtToast(
+        context,
+        l10n.enterValidNumber,
+        icon: Icons.error_outline_rounded,
+        tone: PtToastTone.warning,
+      );
       return;
     }
     setState(() => _saving = true);
@@ -85,83 +86,107 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
     Navigator.of(context).pop(kcal);
   }
 
-  Widget _field(String label, TextEditingController ctrl, String suffix,
-      {bool autofocus = false}) {
+  Widget _field(
+    String label,
+    TextEditingController ctrl,
+    String suffix, {
+    bool autofocus = false,
+    Color? dot,
+  }) {
     return TextField(
       controller: ctrl,
       autofocus: autofocus,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(labelText: label, suffixText: suffix),
+      decoration: InputDecoration(
+        labelText: label,
+        suffixText: suffix,
+        prefixIcon: dot == null
+            ? null
+            : Icon(Icons.circle, size: 12, color: dot),
+        prefixIconConstraints: const BoxConstraints(minWidth: 30),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final tt = Theme.of(context).textTheme;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-          20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 20),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final p = context.pal;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _nameCtrl,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            labelText: l10n.quickAddNameLabel,
+            prefixIcon: const Icon(Icons.restaurant_rounded),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _kcalCtrl,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          style: PtText.number(20, color: p.text),
+          decoration: InputDecoration(
+            labelText: l10n.fieldCalories,
+            suffixText: 'kcal',
+            prefixIcon: Icon(
+              Icons.local_fire_department_rounded,
+              color: p.fresh,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.optionalMacros.toUpperCase(),
+          style: PtText.label(color: p.textMuted),
+        ),
+        const SizedBox(height: 8),
+        Row(
           children: [
-            Text(l10n.quickAddTitle,
-                style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _nameCtrl,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: l10n.quickAddNameLabel),
-            ),
-            const SizedBox(height: 12),
-            _field(l10n.fieldCalories, _kcalCtrl, 'kcal', autofocus: true),
-            const SizedBox(height: 16),
-            Text(l10n.optionalMacros,
-                style: tt.labelLarge?.copyWith(color: AppColors.textSecondary)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(child: _field(l10n.macroProtein, _proteinCtrl, 'g')),
-                const SizedBox(width: 8),
-                Expanded(child: _field(l10n.macroCarbs, _carbsCtrl, 'g')),
-                const SizedBox(width: 8),
-                Expanded(child: _field(l10n.macroFat, _fatCtrl, 'g')),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              children: MealType.values
-                  .map((m) => ChoiceChip(
-                        label: Text('${m.emoji} ${m.localizedLabel(l10n)}'),
-                        selected: _meal == m,
-                        onSelected: (_) => setState(() => _meal = m),
-                        selectedColor: AppColors.primary,
-                        backgroundColor: AppColors.surfaceAlt,
-                        labelStyle: TextStyle(
-                            color: _meal == m
-                                ? Colors.white
-                                : AppColors.textSecondary),
-                        side: BorderSide.none,
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _saving ? null : _log,
-                icon: const Icon(Icons.bolt_rounded, size: 18),
-                label: Text(l10n.logAction),
-                style:
-                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
+            Expanded(
+              child: _field(
+                l10n.macroProtein,
+                _proteinCtrl,
+                'g',
+                dot: p.protein,
               ),
             ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _field(l10n.macroCarbs, _carbsCtrl, 'g', dot: p.carbs),
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: _field(l10n.macroFat, _fatCtrl, 'g', dot: p.fat)),
           ],
         ),
-      ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final m in MealType.values)
+              PtChoiceChip(
+                label: m.localizedLabel(l10n),
+                leading: m.emoji,
+                selected: _meal == m,
+                onTap: () => setState(() => _meal = m),
+              ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        PtButton(
+          label: l10n.logAction,
+          icon: Icons.bolt_rounded,
+          expand: true,
+          haptic: true,
+          loading: _saving,
+          onPressed: _saving ? null : _log,
+        ),
+      ],
     );
   }
 }

@@ -268,3 +268,81 @@ class FillBar extends StatelessWidget {
     );
   }
 }
+
+/// A tiny donut of where a food's calories come from (protein / carbs /
+/// fat), used as the leading badge on food rows. Reads at a glance: a
+/// mostly-blue ring is a protein food, mostly-orange a carb food.
+class MacroSplitRing extends StatelessWidget {
+  const MacroSplitRing({
+    super.key,
+    required this.protein,
+    required this.carbs,
+    required this.fat,
+    this.size = 40,
+    this.child,
+  });
+
+  final double protein, carbs, fat;
+  final double size;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _SplitPainter(
+          [protein * 4, carbs * 4, fat * 9],
+          [p.protein, p.carbs, p.fat],
+          p.sunken,
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
+}
+
+class _SplitPainter extends CustomPainter {
+  _SplitPainter(this.values, this.colors, this.track);
+  final List<double> values;
+  final List<Color> colors;
+  final Color track;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = size.width * 0.16;
+    final rect = (Offset.zero & size).deflate(stroke / 2);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke;
+    final total = values.fold<double>(0, (a, b) => a + b);
+    if (total <= 0) {
+      canvas.drawArc(rect, 0, math.pi * 2, false, paint..color = track);
+      return;
+    }
+    var start = -math.pi / 2;
+    const gap = 0.12;
+    final shown = values.where((v) => v > 0).length;
+    for (var i = 0; i < values.length; i++) {
+      if (values[i] <= 0) continue;
+      final sweep = math.pi * 2 * values[i] / total;
+      final g = shown > 1 ? gap : 0.0;
+      canvas.drawArc(
+        rect,
+        start + g / 2,
+        math.max(0.01, sweep - g),
+        false,
+        paint..color = colors[i],
+      );
+      start += sweep;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SplitPainter old) =>
+      old.track != track ||
+      old.values.length != values.length ||
+      Iterable.generate(values.length).any((i) => old.values[i] != values[i]);
+}

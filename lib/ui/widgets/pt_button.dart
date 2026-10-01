@@ -130,7 +130,6 @@ class PtButton extends StatelessWidget {
         child: Container(
           width: expand ? double.infinity : null,
           padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 10),
-          alignment: expand ? Alignment.center : null,
           decoration: BoxDecoration(
             color: gradient == null ? bg : null,
             gradient: gradient,

@@ -7,8 +7,9 @@ import '../../models/food_item.dart';
 import '../../models/serving_unit.dart';
 import '../../services/ad_service.dart';
 import '../../services/food_store.dart';
-import '../../theme/app_colors.dart';
+import '../../ui/kit.dart';
 import '../../utils/serving_format.dart';
+import '../../widgets/edit_entry_sheet.dart';
 
 class FoodDetailScreen extends StatefulWidget {
   const FoodDetailScreen({
@@ -27,6 +28,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   late MealType _meal = widget.defaultMeal;
   ServingUnit _unit = ServingUnit.grams;
   final _qtyCtrl = TextEditingController(text: '100');
+  bool _logging = false;
 
   /// Serving amount resolved to grams (macros always compute from grams).
   double get _grams {
@@ -57,6 +59,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   double get _fat => widget.item.fatPer100 * _grams / 100;
 
   Future<void> _log() async {
+    setState(() => _logging = true);
     final store = context.read<FoodStore>();
     await store.logFood(widget.item, _grams, _meal);
     if (!mounted) return;
@@ -72,180 +75,182 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
-    final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
-    final isFav = store.isFavourite(widget.item.id);
+    final p = context.pal;
+    final item = widget.item;
+    final isFav = store.isFavourite(item.id);
+
+    var i = 0;
+    Widget enter(Widget child) => FadeSlideIn(index: i++, child: child);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.item.name,
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
-          IconButton(
-            icon: Icon(
-                isFav ? Icons.star_rounded : Icons.star_border_rounded,
-                color: isFav ? Colors.amber : null),
-            onPressed: () => store.toggleFavourite(widget.item),
-            tooltip: isFav ? l10n.removeFavourite : l10n.addToFavourites,
+          Bump(
+            trigger: isFav,
+            child: PtIconButton(
+              icon: isFav ? Icons.star_rounded : Icons.star_border_rounded,
+              tooltip: isFav ? l10n.removeFavourite : l10n.addToFavourites,
+              background: Colors.transparent,
+              color: isFav ? p.honey : p.text,
+              onPressed: () => store.toggleFavourite(item),
+            ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(Pt.gutter, 4, Pt.gutter, 24),
         children: [
-          if (widget.item.brand.isNotEmpty)
-            Text(widget.item.brand,
-                style: tt.bodyMedium
-                    ?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 24),
+          // Hero: where the calories come from, and what this amount costs.
+          enter(
+            PtCard(
+              radius: Pt.rLg,
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                children: [
+                  MacroSplitRing(
+                    protein: item.proteinPer100,
+                    carbs: item.carbsPer100,
+                    fat: item.fatPer100,
+                    size: 104,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedCount(
+                          value: _calories,
+                          duration: const Duration(milliseconds: 350),
+                          style: PtText.number(24, color: p.text),
+                        ),
+                        Text('kcal', style: PtText.tiny(color: p.textMuted)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: PtText.headline(color: p.text),
+                        ),
+                        if (item.brand.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            item.brand,
+                            style: PtText.small(color: p.textMuted),
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+                        PtTag(
+                          label: '${item.caloriesPer100.round()} kcal / 100 g',
+                          color: p.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
           // Serving size — quantity + unit (grams, tablespoon, cup, …).
-          Text(l10n.servingSizeLabel,
-              style: tt.labelLarge
-                  ?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 2,
-                child: TextField(
-                  controller: _qtyCtrl,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    suffixText: _unit == ServingUnit.grams ? 'g' : null,
+          PtSectionHeader(l10n.servingSizeLabel),
+          enter(
+            TextField(
+              controller: _qtyCtrl,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              style: PtText.number(22, color: p.text),
+              decoration: InputDecoration(
+                suffixText: _unit == ServingUnit.grams
+                    ? 'g'
+                    : _unit.localizedLabel(l10n),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          const SizedBox(height: 10),
+          enter(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final u in ServingUnit.values)
+                  PtChoiceChip(
+                    label: u.localizedLabel(l10n),
+                    selected: _unit == u,
+                    onTap: () => _onUnitChanged(u),
                   ),
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 3,
-                child: DropdownButtonFormField<ServingUnit>(
-                  value: _unit,
-                  isExpanded: true,
-                  decoration: const InputDecoration(),
-                  onChanged: _onUnitChanged,
-                  items: ServingUnit.values
-                      .map((u) => DropdownMenuItem(
-                            value: u,
-                            child: Text(u.localizedLabel(l10n),
-                                overflow: TextOverflow.ellipsis),
-                          ))
-                      .toList(),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           // What the typed amount works out to in servings, when the food
           // declares a serving size. Grams remain the number you enter; this
           // only says what it means. It replaces the approximate-grams line
           // rather than stacking under it, so there is never a second gram
           // figure directly beneath the first.
-          if (servingLabel(l10n, _grams, widget.item.servingSizeGrams) !=
-              null) ...[
-            const SizedBox(height: 6),
+          if (servingLabel(l10n, _grams, item.servingSizeGrams) != null) ...[
+            const SizedBox(height: 8),
             Text(
-              gramsWithServings(l10n, _grams, widget.item.servingSizeGrams),
-              style: tt.bodySmall?.copyWith(color: AppColors.textMuted),
+              gramsWithServings(l10n, _grams, item.servingSizeGrams),
+              style: PtText.small(color: p.textMuted),
             ),
           ] else if (_unit.isApproximate) ...[
-            const SizedBox(height: 6),
-            Text(l10n.approxGrams(_grams.round()),
-                style: tt.bodySmall?.copyWith(color: AppColors.textMuted)),
+            const SizedBox(height: 8),
+            Text(
+              l10n.approxGrams(_grams.round()),
+              style: PtText.small(color: p.textMuted),
+            ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-          // Macros card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _MacroRow(l10n.macroCalories, _calories, 'kcal',
-                      AppColors.calories, bold: true),
-                  const Divider(height: 20, color: AppColors.border),
-                  _MacroRow(
-                      l10n.macroProtein, _protein, 'g', AppColors.protein),
-                  _MacroRow(l10n.macroCarbs, _carbs, 'g', AppColors.carbs),
-                  _MacroRow(l10n.macroFat, _fat, 'g', AppColors.fat),
-                ],
-              ),
+          // Live macros for this amount.
+          enter(
+            NutrientRow(
+              calories: _calories,
+              protein: _protein,
+              carbs: _carbs,
+              fat: _fat,
             ),
           ),
-          const SizedBox(height: 24),
 
           // Meal picker
-          Text(l10n.addToLabel,
-              style: tt.labelLarge
-                  ?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: MealType.values
-                .map((m) => ChoiceChip(
-                      label: Text('${m.emoji} ${m.localizedLabel(l10n)}'),
-                      selected: _meal == m,
-                      onSelected: (_) => setState(() => _meal = m),
-                      selectedColor: AppColors.primary,
-                      backgroundColor: AppColors.surfaceAlt,
-                      labelStyle: TextStyle(
-                          color: _meal == m
-                              ? Colors.white
-                              : AppColors.textSecondary),
-                      side: BorderSide.none,
-                    ))
-                .toList(),
-          ),
-          const SizedBox(height: 32),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _log,
-              icon: const Icon(Icons.add_rounded),
-              label: Text(l10n.addToMeal(_meal.localizedLabel(l10n))),
+          PtSectionHeader(l10n.addToLabel),
+          enter(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final m in MealType.values)
+                  PtChoiceChip(
+                    label: m.localizedLabel(l10n),
+                    leading: m.emoji,
+                    selected: _meal == m,
+                    onTap: () => setState(() => _meal = m),
+                  ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _MacroRow extends StatelessWidget {
-  const _MacroRow(this.label, this.value, this.unit, this.color,
-      {this.bold = false});
-  final String label, unit;
-  final double value;
-  final Color color;
-  final bool bold;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Container(
-              width: 4,
-              height: 16,
-              decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(width: 10),
-          Expanded(
-              child: Text(label,
-                  style: TextStyle(
-                      fontWeight:
-                          bold ? FontWeight.w700 : FontWeight.normal))),
-          Text(
-            '${value.toStringAsFixed(1)} $unit',
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-                color: bold ? color : AppColors.textPrimary),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(Pt.gutter, 8, Pt.gutter, 12),
+          child: PtButton(
+            label: l10n.addToMeal(_meal.localizedLabel(l10n)),
+            icon: Icons.add_rounded,
+            expand: true,
+            haptic: true,
+            loading: _logging,
+            onPressed: _logging ? null : _log,
           ),
-        ],
+        ),
       ),
     );
   }

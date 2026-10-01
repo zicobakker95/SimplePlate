@@ -13,3 +13,4 @@ export 'widgets/pt_segmented.dart';
 export 'widgets/pt_sheet.dart';
 export 'widgets/pt_toast.dart';
 export 'widgets/rings.dart';
+export 'widgets/skeleton.dart';

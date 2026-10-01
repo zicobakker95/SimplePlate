@@ -6,7 +6,7 @@ import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
 import '../../services/food_store.dart';
-import '../../theme/app_colors.dart';
+import '../../ui/kit.dart';
 import 'food_detail_screen.dart';
 
 /// Screen for creating a custom food item.
@@ -24,8 +24,7 @@ class CreateCustomFoodScreen extends StatefulWidget {
   final String? initialName;
 
   @override
-  State<CreateCustomFoodScreen> createState() =>
-      _CreateCustomFoodScreenState();
+  State<CreateCustomFoodScreen> createState() => _CreateCustomFoodScreenState();
 }
 
 class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
@@ -39,6 +38,17 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
   final _servingCtrl = TextEditingController();
 
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // The macro preview ring follows the typing.
+    for (final c in [_proteinCtrl, _carbCtrl, _fatCtrl, _calCtrl]) {
+      c.addListener(_refresh);
+    }
+  }
+
+  void _refresh() => setState(() {});
 
   @override
   void dispose() {
@@ -61,6 +71,8 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
     if (v == null || v <= 0) return null;
     return v;
   }
+
+  double _num(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -86,9 +98,12 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
     setState(() => _saving = false);
 
     // Replace this screen with FoodDetailScreen so the user logs a serving
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
         builder: (_) =>
-            FoodDetailScreen(item: item, defaultMeal: widget.defaultMeal)));
+            FoodDetailScreen(item: item, defaultMeal: widget.defaultMeal),
+      ),
+    );
   }
 
   Widget _field(
@@ -98,12 +113,17 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
     bool required = true,
     int maxLength = 80,
     bool decimal = true,
+    IconData? icon,
+    Color? iconColor,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextFormField(
         controller: ctrl,
         maxLength: maxLength,
+        textCapitalization: decimal
+            ? TextCapitalization.none
+            : TextCapitalization.sentences,
         keyboardType: decimal
             ? const TextInputType.numberWithOptions(decimal: true)
             : TextInputType.text,
@@ -111,6 +131,7 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
           labelText: label,
           suffixText: suffix.isEmpty ? null : suffix,
           counterText: '',
+          prefixIcon: icon == null ? null : Icon(icon, color: iconColor),
         ),
         validator: required
             ? (v) {
@@ -128,60 +149,131 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    final p = context.pal;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.createCustomFoodTitle)),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(Pt.gutter, 4, Pt.gutter, 24),
           children: [
-            Text(l10n.foodDetailsSection,
-                style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text(l10n.valuesPer100,
-                style:
-                    tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-            const SizedBox(height: 12),
-            _field(l10n.foodNameLabel, _nameCtrl, decimal: false),
-            _field(l10n.brandOptional, _brandCtrl,
-                required: false, decimal: false),
-            const SizedBox(height: 16),
-            const Divider(color: AppColors.border),
-            const SizedBox(height: 8),
-            Text(l10n.nutritionPer100,
-                style: tt.titleSmall
-                    ?.copyWith(color: AppColors.textSecondary)),
-            _field(l10n.fieldCalories, _calCtrl,
-                suffix: 'kcal', decimal: true),
-            _field(l10n.fieldProtein, _proteinCtrl, suffix: 'g'),
-            _field(l10n.fieldCarbohydrates, _carbCtrl, suffix: 'g'),
-            _field(l10n.fieldFat, _fatCtrl, suffix: 'g'),
-            const SizedBox(height: 8),
-            // Optional, and the only way a custom food can show servings --
-            // scanned foods get this from Open Food Facts.
-            _field(l10n.gramsPerServingLabel, _servingCtrl,
-                suffix: 'g', required: false),
-            Text(l10n.gramsPerServingHint,
-                style: tt.bodySmall?.copyWith(color: AppColors.textMuted)),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary),
-                child: _saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : Text(l10n.saveAndLog),
+            FadeSlideIn(
+              child: PtCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.foodDetailsSection,
+                      style: PtText.headline(color: p.text),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.valuesPer100,
+                      style: PtText.small(color: p.textMuted),
+                    ),
+                    const SizedBox(height: 10),
+                    _field(
+                      l10n.foodNameLabel,
+                      _nameCtrl,
+                      decimal: false,
+                      icon: Icons.restaurant_rounded,
+                    ),
+                    _field(
+                      l10n.brandOptional,
+                      _brandCtrl,
+                      required: false,
+                      decimal: false,
+                      icon: Icons.storefront_outlined,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            FadeSlideIn(
+              index: 1,
+              child: PtCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.nutritionPer100,
+                            style: PtText.headline(color: p.text),
+                          ),
+                        ),
+                        // Live split of what has been typed so far.
+                        MacroSplitRing(
+                          protein: _num(_proteinCtrl),
+                          carbs: _num(_carbCtrl),
+                          fat: _num(_fatCtrl),
+                          size: 40,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _field(
+                      l10n.fieldCalories,
+                      _calCtrl,
+                      suffix: 'kcal',
+                      icon: Icons.local_fire_department_rounded,
+                      iconColor: p.fresh,
+                    ),
+                    _field(
+                      l10n.fieldProtein,
+                      _proteinCtrl,
+                      suffix: 'g',
+                      icon: Icons.circle,
+                      iconColor: p.protein,
+                    ),
+                    _field(
+                      l10n.fieldCarbohydrates,
+                      _carbCtrl,
+                      suffix: 'g',
+                      icon: Icons.circle,
+                      iconColor: p.carbs,
+                    ),
+                    _field(
+                      l10n.fieldFat,
+                      _fatCtrl,
+                      suffix: 'g',
+                      icon: Icons.circle,
+                      iconColor: p.fat,
+                    ),
+                    const SizedBox(height: 6),
+                    // Optional, and the only way a custom food can show
+                    // servings -- scanned foods get this from Open Food Facts.
+                    _field(
+                      l10n.gramsPerServingLabel,
+                      _servingCtrl,
+                      suffix: 'g',
+                      required: false,
+                      icon: Icons.scale_outlined,
+                    ),
+                    Text(
+                      l10n.gramsPerServingHint,
+                      style: PtText.small(color: p.textMuted),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(Pt.gutter, 8, Pt.gutter, 12),
+          child: PtButton(
+            label: l10n.saveAndLog,
+            icon: Icons.check_rounded,
+            expand: true,
+            loading: _saving,
+            onPressed: _saving ? null : _save,
+          ),
         ),
       ),
     );
