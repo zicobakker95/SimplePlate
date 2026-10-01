@@ -156,3 +156,35 @@ no recipes/foods, history empty, paywall header.
 * `lib/debug/` keeps its single guarded entry point (`debug_tools_isolation_test`).
 * Every new string is added to all 8 ARB files (en, de, es, fr, it, ja, nl, pt).
 * Text scaling checked at 1.3x; tap targets >= 48 dp; icon-only buttons have tooltips/semantics.
+
+## 6. Status (done)
+
+All phases landed as local commits. Visual proof: `docs/ui_revamp/overview.png`
+(52 shots, light + dark + 1.3x text) and key shots in `docs/ui_revamp/shots/`.
+Regenerate with:
+
+```
+flutter test --dart-define=UI_SHOTS=true test/ui_shots_test.dart
+PYTHONIOENCODING=utf-8 python tool/ui_contact_sheet.py
+```
+
+Without the define the same test is a smoke test of every screen, sheet and
+dialog. `test/widgets/kit_test.dart` covers the kit (tap targets, disabled and
+loading buttons, reduce motion, appearance persistence) and the Today reactions
+(new-entry toast, target-window celebration, no celebration on open).
+
+Not restyled on purpose: the debug-only tools screen (`lib/debug/`, stripped
+from release) inherits the new theme but keeps its plain developer layout; the
+barcode camera screen cannot be rendered in a widget test, so it has no shot.
+
+For the owner to decide / check on a device:
+
+* Default theme is now **System** (was forced dark). Users on a light phone
+  will see the light "kitchen table" look on first launch after the update.
+* Celebration thresholds reuse the existing "on target" rule (85-110 % of the
+  calorie goal) and the water goal; once per day each.
+* Haptics: a selection click on logging actions (log buttons, meal/unit chips,
+  water glasses).
+* Check on a real phone: Rubik rendering, the barcode overlay cut-out, the
+  sticky bottom buttons with the keyboard open, and frame rate of the plate
+  ring + confetti on a low-end Android.
