@@ -10,7 +10,7 @@ import '../services/food_store.dart';
 import '../services/health_service.dart';
 import '../services/health_sync_service.dart';
 import '../services/subscription_service.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 
 /// Card for the Today screen showing Health Connect / Apple Health data.
 ///
@@ -84,154 +84,159 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
     final store = context.read<FoodStore>();
     await store.logWeight(w.kg, at: w.at, fromHealth: true);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.healthWeightImported)));
+    showPtToast(
+      context,
+      context.l10n.healthWeightImported,
+      icon: Icons.check_circle_rounded,
+      tone: PtToastTone.success,
+    );
   }
 
   Future<void> _writeNutrition() async {
     final store = context.read<FoodStore>();
     final now = DateTime.now();
-    final ok = await HealthSyncService.instance
-        .syncDay(now, store.entriesForDay(now));
+    final ok = await HealthSyncService.instance.syncDay(
+      now,
+      store.entriesForDay(now),
+    );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(
-              ok ? context.l10n.healthSynced : context.l10n.healthWriteFailed)),
+    showPtToast(
+      context,
+      ok ? context.l10n.healthSynced : context.l10n.healthWriteFailed,
+      icon: ok ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+      tone: ok ? PtToastTone.success : PtToastTone.warning,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     final store = context.watch<FoodStore>();
     return ListenableBuilder(
       listenable: SubscriptionService.instance,
       builder: (context, _) {
         final premium = SubscriptionService.instance.isPremium;
         final enabled = premium && store.healthSyncEnabled;
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      premium
-                          ? Icons.favorite_rounded
-                          : Icons.workspace_premium_rounded,
-                      color: premium ? Colors.redAccent : AppColors.primary,
-                      size: 20,
+        return PtCard(
+          padding: const EdgeInsets.fromLTRB(16, 12, 12, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconBadge(
+                    premium
+                        ? Icons.favorite_rounded
+                        : Icons.workspace_premium_rounded,
+                    color: premium ? p.fat : p.premium,
+                    size: 40,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      l10n.healthSync,
+                      style: PtText.tile(
+                        color: p.text,
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(width: 8),
-                    Text(l10n.healthSync,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const Spacer(),
-                    if (enabled && _syncing)
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
+                  ),
+                  if (!premium)
+                    PtTag(
+                      label: 'Premium',
+                      color: p.premiumInk,
+                      icon: Icons.star_rounded,
+                    )
+                  else if (enabled && _syncing)
+                    const Padding(
+                      padding: EdgeInsets.all(14),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else if (enabled)
-                      IconButton(
-                        icon: const Icon(Icons.refresh_rounded, size: 18),
-                        color: AppColors.primary,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: _refresh,
                       ),
-                  ],
-                ),
-                if (!premium)
-                  _teaser(l10n)
-                else if (!enabled)
-                  _connectPrompt(l10n)
-                else
-                  _stats(l10n, store),
-              ],
-            ),
+                    )
+                  else if (enabled)
+                    PtIconButton(
+                      icon: Icons.refresh_rounded,
+                      tooltip: l10n.syncNutrition,
+                      background: Colors.transparent,
+                      color: p.primary,
+                      size: 36,
+                      iconSize: 20,
+                      onPressed: _refresh,
+                    ),
+                ],
+              ),
+              AnimatedSize(
+                duration: Pt.base,
+                curve: Pt.ease,
+                alignment: Alignment.topCenter,
+                child: !premium
+                    ? _teaser(l10n, p)
+                    : !enabled
+                    ? _connectPrompt(l10n, p)
+                    : _stats(l10n, p, store),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _teaser(AppLocalizations l10n) {
+  Widget _teaser(AppLocalizations l10n, PlatePalette p) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 8),
-        Text(l10n.healthSyncTeaserSub,
-            style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-            label: Text(l10n.upgradeToPremium),
-            onPressed: () => PremiumScreen.show(context, source: 'health_card'),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-          ),
+        const SizedBox(height: 10),
+        Text(l10n.healthSyncTeaserSub, style: PtText.small(color: p.textMuted)),
+        const SizedBox(height: 14),
+        PtButton(
+          label: l10n.upgradeToPremium,
+          icon: Icons.workspace_premium_rounded,
+          tone: PtButtonTone.premium,
+          compact: true,
+          expand: true,
+          onPressed: () => PremiumScreen.show(context, source: 'health_card'),
         ),
       ],
     );
   }
 
-  Widget _connectPrompt(AppLocalizations l10n) {
+  Widget _connectPrompt(AppLocalizations l10n, PlatePalette p) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           Platform.isIOS ? l10n.healthConnectApple : l10n.healthConnectGoogle,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+          style: PtText.small(color: p.textMuted),
         ),
         if (_permissionDenied) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.info_outline_rounded,
-                  color: Colors.orange, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  Platform.isIOS
-                      ? l10n.healthDeniedIos
-                      : l10n.healthDeniedAndroid,
-                  style: const TextStyle(color: Colors.orange, fontSize: 11),
-                ),
-              ),
-            ],
+          const SizedBox(height: 10),
+          _Notice(
+            text: Platform.isIOS
+                ? l10n.healthDeniedIos
+                : l10n.healthDeniedAndroid,
           ),
         ],
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            icon: _connecting
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.link_rounded, size: 16),
-            label: Text(_permissionDenied ? l10n.tryAgain : l10n.connectHealth),
-            onPressed: _connecting ? null : _connect,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.redAccent,
-              side: const BorderSide(color: Colors.redAccent),
-            ),
-          ),
+        const SizedBox(height: 14),
+        PtButton(
+          label: _permissionDenied ? l10n.tryAgain : l10n.connectHealth,
+          icon: Icons.link_rounded,
+          tone: PtButtonTone.soft,
+          color: p.fat,
+          compact: true,
+          expand: true,
+          loading: _connecting,
+          onPressed: _connecting ? null : _connect,
         ),
       ],
     );
   }
 
-  Widget _stats(AppLocalizations l10n, FoodStore store) {
+  Widget _stats(AppLocalizations l10n, PlatePalette p, FoodStore store) {
     final unit = store.weightUnit;
     final hw = _healthWeight;
     // Offer the Health reading only when that day has nothing in the log —
@@ -239,26 +244,42 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
     final offerImport = hw != null && !store.hasWeightOn(hw.at);
     final locale = Localizations.localeOf(context).toString();
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 16,
-          runSpacing: 8,
+        Row(
           children: [
             // Steps come from Apple Health only — Android reads just
             // calories and weight (Play minimum-scope policy).
             if (Platform.isIOS)
-              _Stat(l10n.statSteps, '$_steps', Icons.directions_walk_rounded,
-                  Colors.blueAccent),
-            _Stat(l10n.statBurned, '${_burnedFromHealth.round()} kcal',
-                Icons.local_fire_department_rounded, Colors.orange),
+              Expanded(
+                child: _Stat(
+                  l10n.statSteps,
+                  '$_steps',
+                  Icons.directions_walk_rounded,
+                  p.protein,
+                  p.proteinInk,
+                ),
+              ),
+            Expanded(
+              child: _Stat(
+                l10n.statBurned,
+                '${_burnedFromHealth.round()} kcal',
+                Icons.local_fire_department_rounded,
+                p.carbs,
+                p.carbsInk,
+              ),
+            ),
             if (hw != null)
-              _Stat(
+              Expanded(
+                child: _Stat(
                   l10n.statWeight,
                   '${unit.format(hw.kg)} · ${DateFormat('MMM d', locale).format(hw.at)}',
                   Icons.monitor_weight_outlined,
-                  AppColors.primary),
+                  p.fresh,
+                  p.primary,
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 12),
@@ -267,19 +288,18 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
           runSpacing: 8,
           children: [
             if (offerImport)
-              FilledButton.tonalIcon(
-                icon: const Icon(Icons.download_rounded, size: 16),
-                label: Text(l10n.healthAddWeightToLog(unit.format(hw.kg))),
+              PtButton(
+                label: l10n.healthAddWeightToLog(unit.format(hw.kg)),
+                icon: Icons.download_rounded,
+                compact: true,
                 onPressed: () => _importWeight(hw),
               ),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.upload_rounded, size: 16),
-              label: Text(l10n.syncNutrition),
+            PtButton(
+              label: l10n.syncNutrition,
+              icon: Icons.upload_rounded,
+              tone: PtButtonTone.soft,
+              compact: true,
               onPressed: _writeNutrition,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-              ),
             ),
           ],
         ),
@@ -288,31 +308,63 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
   }
 }
 
-class _Stat extends StatelessWidget {
-  const _Stat(this.label, this.value, this.icon, this.color);
-  final String label, value;
-  final IconData icon;
-  final Color color;
+class _Notice extends StatelessWidget {
+  const _Notice({required this.text});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color, size: 16),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(value,
-                style: TextStyle(
-                    color: color, fontWeight: FontWeight.w700, fontSize: 13)),
-            Text(label,
-                style:
-                    const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-          ],
-        ),
-      ],
+    final p = context.pal;
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: p.honeySoft,
+        borderRadius: BorderRadius.circular(Pt.rSm),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline_rounded, color: p.honeyInk, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text, style: PtText.tiny(color: p.honeyInk)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  const _Stat(this.label, this.value, this.icon, this.color, this.ink);
+  final String label, value;
+  final IconData icon;
+  final Color color;
+  final Color ink;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: p.isDark ? 0.16 : 0.12),
+        borderRadius: BorderRadius.circular(Pt.rSm),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            maxLines: 2,
+            style: PtText.small(color: ink, weight: FontWeight.w700),
+          ),
+          Text(label, style: PtText.tiny(color: p.textMuted)),
+        ],
+      ),
     );
   }
 }

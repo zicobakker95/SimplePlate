@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/l10n.dart';
 import '../models/weight_entry.dart';
 import '../services/food_store.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 import '../utils/weight_math.dart';
 
 /// Small card for logging and displaying body weight, in the user's unit.
@@ -32,14 +32,17 @@ class _WeightCardState extends State<WeightCard> {
     final l10n = context.l10n;
     final today = DateTime.now();
     final logged = entry.loggedAt;
-    final isToday = logged.year == today.year &&
+    final isToday =
+        logged.year == today.year &&
         logged.month == today.month &&
         logged.day == today.day;
     final weight = unit.format(entry.kg);
     if (isToday) return l10n.weightSubtitleToday(weight);
     final locale = Localizations.localeOf(context).toString();
     return l10n.weightSubtitleDate(
-        weight, DateFormat('MMM d', locale).format(logged));
+      weight,
+      DateFormat('MMM d', locale).format(logged),
+    );
   }
 
   Future<void> _log() async {
@@ -48,8 +51,12 @@ class _WeightCardState extends State<WeightCard> {
     // Bounds are checked in kilograms so they mean the same in either unit.
     final kg = typed == null ? null : store.weightUnit.toKg(typed);
     if (kg == null || kg < 20 || kg > 500) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.weightInvalid)));
+      showPtToast(
+        context,
+        context.l10n.weightInvalid,
+        icon: Icons.error_outline_rounded,
+        tone: PtToastTone.warning,
+      );
       return;
     }
     await store.logWeight(kg);
@@ -64,79 +71,99 @@ class _WeightCardState extends State<WeightCard> {
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
     final l10n = context.l10n;
+    final p = context.pal;
     final latest = store.latestWeight;
     final unit = store.weightUnit;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        child: Row(
-          children: [
-            const Icon(Icons.monitor_weight_outlined,
-                color: AppColors.primary, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _editing
-                  ? TextField(
+    return PtCard(
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+      child: AnimatedSize(
+        duration: Pt.base,
+        curve: Pt.ease,
+        alignment: Alignment.topCenter,
+        child: AnimatedSwitcher(
+          duration: Pt.base,
+          child: _editing
+              ? Column(
+                  key: const ValueKey('edit'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
                       controller: _ctrl,
                       autofocus: true,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      style: PtText.number(18, color: p.text),
                       decoration: InputDecoration(
                         labelText: l10n.fieldWeight,
                         suffixText: unit.symbol,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 10),
+                        prefixIcon: const Icon(Icons.monitor_weight_outlined),
                       ),
                       onSubmitted: (_) => _log(),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(l10n.bodyWeight,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 13)),
-                        if (latest != null)
-                          Text(
-                            _weightSubtitle(latest, unit),
-                            style: const TextStyle(
-                                color: AppColors.textSecondary, fontSize: 11),
-                          )
-                        else
-                          Text(l10n.notLoggedToday,
-                              style: const TextStyle(
-                                  color: AppColors.textMuted, fontSize: 11)),
+                        PtButton(
+                          label: l10n.cancel,
+                          tone: PtButtonTone.ghost,
+                          compact: true,
+                          onPressed: () => setState(() {
+                            _editing = false;
+                            _ctrl.clear();
+                          }),
+                        ),
+                        const SizedBox(width: 8),
+                        PtButton(
+                          label: l10n.save,
+                          compact: true,
+                          haptic: true,
+                          onPressed: _log,
+                        ),
                       ],
                     ),
-            ),
-            const SizedBox(width: 8),
-            if (_editing)
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _editing = false;
-                      _ctrl.clear();
-                    }),
-                    child: Text(l10n.cancel),
-                  ),
-                  FilledButton(
-                    onPressed: _log,
-                    style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 14)),
-                    child: Text(l10n.save),
-                  ),
-                ],
-              )
-            else
-              TextButton(
-                onPressed: () => setState(() => _editing = true),
-                child: Text(
-                    latest == null ? l10n.logWeight : l10n.update,
-                    style: const TextStyle(color: AppColors.primary)),
-              ),
-          ],
+                  ],
+                )
+              : Row(
+                  key: const ValueKey('show'),
+                  children: [
+                    IconBadge(
+                      Icons.monitor_weight_outlined,
+                      color: p.primary,
+                      size: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.bodyWeight,
+                            style: PtText.tile(
+                              color: p.text,
+                            ).copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            latest != null
+                                ? _weightSubtitle(latest, unit)
+                                : l10n.notLoggedToday,
+                            style: PtText.small(color: p.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    PtButton(
+                      label: latest == null ? l10n.logWeight : l10n.update,
+                      tone: PtButtonTone.soft,
+                      compact: true,
+                      onPressed: () => setState(() => _editing = true),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

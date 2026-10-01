@@ -5,32 +5,34 @@ import 'package:uuid/uuid.dart';
 import '../l10n/l10n.dart';
 import '../models/activity_entry.dart';
 import '../services/food_store.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 
 /// Common activity presets for quick logging. [key] selects the localized
 /// label; [met] is the metabolic equivalent for the calorie estimate.
 const _presets = [
-  (key: 'walking', met: 3.5),
-  (key: 'running', met: 9.8),
-  (key: 'cycling', met: 7.5),
-  (key: 'swimming', met: 8.0),
-  (key: 'weightTraining', met: 5.0),
-  (key: 'yoga', met: 2.5),
-  (key: 'hiit', met: 8.5),
-  (key: 'hiking', met: 6.0),
+  (key: 'walking', met: 3.5, emoji: '🚶'),
+  (key: 'running', met: 9.8, emoji: '🏃'),
+  (key: 'cycling', met: 7.5, emoji: '🚴'),
+  (key: 'swimming', met: 8.0, emoji: '🏊'),
+  (key: 'weightTraining', met: 5.0, emoji: '🏋️'),
+  (key: 'yoga', met: 2.5, emoji: '🧘'),
+  (key: 'hiit', met: 8.5, emoji: '⚡'),
+  (key: 'hiking', met: 6.0, emoji: '🥾'),
 ];
 
+typedef _Preset = ({String key, double met, String emoji});
+
 String _presetLabel(AppLocalizations l, String key) => switch (key) {
-      'walking' => l.actWalking,
-      'running' => l.actRunning,
-      'cycling' => l.actCycling,
-      'swimming' => l.actSwimming,
-      'weightTraining' => l.actWeightTraining,
-      'yoga' => l.actYoga,
-      'hiit' => l.actHIIT,
-      'hiking' => l.actHiking,
-      _ => key,
-    };
+  'walking' => l.actWalking,
+  'running' => l.actRunning,
+  'cycling' => l.actCycling,
+  'swimming' => l.actSwimming,
+  'weightTraining' => l.actWeightTraining,
+  'yoga' => l.actYoga,
+  'hiit' => l.actHIIT,
+  'hiking' => l.actHiking,
+  _ => key,
+};
 
 /// Card that shows today's activity log and provides an "Add activity" button.
 class ActivitySection extends StatelessWidget {
@@ -40,70 +42,71 @@ class ActivitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
     final l10n = context.l10n;
+    final p = context.pal;
     final activities = store.todayActivities;
     final burned = store.todayBurned();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.directions_run_rounded,
-                    size: 18, color: AppColors.primary),
-                const SizedBox(width: 6),
-                Text(l10n.activity,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 15)),
-                const Spacer(),
-                if (burned > 0)
-                  Text(
-                    '−${burned.round()} kcal',
-                    style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13),
-                  ),
-              ],
-            ),
-            if (activities.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  l10n.noActivityToday,
-                  style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 12),
+    return PtCard(
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconBadge(Icons.directions_run_rounded, color: p.carbs, size: 40),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.activity,
+                      style: PtText.tile(
+                        color: p.text,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    if (activities.isEmpty)
+                      Text(
+                        l10n.noActivityToday,
+                        style: PtText.small(color: p.textMuted),
+                      ),
+                  ],
                 ),
-              )
-            else
-              for (final a in activities)
-                _ActivityTile(entry: a),
-            TextButton.icon(
-              onPressed: () => _showLogDialog(context),
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: Text(l10n.addActivity),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 0),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
+              if (burned > 0)
+                PtTag(
+                  label: '−${burned.round()} kcal',
+                  color: p.carbsInk,
+                  icon: Icons.local_fire_department_rounded,
+                ),
+            ],
+          ),
+          if (activities.isNotEmpty) const SizedBox(height: 6),
+          for (final a in activities)
+            PopIn(
+              key: ValueKey(a.id),
+              child: _ActivityTile(entry: a),
             ),
-          ],
-        ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: PtButton(
+              label: l10n.addActivity,
+              icon: Icons.add_rounded,
+              tone: PtButtonTone.soft,
+              compact: true,
+              onPressed: () => _showLogSheet(context),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _showLogDialog(BuildContext context) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+  Future<void> _showLogSheet(BuildContext context) {
+    return showPtSheet(
+      context,
+      title: context.l10n.logActivityTitle,
       builder: (_) => const _LogActivitySheet(),
     );
   }
@@ -115,33 +118,38 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text(entry.name,
-          style: const TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w500)),
-      subtitle: Text('${entry.durationMinutes} min',
-          style: const TextStyle(
-              color: AppColors.textMuted, fontSize: 11)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    final p = context.pal;
+    return Padding(
+      padding: const EdgeInsets.only(left: 52),
+      child: Row(
         children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.name,
+                  style: PtText.small(color: p.text, weight: FontWeight.w600),
+                ),
+                Text(
+                  '${entry.durationMinutes} min',
+                  style: PtText.tiny(color: p.textMuted),
+                ),
+              ],
+            ),
+          ),
           Text(
             '−${entry.caloriesBurned} kcal',
-            style: const TextStyle(
-                color: AppColors.primary,
-                fontSize: 12,
-                fontWeight: FontWeight.w600),
+            style: PtText.number(13, color: p.carbsInk),
           ),
-          IconButton(
-            icon: const Icon(Icons.close_rounded,
-                size: 16, color: AppColors.textMuted),
-            onPressed: () =>
-                context.read<FoodStore>().deleteActivity(entry.id),
-            padding: const EdgeInsets.only(left: 4),
-            constraints: const BoxConstraints(),
+          PtIconButton(
+            icon: Icons.close_rounded,
             tooltip: context.l10n.remove,
+            background: Colors.transparent,
+            color: p.textMuted,
+            size: 32,
+            iconSize: 18,
+            onPressed: () => context.read<FoodStore>().deleteActivity(entry.id),
           ),
         ],
       ),
@@ -160,7 +168,7 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
   final _nameCtrl = TextEditingController();
   final _durationCtrl = TextEditingController(text: '30');
   final _calCtrl = TextEditingController();
-  ({String key, double met})? _selectedPreset;
+  _Preset? _selectedPreset;
   bool _manualMode = false;
 
   // Body weight used for MET-based calorie estimate (default 70 kg).
@@ -177,12 +185,18 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
     return (preset.met * _bodyWeightKg * mins / 60).round();
   }
 
+  void _warn(String message) => showPtToast(
+    context,
+    message,
+    icon: Icons.error_outline_rounded,
+    tone: PtToastTone.warning,
+  );
+
   Future<void> _log() async {
     final l10n = context.l10n;
     final duration = int.tryParse(_durationCtrl.text) ?? 0;
     if (duration <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.enterValidDuration)));
+      _warn(l10n.enterValidDuration);
       return;
     }
 
@@ -195,14 +209,12 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
           : _nameCtrl.text.trim();
       burned = int.tryParse(_calCtrl.text) ?? 0;
       if (burned <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.enterCaloriesBurned)));
+        _warn(l10n.enterCaloriesBurned);
         return;
       }
     } else {
       if (_selectedPreset == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.selectActivityFirst)));
+        _warn(l10n.selectActivityFirst);
         return;
       }
       name = _presetLabel(l10n, _selectedPreset!.key);
@@ -232,130 +244,111 @@ class _LogActivitySheetState extends State<_LogActivitySheet> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
-    final bottomPad = MediaQuery.of(context).viewInsets.bottom;
+    final p = context.pal;
     final estimated = _manualMode ? 0 : _estimateCalories();
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottomPad),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(l10n.logActivityTitle,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 16),
-
-          // Mode toggle
-          Row(
-            children: [
-              ChoiceChip(
-                label: Text(l10n.presets),
-                selected: !_manualMode,
-                onSelected: (_) => setState(() => _manualMode = false),
-                selectedColor: AppColors.primary.withOpacity(0.2),
-                labelStyle: TextStyle(
-                    color: !_manualMode
-                        ? AppColors.primary
-                        : AppColors.textSecondary),
-              ),
-              const SizedBox(width: 8),
-              ChoiceChip(
-                label: Text(l10n.manual),
-                selected: _manualMode,
-                onSelected: (_) => setState(() => _manualMode = true),
-                selectedColor: AppColors.primary.withOpacity(0.2),
-                labelStyle: TextStyle(
-                    color: _manualMode
-                        ? AppColors.primary
-                        : AppColors.textSecondary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          if (!_manualMode) ...[
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _presets.map((p) {
-                final selected = _selectedPreset?.key == p.key;
-                return ChoiceChip(
-                  label: Text(_presetLabel(l10n, p.key)),
-                  selected: selected,
-                  onSelected: (_) => setState(() => _selectedPreset = p),
-                  selectedColor: AppColors.primary.withOpacity(0.2),
-                  labelStyle: TextStyle(
-                      color: selected
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                      fontSize: 12),
-                );
-              }).toList(),
-            ),
-          ] else ...[
-            TextField(
-              controller: _nameCtrl,
-              decoration: InputDecoration(
-                labelText: l10n.activityNameLabel,
-                hintText: l10n.activityNameHint,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _calCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: l10n.caloriesBurnedLabel,
-                suffixText: 'kcal',
-              ),
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PtSegmented<bool>(
+          segments: [
+            PtSegment(false, l10n.presets, icon: Icons.grid_view_rounded),
+            PtSegment(true, l10n.manual, icon: Icons.edit_outlined),
           ],
-
-          const SizedBox(height: 12),
-          TextField(
-            controller: _durationCtrl,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: l10n.durationLabel,
-              suffixText: 'min',
-            ),
-            onChanged: (_) => setState(() {}),
+          selected: _manualMode,
+          onChanged: (v) => setState(() => _manualMode = v),
+        ),
+        const SizedBox(height: 16),
+        AnimatedSize(
+          duration: Pt.base,
+          curve: Pt.ease,
+          alignment: Alignment.topCenter,
+          child: !_manualMode
+              ? Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final preset in _presets)
+                      PtChoiceChip(
+                        label: _presetLabel(l10n, preset.key),
+                        leading: preset.emoji,
+                        selected: _selectedPreset?.key == preset.key,
+                        color: p.carbs,
+                        onTap: () => setState(() => _selectedPreset = preset),
+                      ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    TextField(
+                      controller: _nameCtrl,
+                      decoration: InputDecoration(
+                        labelText: l10n.activityNameLabel,
+                        hintText: l10n.activityNameHint,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _calCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: l10n.caloriesBurnedLabel,
+                        suffixText: 'kcal',
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _durationCtrl,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: l10n.durationLabel,
+            suffixText: 'min',
+            prefixIcon: const Icon(Icons.timer_outlined),
           ),
-
-          if (!_manualMode && _selectedPreset != null && estimated > 0) ...[
-            const SizedBox(height: 8),
-            Text(
-              l10n.estimatedBurned(estimated),
-              style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500),
-            ),
-          ],
-
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _log,
-              style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary),
-              child: Text(l10n.logActivityTitle),
-            ),
-          ),
-        ],
-      ),
+          onChanged: (_) => setState(() {}),
+        ),
+        AnimatedSwitcher(
+          duration: Pt.base,
+          child: !_manualMode && _selectedPreset != null && estimated > 0
+              ? Padding(
+                  key: ValueKey(estimated),
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.local_fire_department_rounded,
+                        color: p.carbs,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          l10n.estimatedBurned(estimated),
+                          style: PtText.small(
+                            color: p.carbsInk,
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        const SizedBox(height: 20),
+        PtButton(
+          label: l10n.logActivityTitle,
+          icon: Icons.check_rounded,
+          expand: true,
+          haptic: true,
+          onPressed: _log,
+        ),
+      ],
     );
   }
 }

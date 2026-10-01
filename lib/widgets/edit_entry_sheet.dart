@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/l10n.dart';
 import '../models/food_entry.dart';
 import '../services/food_store.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 import '../utils/serving_format.dart';
 
 /// Bottom sheet for changing the serving size of an existing [FoodEntry].
@@ -12,12 +12,8 @@ import '../utils/serving_format.dart';
 /// Shared by the Today screen and the history day sheet so editing behaves
 /// identically wherever the user finds the entry.
 Future<void> showEditEntrySheet(BuildContext context, FoodEntry entry) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppColors.surface,
-    shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+  return showPtSheet<void>(
+    context,
     builder: (_) => _EditEntrySheet(entry: entry),
   );
 }
@@ -25,24 +21,14 @@ Future<void> showEditEntrySheet(BuildContext context, FoodEntry entry) {
 /// Confirmation dialog shown before an entry is removed.
 Future<bool?> confirmDeleteEntry(BuildContext context, FoodEntry entry) {
   final l10n = context.l10n;
-  return showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(l10n.deleteEntryTitle),
-      content: Text(
-          l10n.deleteEntryBody(entry.foodName, entry.meal.localizedLabel(l10n))),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: Text(l10n.cancel),
-        ),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-          onPressed: () => Navigator.pop(ctx, true),
-          child: Text(l10n.delete),
-        ),
-      ],
-    ),
+  return showPtConfirm(
+    context,
+    title: l10n.deleteEntryTitle,
+    body: l10n.deleteEntryBody(entry.foodName, entry.meal.localizedLabel(l10n)),
+    confirmLabel: l10n.delete,
+    cancelLabel: l10n.cancel,
+    icon: Icons.delete_outline_rounded,
+    destructive: true,
   );
 }
 
@@ -61,7 +47,8 @@ class _EditEntrySheetState extends State<_EditEntrySheet> {
   void initState() {
     super.initState();
     _ctrl = TextEditingController(
-        text: widget.entry.servingGrams.round().toString());
+      text: widget.entry.servingGrams.round().toString(),
+    );
     // Live-preview the recalculated totals as the user types.
     _ctrl.addListener(() => setState(() {}));
   }
@@ -80,119 +67,178 @@ class _EditEntrySheetState extends State<_EditEntrySheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     final e = widget.entry;
     final grams = _grams ?? e.servingGrams;
     final factor = grams / 100;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(e.foodName,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-          if (e.foodBrand.isNotEmpty)
-            Text(e.foodBrand,
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12)),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _ctrl,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: l10n.servingSizeLabel,
-              suffixText: 'g',
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: p.sunken,
+                shape: BoxShape.circle,
+              ),
+              child: Text(e.meal.emoji, style: const TextStyle(fontSize: 22)),
             ),
-          ),
-          // Same serving equivalent the log screen shows, so editing an entry
-          // reads the same way as creating one. Uses the size snapshotted on
-          // the entry, not the food, so an old entry keeps its own meaning.
-          if (servingLabel(l10n, grams, e.servingSizeGrams) != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              gramsWithServings(l10n, grams, e.servingSizeGrams),
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    e.foodName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: PtText.headline(color: p.text),
+                  ),
+                  if (e.foodBrand.isNotEmpty)
+                    Text(e.foodBrand, style: PtText.small(color: p.textMuted)),
+                ],
+              ),
             ),
           ],
-          const SizedBox(height: 14),
-          // Live preview of what this serving works out to.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _Preview(l10n.macroCalories,
-                  (e.caloriesPer100 * factor).round().toString(), 'kcal',
-                  AppColors.calories),
-              _Preview(
-                  l10n.macroProtein,
-                  (e.proteinPer100 * factor).toStringAsFixed(1),
-                  'g',
-                  AppColors.protein),
-              _Preview(l10n.macroCarbs,
-                  (e.carbsPer100 * factor).toStringAsFixed(1), 'g',
-                  AppColors.carbs),
-              _Preview(l10n.macroFat,
-                  (e.fatPer100 * factor).toStringAsFixed(1), 'g', AppColors.fat),
-            ],
+        ),
+        const SizedBox(height: 18),
+        TextField(
+          controller: _ctrl,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          style: PtText.number(20, color: p.text),
+          decoration: InputDecoration(
+            labelText: l10n.servingSizeLabel,
+            suffixText: 'g',
           ),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _grams == null
-                      ? null
-                      : () {
-                          context
-                              .read<FoodStore>()
-                              .updateEntryServing(e.id, _grams!);
-                          Navigator.pop(context);
-                        },
-                  child: Text(l10n.update),
-                ),
-              ),
-            ],
+        ),
+        // Same serving equivalent the log screen shows, so editing an entry
+        // reads the same way as creating one. Uses the size snapshotted on
+        // the entry, not the food, so an old entry keeps its own meaning.
+        if (servingLabel(l10n, grams, e.servingSizeGrams) != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            gramsWithServings(l10n, grams, e.servingSizeGrams),
+            style: PtText.small(color: p.textMuted),
           ),
         ],
-      ),
+        const SizedBox(height: 16),
+        // Live preview of what this serving works out to.
+        NutrientRow(
+          calories: e.caloriesPer100 * factor,
+          protein: e.proteinPer100 * factor,
+          carbs: e.carbsPer100 * factor,
+          fat: e.fatPer100 * factor,
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: PtButton(
+                label: l10n.cancel,
+                tone: PtButtonTone.outline,
+                expand: true,
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PtButton(
+                label: l10n.update,
+                expand: true,
+                haptic: true,
+                onPressed: _grams == null
+                    ? null
+                    : () {
+                        context.read<FoodStore>().updateEntryServing(
+                          e.id,
+                          _grams!,
+                        );
+                        Navigator.pop(context);
+                      },
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class _Preview extends StatelessWidget {
-  const _Preview(this.label, this.value, this.unit, this.color);
-  final String label, value, unit;
-  final Color color;
+/// Calories + the three macros as four soft tiles; numbers count as they
+/// change. Used wherever a serving is previewed.
+class NutrientRow extends StatelessWidget {
+  const NutrientRow({
+    super.key,
+    required this.calories,
+    required this.protein,
+    required this.carbs,
+    required this.fat,
+  });
+
+  final double calories, protein, carbs, fat;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final p = context.pal;
+    final l10n = context.l10n;
+    Widget tile(
+      String label,
+      double v,
+      String unit,
+      Color color,
+      Color ink, {
+      bool decimals = true,
+    }) => Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: p.isDark ? 0.16 : 0.12),
+          borderRadius: BorderRadius.circular(Pt.rSm),
+        ),
+        child: Column(
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: AnimatedCount(
+                value: v,
+                duration: const Duration(milliseconds: 350),
+                format: (x) =>
+                    decimals ? x.toStringAsFixed(1) : x.round().toString(),
+                style: PtText.number(18, color: ink),
+              ),
+            ),
+            Text(unit, style: PtText.tiny(color: p.textMuted)),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PtText.tiny(color: p.text, weight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+    return Row(
       children: [
-        Text(value,
-            style: TextStyle(
-                fontWeight: FontWeight.w700, color: color, fontSize: 16)),
-        Text(unit,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
-        Text(label,
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 10)),
+        tile(
+          l10n.macroCalories,
+          calories,
+          'kcal',
+          p.fresh,
+          p.primary,
+          decimals: false,
+        ),
+        tile(l10n.macroProtein, protein, 'g', p.protein, p.proteinInk),
+        tile(l10n.macroCarbs, carbs, 'g', p.carbs, p.carbsInk),
+        tile(l10n.macroFat, fat, 'g', p.fat, p.fatInk),
       ],
     );
   }

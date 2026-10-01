@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/l10n.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 
 // Update these once the app is live in the stores.
 const _androidStoreUrl =
@@ -21,7 +21,8 @@ const _shareStoreUrl = _androidStoreUrl; // switch to _iosStoreUrl on iOS builds
 /// Renders a summary card of the day's nutrition, captures it as a PNG,
 /// and shares it via the OS share sheet.
 ///
-/// Usage: call [ShareCard.share] from a button.
+/// The exported card always uses the light "kitchen table" look, whatever
+/// theme the app is in, so a shared image is recognisably PlateSimple.
 class ShareCard extends StatelessWidget {
   const ShareCard({
     super.key,
@@ -53,11 +54,9 @@ class ShareCard extends StatelessWidget {
     required double fat,
     required int streak,
   }) {
-    return showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    return showPtSheet(
+      context,
+      title: context.l10n.shareDayTitle,
       builder: (_) => _ShareCardSheet(
         date: date,
         calories: calories,
@@ -74,190 +73,126 @@ class ShareCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final pct = goalCalories > 0
-        ? (calories / goalCalories).clamp(0.0, 1.0)
-        : 0.0;
-    final goalMet = calories >= goalCalories * 0.85 &&
-        calories <= goalCalories * 1.1;
+    final goalMet =
+        calories >= goalCalories * 0.85 && calories <= goalCalories * 1.1;
     final dateLabel = DateFormat('EEEE, MMM d', locale).format(date);
+    const p = PlatePalette.light;
 
-    return Container(
-      width: 360,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0E2318),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.restaurant_menu_rounded,
-                    color: Colors.white, size: 18),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('PlateSimple',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15)),
-                  Text(dateLabel,
-                      style: const TextStyle(
-                          color: Colors.white54, fontSize: 11)),
-                ],
-              ),
-              const Spacer(),
-              if (streak > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: Colors.orange.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
+    // Force the light palette inside the card.
+    return Theme(
+      data: buildPlateTheme(Brightness.light),
+      child: Container(
+        width: 340,
+        padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+        decoration: BoxDecoration(
+          color: p.bg,
+          borderRadius: BorderRadius.circular(Pt.rLg),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Sprout(mood: SproutMood.happy, size: 34),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.local_fire_department_rounded,
-                          color: Colors.orange, size: 14),
-                      const SizedBox(width: 4),
-                      Text(l10n.dayStreak(streak),
-                          style: const TextStyle(
-                              color: Colors.orange,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700)),
+                      Text(
+                        'PlateSimple',
+                        style: PtText.headline(color: p.text),
+                      ),
+                      Text(dateLabel, style: PtText.tiny(color: p.textMuted)),
                     ],
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Calorie ring
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 120,
-                height: 120,
-                child: CircularProgressIndicator(
-                  value: pct,
-                  strokeWidth: 10,
-                  backgroundColor: Colors.white12,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    goalMet ? AppColors.primary : AppColors.calories,
+                if (streak > 0)
+                  PtTag(
+                    label: l10n.dayStreak(streak),
+                    color: p.honeyInk,
+                    icon: Icons.local_fire_department_rounded,
                   ),
-                  strokeCap: StrokeCap.round,
-                ),
-              ),
-              Column(
+              ],
+            ),
+            const SizedBox(height: 18),
+            PlateRing(
+              value: goalCalories > 0 ? calories / goalCalories : 0,
+              over: calories > goalCalories,
+              size: 170,
+              stroke: 13,
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     calories.round().toString(),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800),
+                    style: PtText.number(32, color: p.text),
                   ),
-                  const Text('kcal',
-                      style: TextStyle(
-                          color: Colors.white54, fontSize: 11)),
+                  Text('kcal', style: PtText.tiny(color: p.textMuted)),
                   Text(
                     l10n.ofGoal(goalCalories),
-                    style: const TextStyle(
-                        color: Colors.white38, fontSize: 10),
+                    style: PtText.tiny(color: p.textMuted),
                   ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Goal badge
-          if (goalMet)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.5)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle_outline_rounded,
-                      color: AppColors.primary, size: 14),
-                  const SizedBox(width: 6),
-                  Text(l10n.goalHit,
-                      style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13)),
                 ],
               ),
             ),
-          const SizedBox(height: 20),
-
-          // Macro row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _MacroChip(l10n.macroProtein, protein, 'g', AppColors.protein),
-              _MacroChip(l10n.macroCarbs, carbs, 'g', AppColors.carbs),
-              _MacroChip(l10n.macroFat, fat, 'g', AppColors.fat),
+            if (goalMet) ...[
+              const SizedBox(height: 14),
+              PtTag(
+                label: l10n.goalHit,
+                color: p.primary,
+                icon: Icons.check_circle_rounded,
+              ),
             ],
-          ),
-          const SizedBox(height: 20),
-
-          // Footer
-          Text(
-            l10n.trackedWith,
-            style: const TextStyle(color: Colors.white24, fontSize: 10),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _MacroChip(l10n.macroProtein, protein, p.protein, p.proteinInk),
+                _MacroChip(l10n.macroCarbs, carbs, p.carbs, p.carbsInk),
+                _MacroChip(l10n.macroFat, fat, p.fat, p.fatInk),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(l10n.trackedWith, style: PtText.tiny(color: p.textMuted)),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _MacroChip extends StatelessWidget {
-  const _MacroChip(this.label, this.value, this.unit, this.color);
-  final String label, unit;
+  const _MacroChip(this.label, this.value, this.color, this.ink);
+  final String label;
   final double value;
   final Color color;
+  final Color ink;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          '${value.round()}$unit',
-          style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w700,
-              fontSize: 17),
+    const p = PlatePalette.light;
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: p.surface,
+          borderRadius: BorderRadius.circular(Pt.rSm),
+          border: Border(bottom: BorderSide(color: color, width: 3)),
         ),
-        const SizedBox(height: 2),
-        Text(label,
-            style: const TextStyle(
-                color: Colors.white54, fontSize: 11)),
-      ],
+        child: Column(
+          children: [
+            Text('${value.round()}g', style: PtText.number(17, color: ink)),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PtText.tiny(color: p.textMuted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -294,13 +229,13 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
     final shareText = context.l10n.shareText(_shareStoreUrl);
     setState(() => _sharing = true);
     try {
-      final boundary = _boundaryKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
+      final boundary =
+          _boundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return;
 
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return;
 
       final bytes = byteData.buffer.asUint8List();
@@ -308,10 +243,9 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
       final file = File('${dir.path}/platesimple_day.png');
       await file.writeAsBytes(bytes);
 
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: 'image/png')],
-        text: shareText,
-      );
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'image/png'),
+      ], text: shareText);
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
@@ -319,58 +253,41 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2)),
-          ),
-          const SizedBox(height: 16),
-          Text(context.l10n.shareDayTitle,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 18)),
-          const SizedBox(height: 20),
-
-          // Card preview — wrapped in RepaintBoundary for capture
-          RepaintBoundary(
-            key: _boundaryKey,
-            child: ShareCard(
-              date: widget.date,
-              calories: widget.calories,
-              goalCalories: widget.goalCalories,
-              protein: widget.protein,
-              carbs: widget.carbs,
-              fat: widget.fat,
-              streak: widget.streak,
+    final l10n = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Card preview — wrapped in RepaintBoundary for capture. Scaled
+        // down on narrow phones; the captured PNG keeps its full size.
+        Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: PopIn(
+              child: RepaintBoundary(
+                key: _boundaryKey,
+                child: ShareCard(
+                  date: widget.date,
+                  calories: widget.calories,
+                  goalCalories: widget.goalCalories,
+                  protein: widget.protein,
+                  carbs: widget.carbs,
+                  fat: widget.fat,
+                  streak: widget.streak,
+                ),
+              ),
             ),
           ),
-
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _sharing ? null : _share,
-              icon: _sharing
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.share_rounded, size: 18),
-              label: Text(
-                  _sharing ? context.l10n.preparing : context.l10n.share),
-              style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary),
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 20),
+        PtButton(
+          label: _sharing ? l10n.preparing : l10n.share,
+          icon: Icons.ios_share_rounded,
+          loading: _sharing,
+          expand: true,
+          onPressed: _sharing ? null : _share,
+        ),
+      ],
     );
   }
 }
