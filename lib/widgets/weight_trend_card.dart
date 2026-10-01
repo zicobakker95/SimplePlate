@@ -9,7 +9,7 @@ import '../models/weight_entry.dart';
 import '../screens/premium/premium_screen.dart';
 import '../services/food_store.dart';
 import '../services/subscription_service.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 import '../utils/weight_math.dart';
 
 /// Where the weight is heading: a 30- or 90-day chart of the log with a
@@ -62,11 +62,19 @@ class _WeightTrendCardState extends State<WeightTrendCard> {
     for (var i = 0; i < 12; i++) {
       final at = now.subtract(Duration(days: (11 - i) * (days ~/ 12)));
       final wobble = (i.isEven ? 0.4 : -0.3) + (i % 3 == 0 ? 0.2 : 0);
-      entries.add(WeightEntry(
-          id: 'sample-$i', kg: 78.0 - i * 0.18 + wobble, loggedAt: at));
+      entries.add(
+        WeightEntry(
+          id: 'sample-$i',
+          kg: 78.0 - i * 0.18 + wobble,
+          loggedAt: at,
+        ),
+      );
     }
     return WeightTrend(
-        days: days, entries: entries, movingAverageKg: movingAverage(entries));
+      days: days,
+      entries: entries,
+      movingAverageKg: movingAverage(entries),
+    );
   }
 }
 
@@ -86,124 +94,139 @@ class _TrendBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     final locale = Localizations.localeOf(context).toString();
     final latest = trend.latestKg;
     final change = trend.changeKg;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(l10n.weightTrend,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                const Spacer(),
-                if (latest != null)
-                  Text(
-                    unit.format(latest),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                SegmentedButton<int>(
+    return PtCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconBadge(
+                Icons.monitor_weight_outlined,
+                color: p.primary,
+                size: 36,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.weightTrend,
+                  style: PtText.headline(color: p.text).copyWith(fontSize: 16),
+                ),
+              ),
+              if (latest != null)
+                Text(
+                  unit.format(latest),
+                  style: PtText.number(16, color: p.primary),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              SizedBox(
+                width: 170,
+                child: PtSegmented<int>(
+                  compact: true,
                   segments: [
                     for (final d in const [30, 90])
-                      ButtonSegment(value: d, label: Text(l10n.weightTrendDays(d))),
+                      PtSegment(d, l10n.weightTrendDays(d)),
                   ],
-                  selected: {days},
-                  onSelectionChanged: onDaysChanged == null
-                      ? null
-                      : (s) => onDaysChanged!(s.first),
-                  showSelectedIcon: false,
-                  style: ButtonStyle(
-                    visualDensity: VisualDensity.compact,
-                    textStyle: WidgetStatePropertyAll(
-                        const TextStyle(fontSize: 12)),
-                    padding: WidgetStatePropertyAll(
-                        const EdgeInsets.symmetric(horizontal: 10)),
-                  ),
+                  selected: days,
+                  onChanged: onDaysChanged,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    change == null
-                        ? l10n.weightTrendNoChange
-                        : l10n.weightTrendChange(
-                            unit.format(change, signed: true), days),
-                    textAlign: TextAlign.end,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: change == null
-                          ? AppColors.textMuted
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (trend.entries.length < 2)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
                 child: Text(
-                  l10n.weightTrendNeedMore,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 13),
+                  change == null
+                      ? l10n.weightTrendNoChange
+                      : l10n.weightTrendChange(
+                          unit.format(change, signed: true),
+                          days,
+                        ),
+                  textAlign: TextAlign.end,
+                  style: PtText.small(
+                    color: change == null ? p.textMuted : p.text,
+                    weight: FontWeight.w600,
+                  ),
                 ),
-              )
-            else ...[
-              SizedBox(
-                height: 90,
-                child: CustomPaint(
-                  painter: _TrendPainter(trend: trend),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (trend.entries.length < 2)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                l10n.weightTrendNeedMore,
+                textAlign: TextAlign.center,
+                style: PtText.small(color: p.textMuted),
+              ),
+            )
+          else ...[
+            SizedBox(
+              height: 110,
+              // The lines draw themselves left to right when the card
+              // appears or the range changes.
+              child: TweenAnimationBuilder<double>(
+                key: ValueKey(days),
+                tween: Tween(begin: context.reduceMotion ? 1 : 0, end: 1),
+                duration: const Duration(milliseconds: 900),
+                curve: Pt.ease,
+                builder: (context, t, _) => CustomPaint(
+                  painter: _TrendPainter(
+                    trend: trend,
+                    progress: t,
+                    raw: p.primary.withValues(alpha: 0.45),
+                    average: p.fresh,
+                    guide: p.border,
+                    fill: p.fresh.withValues(alpha: 0.14),
+                  ),
                   child: const SizedBox.expand(),
                 ),
               ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    DateFormat('MMM d', locale)
-                        .format(trend.entries.first.loggedAt),
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 10),
-                  ),
-                  Text(
-                    DateFormat('MMM d', locale)
-                        .format(trend.entries.last.loggedAt),
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 10),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  _LegendSwatch(
-                      color: AppColors.primary.withValues(alpha: 0.45),
-                      label: l10n.weightTrendLoggedLegend),
-                  const SizedBox(width: 14),
-                  _LegendSwatch(
-                      color: AppColors.accentSoft,
-                      label: l10n.weightTrendAverageLegend),
-                ],
-              ),
-            ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  DateFormat(
+                    'MMM d',
+                    locale,
+                  ).format(trend.entries.first.loggedAt),
+                  style: PtText.tiny(color: p.textMuted),
+                ),
+                Text(
+                  DateFormat(
+                    'MMM d',
+                    locale,
+                  ).format(trend.entries.last.loggedAt),
+                  style: PtText.tiny(color: p.textMuted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 14,
+              runSpacing: 6,
+              children: [
+                _LegendSwatch(
+                  color: p.primary.withValues(alpha: 0.45),
+                  label: l10n.weightTrendLoggedLegend,
+                ),
+                _LegendSwatch(
+                  color: p.fresh,
+                  label: l10n.weightTrendAverageLegend,
+                ),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -220,24 +243,39 @@ class _LegendSwatch extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 14,
-          height: 3,
+          width: 16,
+          height: 4,
           decoration: BoxDecoration(
-              color: color, borderRadius: BorderRadius.circular(2)),
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
-        const SizedBox(width: 5),
-        Text(label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+        const SizedBox(width: 6),
+        Text(label, style: PtText.tiny(color: context.pal.textMuted)),
       ],
     );
   }
 }
 
 /// Raw entries as a thin, muted line with dots; the 7-day average as the
-/// bold line on top. The average is the one to read, so it gets the ink.
+/// bold line on top with a soft fill. The average is the one to read, so it
+/// gets the ink. [progress] reveals the lines left to right.
 class _TrendPainter extends CustomPainter {
-  const _TrendPainter({required this.trend});
+  const _TrendPainter({
+    required this.trend,
+    required this.progress,
+    required this.raw,
+    required this.average,
+    required this.guide,
+    required this.fill,
+  });
+
   final WeightTrend trend;
+  final double progress;
+  final Color raw;
+  final Color average;
+  final Color guide;
+  final Color fill;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -254,55 +292,81 @@ class _TrendPainter extends CustomPainter {
     final span = max(1, lastMs - firstMs);
 
     Offset at(int i, double kg) {
-      final x = (entries[i].loggedAt.millisecondsSinceEpoch - firstMs) /
+      final x =
+          (entries[i].loggedAt.millisecondsSinceEpoch - firstMs) /
           span *
           size.width;
-      final y = size.height -
-          ((kg - minKg) / range * (size.height - 8) + 4);
+      final y = size.height - ((kg - minKg) / range * (size.height - 12) + 6);
       return Offset(x, y);
     }
 
     // Guide lines at the top and bottom of the range.
-    final guide = Paint()
-      ..color = AppColors.border
+    final guidePaint = Paint()
+      ..color = guide
       ..strokeWidth = 1;
-    canvas.drawLine(Offset(0, 4), Offset(size.width, 4), guide);
-    canvas.drawLine(Offset(0, size.height - 4),
-        Offset(size.width, size.height - 4), guide);
+    canvas.drawLine(const Offset(0, 6), Offset(size.width, 6), guidePaint);
+    canvas.drawLine(
+      Offset(0, size.height - 6),
+      Offset(size.width, size.height - 6),
+      guidePaint,
+    );
+
+    canvas.save();
+    canvas.clipRect(
+      Rect.fromLTWH(0, 0, size.width * progress + 6, size.height),
+    );
+
+    // Soft area under the average.
+    final area = Path()..moveTo(0, size.height);
+    for (var i = 0; i < entries.length; i++) {
+      final pt = at(i, avg[i]);
+      area.lineTo(pt.dx, pt.dy);
+    }
+    area
+      ..lineTo(at(entries.length - 1, avg.last).dx, size.height)
+      ..close();
+    canvas.drawPath(area, Paint()..color = fill);
 
     final rawPaint = Paint()
-      ..color = AppColors.primary.withValues(alpha: 0.45)
+      ..color = raw
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    final dotPaint = Paint()..color = AppColors.primary.withValues(alpha: 0.7);
-    final raw = Path();
+    final dotPaint = Paint()..color = raw;
+    final rawPath = Path();
     for (var i = 0; i < entries.length; i++) {
-      final p = at(i, entries[i].kg);
-      i == 0 ? raw.moveTo(p.dx, p.dy) : raw.lineTo(p.dx, p.dy);
-      canvas.drawCircle(p, 2, dotPaint);
+      final pt = at(i, entries[i].kg);
+      i == 0 ? rawPath.moveTo(pt.dx, pt.dy) : rawPath.lineTo(pt.dx, pt.dy);
+      canvas.drawCircle(pt, 2.5, dotPaint);
     }
-    canvas.drawPath(raw, rawPaint);
+    canvas.drawPath(rawPath, rawPaint);
 
     final avgPaint = Paint()
-      ..color = AppColors.accentSoft
-      ..strokeWidth = 2.5
+      ..color = average
+      ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     final smooth = Path();
     for (var i = 0; i < entries.length; i++) {
-      final p = at(i, avg[i]);
-      i == 0 ? smooth.moveTo(p.dx, p.dy) : smooth.lineTo(p.dx, p.dy);
+      final pt = at(i, avg[i]);
+      i == 0 ? smooth.moveTo(pt.dx, pt.dy) : smooth.lineTo(pt.dx, pt.dy);
     }
     canvas.drawPath(smooth, avgPaint);
-    canvas.drawCircle(at(entries.length - 1, avg.last), 4,
-        Paint()..color = AppColors.accentSoft);
+    canvas.restore();
+
+    if (progress >= 1) {
+      final end = at(entries.length - 1, avg.last);
+      canvas.drawCircle(end, 6, Paint()..color = average);
+      canvas.drawCircle(end, 2.5, Paint()..color = Colors.white);
+    }
   }
 
   @override
   bool shouldRepaint(_TrendPainter old) =>
+      old.progress != progress ||
+      old.average != average ||
       old.trend.days != trend.days ||
       old.trend.entries.length != trend.entries.length ||
       (old.trend.entries.isNotEmpty &&
@@ -324,18 +388,16 @@ class _LockedPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     return Stack(
       children: [
-        IgnorePointer(child: Opacity(opacity: 0.4, child: child)),
+        IgnorePointer(child: Opacity(opacity: 0.35, child: child)),
         Positioned.fill(
-          // The Card's own margin, so the veil sits inside the card edge.
           child: Container(
-            margin: Theme.of(context).cardTheme.margin ??
-                const EdgeInsets.all(4),
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
+              color: p.surface.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(Pt.rMd),
             ),
             padding: const EdgeInsets.all(16),
             child: Center(
@@ -345,45 +407,42 @@ class _LockedPreview extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.2),
+                        gradient: Pt.premiumGradient(p),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.workspace_premium_rounded,
-                          color: AppColors.primary, size: 28),
+                      child: const Icon(
+                        Icons.workspace_premium_rounded,
+                        color: Color(0xFF3A2606),
+                        size: 26,
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(l10n.weightTrend,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15)),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.weightTrend,
+                      style: PtText.headline(color: p.text),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.premiumFeature,
+                      style: PtText.small(color: p.textMuted),
+                    ),
                     const SizedBox(height: 4),
-                    Text(l10n.premiumFeature,
-                        style: const TextStyle(
-                            color: Colors.white60, fontSize: 12)),
-                    const SizedBox(height: 6),
                     Text(
                       l10n.weightTrendTeaserSub,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 12),
+                      style: PtText.small(color: p.text),
                     ),
-                    const SizedBox(height: 14),
-                    FilledButton.icon(
-                      icon: const Icon(Icons.workspace_premium_rounded,
-                          size: 16),
-                      label: Text(l10n.upgradeToPremium),
+                    const SizedBox(height: 12),
+                    PtButton(
+                      label: l10n.upgradeToPremium,
+                      icon: Icons.workspace_premium_rounded,
+                      tone: PtButtonTone.premium,
+                      compact: true,
                       onPressed: () =>
                           PremiumScreen.show(context, source: 'weight_trend'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
                     ),
                   ],
                 ),

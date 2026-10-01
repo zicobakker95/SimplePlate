@@ -10,10 +10,10 @@ import '../../models/nutrition_goals.dart';
 import '../../screens/premium/premium_screen.dart';
 import '../../services/food_store.dart';
 import '../../services/subscription_service.dart';
-import '../../theme/app_colors.dart';
+import '../../ui/kit.dart';
 import '../../widgets/edit_entry_sheet.dart';
+import '../../widgets/meal_section.dart';
 import '../../widgets/weight_trend_card.dart';
-import '../../utils/serving_format.dart';
 import '../../services/ad_service.dart';
 import '../../services/ad_config.dart';
 import '../../services/analytics_service.dart';
@@ -25,53 +25,76 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = context.watch<FoodStore>();
     final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
+    final p = context.pal;
     final dates = store.loggedDates;
     final goals = store.goals;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.historyTitle)),
       // One scroll for the whole page. This used to be a fixed-height header
       // above an Expanded list, which had no room to give: adding the banner
       // took ~50px and the header started overflowing. Slivers also mean the
       // date list is still built lazily rather than all at once.
       body: CustomScrollView(
         slivers: [
+          SliverToBoxAdapter(
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(Pt.gutter, 16, Pt.gutter, 8),
+                child: Text(
+                  l10n.historyTitle,
+                  style: PtText.title(color: p.text),
+                ),
+              ),
+            ),
+          ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
             sliver: SliverToBoxAdapter(
               child: Column(
                 children: [
-                  ListenableBuilder(
-                    // AdService too: a rewarded day-unlock has to swap the
-                    // teaser for the real card immediately, without a restart.
-                    listenable: Listenable.merge([
-                      SubscriptionService.instance,
-                      AdService.instance,
-                    ]),
-                    builder: (context, _) {
-                      final unlocked =
-                          SubscriptionService.instance.isPremium ||
-                          AdService.instance.isUnlocked(
-                            AdService.insightsUnlockKey,
-                          );
-                      if (unlocked) {
-                        return _WeeklySummaryCard(
-                          store: store,
-                          goals: goals,
-                          temporary: !SubscriptionService.instance.isPremium,
+                  FadeSlideIn(
+                    child: ListenableBuilder(
+                      // AdService too: a rewarded day-unlock has to swap the
+                      // teaser for the real card immediately, without a
+                      // restart.
+                      listenable: Listenable.merge([
+                        SubscriptionService.instance,
+                        AdService.instance,
+                      ]),
+                      builder: (context, _) {
+                        final unlocked =
+                            SubscriptionService.instance.isPremium ||
+                            AdService.instance.isUnlocked(
+                              AdService.insightsUnlockKey,
+                            );
+                        return AnimatedSwitcher(
+                          duration: Pt.slow,
+                          child: unlocked
+                              ? _WeeklySummaryCard(
+                                  key: const ValueKey('summary'),
+                                  store: store,
+                                  goals: goals,
+                                  temporary:
+                                      !SubscriptionService.instance.isPremium,
+                                )
+                              : const _WeeklyInsightsTeaser(
+                                  key: ValueKey('teaser'),
+                                ),
                         );
-                      }
-                      return _WeeklyInsightsTeaser();
-                    },
+                      },
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   // Weight trend: Premium, with a locked preview otherwise.
-                  const WeightTrendCard(),
-                  const SizedBox(height: 12),
+                  const FadeSlideIn(index: 1, child: WeightTrendCard()),
+                  const SizedBox(height: 14),
                   // Monthly calendar heatmap
-                  _CalendarHeatmap(store: store, goals: goals),
-                  const SizedBox(height: 12),
+                  FadeSlideIn(
+                    index: 2,
+                    child: _CalendarHeatmap(store: store, goals: goals),
+                  ),
+                  const SizedBox(height: 14),
                 ],
               ),
             ),
@@ -80,105 +103,121 @@ class HistoryScreen extends StatelessWidget {
             SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
-                child: Text(
-                  l10n.noLoggedDays,
-                  style: const TextStyle(color: AppColors.textMuted),
+                child: PtEmptyState(
+                  mood: SproutMood.sleepy,
+                  title: l10n.noLoggedDays,
                 ),
               ),
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               sliver: SliverList.separated(
                 itemCount: dates.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
-                itemBuilder: (_, i) {
-                  final date = dates[i];
-                  final entries = store.entriesForDay(date);
-                  final cals = entries.fold<double>(
-                    0,
-                    (s, e) => s + e.calories,
-                  );
-                  final pct = (cals / goals.dailyCalories.toDouble()).clamp(
-                    0.0,
-                    1.0,
-                  );
-                  final isToday = _isSameDay(date, DateTime.now());
-
-                  return Card(
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () => showDaySheet(context, date),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  isToday
-                                      ? l10n.today
-                                      : DateFormat(
-                                          'EEE, MMM d',
-                                          locale,
-                                        ).format(date),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  l10n.itemsCount(entries.length),
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '${cals.round()} kcal',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.calories,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                SizedBox(
-                                  width: 100,
-                                  child: LinearProgressIndicator(
-                                    value: pct,
-                                    backgroundColor: AppColors.border,
-                                    valueColor:
-                                        const AlwaysStoppedAnimation<Color>(
-                                          AppColors.primary,
-                                        ),
-                                    minHeight: 4,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                itemBuilder: (_, i) => FadeSlideIn(
+                  index: 3 + min(i, 6),
+                  child: _DayCard(date: dates[i], store: store, goals: goals),
+                ),
               ),
             ),
         ],
       ),
     );
   }
+}
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
+/// One logged day: a small ring of the day against the goal, the date, the
+/// item count and the total. Opens the editable day sheet.
+class _DayCard extends StatelessWidget {
+  const _DayCard({
+    required this.date,
+    required this.store,
+    required this.goals,
+  });
+
+  final DateTime date;
+  final FoodStore store;
+  final NutritionGoals goals;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.pal;
+    final locale = Localizations.localeOf(context).toString();
+    final entries = store.entriesForDay(date);
+    final cals = entries.fold<double>(0, (s, e) => s + e.calories);
+    final goal = goals.dailyCalories.toDouble();
+    final pct = goal > 0 ? cals / goal : 0.0;
+    final isToday = DateUtils.isSameDay(date, DateTime.now());
+    final color = _adherenceColor(p, cals, goal);
+
+    return PtCard(
+      onTap: () => showDaySheet(context, date),
+      padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
+      child: Row(
+        children: [
+          MacroRing(
+            value: pct,
+            color: color,
+            size: 46,
+            stroke: 6,
+            child: Text(
+              '${(pct * 100).round()}%',
+              style: PtText.number(12, color: p.text),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isToday
+                      ? l10n.today
+                      : DateFormat('EEE, MMM d', locale).format(date),
+                  style: PtText.tile(
+                    color: p.text,
+                  ).copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  l10n.itemsCount(entries.length),
+                  style: PtText.small(color: p.textMuted),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${cals.round()} kcal',
+                style: PtText.number(15, color: p.text),
+              ),
+              const SizedBox(height: 6),
+              SizedBox(
+                width: 84,
+                child: FillBar(value: pct, color: color, height: 6),
+              ),
+            ],
+          ),
+          const SizedBox(width: 6),
+          Icon(Icons.chevron_right_rounded, color: p.textFaint),
+        ],
+      ),
+    );
+  }
+}
+
+/// Green when the day landed in the target window, a lighter green when
+/// under, tomato when over — the same rule everywhere in History.
+Color _adherenceColor(PlatePalette p, double cals, double goal) {
+  if (cals <= 0) return p.sunken;
+  if (cals > goal * 1.1) return p.fat;
+  if (cals >= goal * 0.85) return p.fresh;
+  return p.fresh.withValues(alpha: 0.45);
 }
 
 /// Opens the editable day sheet for [date].
@@ -189,10 +228,7 @@ void showDaySheet(BuildContext context, DateTime date) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppColors.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    useSafeArea: true,
     builder: (_) => _DaySheet(date: date),
   );
 }
@@ -203,8 +239,8 @@ class _DaySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    final p = context.pal;
     final locale = Localizations.localeOf(context).toString();
 
     // Watching the store keeps the list and the totals below in sync after an
@@ -225,70 +261,25 @@ class _DaySheet extends StatelessWidget {
       expand: false,
       builder: (_, ctrl) => ListView(
         controller: ctrl,
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        padding: const EdgeInsets.fromLTRB(Pt.gutter, 0, Pt.gutter, 32),
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
+          const PtGrabHandle(),
           Text(
             DateFormat('EEEE, MMMM d, y', locale).format(date),
-            style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            style: PtText.title(color: p.text),
           ),
           const SizedBox(height: 4),
           Text(
             '${l10n.itemsCount(entries.length)}  ·  '
             '${cals.round()} / ${goals.dailyCalories} kcal',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-            ),
+            style: PtText.small(color: p.textMuted),
           ),
           const SizedBox(height: 14),
           // Day totals — recomputed on every store change.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _Stat(
-                l10n.macroCalories,
-                '${cals.round()}',
-                'kcal',
-                AppColors.calories,
-              ),
-              _Stat(
-                l10n.macroProtein,
-                protein.toStringAsFixed(1),
-                'g',
-                AppColors.protein,
-              ),
-              _Stat(
-                l10n.macroCarbs,
-                carbs.toStringAsFixed(1),
-                'g',
-                AppColors.carbs,
-              ),
-              _Stat(l10n.macroFat, fat.toStringAsFixed(1), 'g', AppColors.fat),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Divider(color: AppColors.border),
+          NutrientRow(calories: cals, protein: protein, carbs: carbs, fat: fat),
+          const SizedBox(height: 8),
           if (entries.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Center(
-                child: Text(
-                  l10n.noEntriesThatDay,
-                  style: const TextStyle(color: AppColors.textMuted),
-                ),
-              ),
-            )
+            PtEmptyState(mood: SproutMood.sleepy, title: l10n.noEntriesThatDay)
           else
             // Grouped by meal so the day reads the same way the Today tab does.
             for (final meal in MealType.values)
@@ -309,124 +300,51 @@ class _DaySheet extends StatelessWidget {
   ) {
     if (entries.isEmpty) return const [];
     final l10n = context.l10n;
+    final p = context.pal;
     final store = context.read<FoodStore>();
     final mealCals = entries.fold<double>(0, (s, e) => s + e.calories);
 
     return [
       Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 2),
+        padding: const EdgeInsets.only(top: 16, bottom: 6),
         child: Row(
           children: [
-            Text(meal.emoji, style: const TextStyle(fontSize: 14)),
+            Text(meal.emoji, style: const TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
-            Text(
-              meal.localizedLabel(l10n),
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+            Expanded(
+              child: Text(
+                meal.localizedLabel(l10n),
+                style: PtText.headline(color: p.text).copyWith(fontSize: 15),
+              ),
             ),
-            const Spacer(),
             Text(
               '${mealCals.round()} kcal',
-              style: const TextStyle(
-                color: AppColors.calories,
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-              ),
+              style: PtText.number(13, color: p.primary),
             ),
           ],
         ),
       ),
-      for (final e in entries)
-        Dismissible(
-          key: ValueKey(e.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              color: AppColors.danger,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.delete_rounded, color: Colors.white),
-          ),
-          confirmDismiss: (_) => confirmDeleteEntry(context, e),
-          onDismissed: (_) => store.deleteEntry(e.id),
-          child: ListTile(
-            dense: true,
-            // Tap as well as long-press. Editing a past entry was already
-            // possible but only on long-press, with nothing to suggest it --
-            // a user emailed twice to ask for a feature the app already had.
-            onTap: () => showEditEntrySheet(context, e),
-            onLongPress: () => showEditEntrySheet(context, e),
-            title: Text(
-              e.foodName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              '${gramsWithServings(l10n, e.servingGrams, e.servingSizeGrams)}'
-              '  ·  P ${e.protein.toStringAsFixed(1)}g'
-              '  C ${e.carbs.toStringAsFixed(1)}g'
-              '  F ${e.fat.toStringAsFixed(1)}g',
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 11,
+      PtCard(
+        padding: EdgeInsets.zero,
+        clip: true,
+        color: p.surfaceAlt,
+        shadow: false,
+        borderColor: p.border,
+        child: Column(
+          children: [
+            for (var i = 0; i < entries.length; i++) ...[
+              if (i > 0) const PtDivider(indent: 0),
+              // Tap as well as long-press, with swipe-to-delete: see EntryRow.
+              EntryRow(
+                key: ValueKey(entries[i].id),
+                entry: entries[i],
+                onDelete: (id) => store.deleteEntry(id),
               ),
-            ),
-            trailing: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${e.calories.round()} kcal',
-                  style: const TextStyle(
-                    color: AppColors.calories,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  l10n.tapToEdit,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-            contentPadding: EdgeInsets.zero,
-          ),
+            ],
+          ],
         ),
+      ),
     ];
-  }
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat(this.label, this.value, this.unit, this.color);
-  final String label, value, unit;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: color,
-            fontSize: 18,
-          ),
-        ),
-        Text(
-          unit,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-        ),
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-        ),
-      ],
-    );
   }
 }
 
@@ -451,173 +369,141 @@ Future<void> _unlockInsightsWithAd(BuildContext context) async {
 }
 
 class _WeeklyInsightsTeaser extends StatelessWidget {
+  const _WeeklyInsightsTeaser({super.key});
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return ConstrainedBox(
-      // A floor for the dimmed chart behind the lock, which is now the
-      // Positioned.fill child and would otherwise be squeezed. The overlay
-      // sizes the card upward from here, so a longer translation or a larger
-      // text scale makes the card taller instead of overflowing it.
-      constraints: const BoxConstraints(minHeight: 180),
-      child: Card(
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            // Dimmed fake chart behind the lock
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.15,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            l10n.sevenDayAverage,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const Spacer(),
-                          Text(
-                            l10n.kcalAvgEmpty,
-                            style: const TextStyle(
-                              color: AppColors.calories,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
+    final p = context.pal;
+    const heights = [0.45, 0.7, 0.35, 0.85, 0.62, 0.95, 0.5];
+    // The overlay, not the sample chart, sizes the card: a longer
+    // translation or a bigger text scale makes the card taller instead of
+    // overflowing it.
+    return PtCard(
+      padding: EdgeInsets.zero,
+      clip: true,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.18,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (final h in heights)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: FractionallySizedBox(
+                            heightFactor: h,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: p.fresh,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 64,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: List.generate(7, (i) {
-                            final heights = [
-                              20.0,
-                              30.0,
-                              15.0,
-                              35.0,
-                              28.0,
-                              40.0,
-                              22.0,
-                            ];
-                            return Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(left: i > 0 ? 4 : 0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      height: heights[i],
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        borderRadius: BorderRadius.circular(3),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
                         ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
-            // The overlay, not the chart, sizes the card. It used to be
-            // Positioned.fill, which meant a taller overlay -- a longer
-            // translation, a bigger text scale, or the watch-an-ad action
-            // added here -- overflowed instead of making the card taller.
-            Container(
-              // Full width, natural height: as the Stack's only unpositioned child
-              // it decides both, and without this it shrink-wraps to the text,
-              // leaving a narrow card with the chart squeezed behind it.
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.55),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.workspace_premium_rounded,
-                      color: AppColors.primary,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l10n.weeklyInsights,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.premiumFeature,
-                    style: const TextStyle(color: Colors.white60, fontSize: 12),
-                  ),
-                  const SizedBox(height: 14),
-                  FilledButton.icon(
-                    icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-                    label: Text(l10n.upgradeToPremium),
-                    onPressed: () =>
-                        PremiumScreen.show(context, source: 'weekly_insights'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  // The same day-unlock deal the barcode scanner offers. This card
-                  // already existed purely to advertise a feature free users cannot
-                  // have; letting them earn it for a day turns the advert into a
-                  // trial, and a trial sells the subscription better than a lock does.
-                  if (AdConfig.instance.insightsRewardedEnabled) ...[
-                    const SizedBox(height: 4),
-                    TextButton(
-                      onPressed: () => _unlockInsightsWithAd(context),
-                      child: Text(
-                        l10n.unlockWithAdToday,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ), // Stack)
-      ), // Card
-    ); // ConstrainedBox
+          ),
+          _LockOverlay(
+            title: l10n.weeklyInsights,
+            subtitle: l10n.premiumFeature,
+            source: 'weekly_insights',
+            // The same day-unlock deal the barcode scanner offers. This card
+            // already existed purely to advertise a feature free users cannot
+            // have; letting them earn it for a day turns the advert into a
+            // trial, and a trial sells the subscription better than a lock.
+            secondary: AdConfig.instance.insightsRewardedEnabled
+                ? PtButton(
+                    label: l10n.unlockWithAdToday,
+                    icon: Icons.play_circle_outline_rounded,
+                    tone: PtButtonTone.ghost,
+                    compact: true,
+                    onPressed: () => _unlockInsightsWithAd(context),
+                  )
+                : null,
+          ),
+        ],
+      ),
+    );
   }
-} // _WeeklyInsightsTeaser
+}
+
+/// The shared "Premium" lock: a crown badge, a title, a line and the
+/// upgrade button, over a dimmed preview of what is being sold.
+class _LockOverlay extends StatelessWidget {
+  const _LockOverlay({
+    required this.title,
+    required this.subtitle,
+    required this.source,
+    this.secondary,
+  });
+
+  final String title;
+  final String subtitle;
+  final String source;
+  final Widget? secondary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.pal;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 14),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: Pt.premiumGradient(p),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.workspace_premium_rounded,
+              color: Color(0xFF3A2606),
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: PtText.headline(color: p.text),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: PtText.small(color: p.textMuted),
+          ),
+          const SizedBox(height: 14),
+          PtButton(
+            label: l10n.upgradeToPremium,
+            icon: Icons.workspace_premium_rounded,
+            tone: PtButtonTone.premium,
+            compact: true,
+            onPressed: () => PremiumScreen.show(context, source: source),
+          ),
+          if (secondary != null) ...[const SizedBox(height: 4), secondary!],
+        ],
+      ),
+    );
+  }
+}
 
 class _WeeklySummaryCard extends StatelessWidget {
   const _WeeklySummaryCard({
+    super.key,
     required this.store,
     required this.goals,
     this.temporary = false,
@@ -633,6 +519,7 @@ class _WeeklySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
     final days = List.generate(7, (i) {
@@ -641,122 +528,136 @@ class _WeeklySummaryCard extends StatelessWidget {
     });
     final cals = days.map((d) => store.caloriesTotalsForDay(d)).toList();
     final avg = cals.reduce((a, b) => a + b) / 7;
-    final maxCals = cals.reduce(max);
     final goal = goals.dailyCalories.toDouble();
+    // Scale so the goal line and the tallest bar both fit.
+    final top = max(goal * 1.15, cals.reduce(max)).clamp(1.0, double.infinity);
+    const chartH = 96.0;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
+    return PtCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
                   l10n.sevenDayAverage,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: PtText.headline(color: p.text).copyWith(fontSize: 16),
                 ),
-                if (temporary) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      l10n.unlockedForToday,
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                Text(
-                  l10n.kcalAvg(avg.round()),
-                  style: const TextStyle(
-                    color: AppColors.calories,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
+              ),
+              if (temporary) ...[
+                const SizedBox(width: 8),
+                PtTag(label: l10n.unlockedForToday, color: p.premiumInk),
               ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 64,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: List.generate(7, (i) {
-                  final barHeight = maxCals > 0
-                      ? (40.0 * cals[i] / maxCals).clamp(2.0, 40.0)
-                      : 2.0;
-                  final hasData = cals[i] > 0;
-                  final isToday = i == 6;
-                  Color barColor;
-                  if (!hasData) {
-                    barColor = AppColors.border;
-                  } else if (cals[i] > goal * 1.1) {
-                    barColor = AppColors.danger;
-                  } else if (cals[i] >= goal * 0.85) {
-                    barColor = AppColors.primary;
-                  } else {
-                    barColor = AppColors.primary.withValues(alpha: 0.45);
-                  }
-
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: i > 0 ? 4 : 0),
+              const SizedBox(width: 8),
+              AnimatedCount(
+                value: avg,
+                format: (v) => l10n.kcalAvg(v.round()),
+                style: PtText.number(14, color: p.primary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: chartH + 30,
+            child: Stack(
+              children: [
+                // Goal line.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  // Bars stand on a 24 px label row.
+                  top: chartH + 6 - chartH * goal / top,
+                  child: _DashedLine(color: p.textFaint),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: List.generate(7, (i) {
+                    final isToday = i == 6;
+                    final h = cals[i] > 0
+                        ? (chartH * cals[i] / top).clamp(6.0, chartH)
+                        : 4.0;
+                    return Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
-                            height: barHeight,
-                            decoration: BoxDecoration(
-                              color: barColor,
-                              borderRadius: BorderRadius.circular(3),
-                              border: isToday
-                                  ? Border.all(
-                                      color: AppColors.primary,
-                                      width: 1.5,
-                                    )
-                                  : null,
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0, end: h),
+                            duration: Duration(milliseconds: 600 + i * 70),
+                            curve: Pt.spring,
+                            builder: (context, v, _) => Container(
+                              height: v.clamp(0.0, chartH + 4),
+                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              decoration: BoxDecoration(
+                                color: _adherenceColor(p, cals[i], goal),
+                                borderRadius: BorderRadius.circular(7),
+                                border: isToday
+                                    ? Border.all(color: p.primary, width: 2)
+                                    : null,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            DateFormat(
-                              'E',
-                              locale,
-                            ).format(days[i]).substring(0, 1),
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: isToday
-                                  ? AppColors.primary
-                                  : AppColors.textMuted,
-                              fontWeight: isToday
-                                  ? FontWeight.w700
-                                  : FontWeight.normal,
+                          SizedBox(
+                            height: 24,
+                            child: Center(
+                              child: Text(
+                                DateFormat(
+                                  'E',
+                                  locale,
+                                ).format(days[i]).substring(0, 1),
+                                style: PtText.tiny(
+                                  color: isToday ? p.primary : p.textMuted,
+                                  weight: isToday
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  );
-                }),
-              ),
+                    );
+                  }),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class _DashedLine extends StatelessWidget {
+  const _DashedLine({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(double.infinity, 1.5),
+      painter: _DashPainter(color),
+    );
+  }
+}
+
+class _DashPainter extends CustomPainter {
+  _DashPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+    for (double x = 0; x < size.width; x += 9) {
+      canvas.drawLine(Offset(x, 0), Offset(min(x + 4, size.width), 0), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashPainter old) => old.color != color;
 }
 
 /// Monthly calendar grid colour-coded by calorie adherence.
@@ -772,6 +673,9 @@ class _CalendarHeatmap extends StatefulWidget {
 class _CalendarHeatmapState extends State<_CalendarHeatmap> {
   late DateTime _month;
 
+  /// +1 when moving forward in time, -1 back: the grid slides that way.
+  int _direction = 1;
+
   @override
   void initState() {
     super.initState();
@@ -779,167 +683,201 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
     _month = DateTime(now.year, now.month);
   }
 
+  void _go(int delta) => setState(() {
+    _direction = delta;
+    _month = DateTime(_month.year, _month.month + delta);
+  });
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     final locale = Localizations.localeOf(context).toString();
-    final firstDay = _month;
     final daysInMonth = DateUtils.getDaysInMonth(_month.year, _month.month);
-    final startWeekday = firstDay.weekday % 7; // 0=Sun, 1=Mon…
+    final startWeekday = _month.weekday % 7; // 0=Sun, 1=Mon…
     final goal = widget.goals.dailyCalories.toDouble();
+    final now = DateTime.now();
+    final canGoForward = !DateTime(_month.year, _month.month + 1).isAfter(now);
 
     // Pre-compute all calorie totals once — avoids 42 × O(n) scans inside
-    // the GridView itemBuilder on every rebuild.
+    // the grid on every rebuild.
     final calsByDay = <int, double>{};
     for (var d = 1; d <= daysInMonth; d++) {
       final date = DateTime(_month.year, _month.month, d);
-      if (!date.isAfter(DateTime.now())) {
+      if (!date.isAfter(now)) {
         calsByDay[d] = widget.store.caloriesTotalsForDay(date);
       }
     }
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded, size: 20),
-                  onPressed: () => setState(
-                    () => _month = DateTime(_month.year, _month.month - 1),
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  tooltip: l10n.prevMonth,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  DateFormat('MMMM y', locale).format(_month),
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded, size: 20),
-                  onPressed:
-                      DateTime(
-                        _month.year,
-                        _month.month + 1,
-                      ).isAfter(DateTime.now())
-                      ? null
-                      : () => setState(
-                          () =>
-                              _month = DateTime(_month.year, _month.month + 1),
-                        ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  tooltip: l10n.nextMonth,
-                ),
-              ],
+    // Localised one-letter weekday headers, Sunday first like the grid.
+    final sunday = DateTime(2024, 1, 7);
+    final headers = [
+      for (var i = 0; i < 7; i++)
+        DateFormat(
+          'E',
+          locale,
+        ).format(sunday.add(Duration(days: i))).substring(0, 1),
+    ];
+
+    final grid = GridView.builder(
+      key: ValueKey(_month),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+        mainAxisSpacing: 5,
+        crossAxisSpacing: 5,
+        childAspectRatio: 1,
+      ),
+      itemCount: startWeekday + daysInMonth,
+      itemBuilder: (_, idx) {
+        if (idx < startWeekday) return const SizedBox.shrink();
+        final day = idx - startWeekday + 1;
+        final date = DateTime(_month.year, _month.month, day);
+        final isFuture = date.isAfter(now);
+        final cals = calsByDay[day] ?? 0.0;
+        final isToday = DateUtils.isSameDay(date, now);
+        final logged = cals > 0 && !isFuture;
+
+        final Color cellColor;
+        if (isFuture) {
+          cellColor = Colors.transparent;
+        } else if (cals == 0) {
+          cellColor = p.sunken;
+        } else {
+          cellColor = _adherenceColor(p, cals, goal);
+        }
+
+        // Any non-future day opens its editable day sheet.
+        return Pressable(
+          onTap: isFuture ? null : () => showDaySheet(context, date),
+          enabled: !isFuture,
+          pressedScale: 0.85,
+          semanticLabel: DateFormat.MMMd(locale).format(date),
+          child: Container(
+            decoration: BoxDecoration(
+              color: cellColor,
+              borderRadius: BorderRadius.circular(9),
+              border: isToday
+                  ? Border.all(color: p.primary, width: 2)
+                  : isFuture
+                  ? Border.all(color: p.border)
+                  : null,
             ),
-            const SizedBox(height: 8),
-            // Day-of-week headers
-            Row(
-              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                  .map(
-                    (d) => Expanded(
-                      child: Center(
-                        child: Text(
-                          d,
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+            alignment: Alignment.center,
+            child: Text(
+              '$day',
+              style: PtText.tiny(
+                // Dark ink on the solid green/tomato cells reads in both
+                // themes; the pale "under" cells keep the normal text.
+                color: logged
+                    ? (cals >= goal * 0.85 ? const Color(0xFF1A1712) : p.text)
+                    : p.textMuted,
+                weight: isToday ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    return PtCard(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              PtIconButton(
+                icon: Icons.chevron_left_rounded,
+                tooltip: l10n.prevMonth,
+                background: Colors.transparent,
+                onPressed: () => _go(-1),
+              ),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: Pt.base,
+                  child: Text(
+                    DateFormat('MMMM y', locale).format(_month),
+                    key: ValueKey(_month),
+                    textAlign: TextAlign.center,
+                    style: PtText.headline(
+                      color: p.text,
+                    ).copyWith(fontSize: 16),
+                  ),
+                ),
+              ),
+              PtIconButton(
+                icon: Icons.chevron_right_rounded,
+                tooltip: l10n.nextMonth,
+                background: Colors.transparent,
+                onPressed: canGoForward ? () => _go(1) : null,
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    for (final d in headers)
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            d,
+                            style: PtText.tiny(
+                              color: p.textMuted,
+                              weight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 6),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-                childAspectRatio: 1,
-              ),
-              itemCount: startWeekday + daysInMonth,
-              itemBuilder: (_, idx) {
-                if (idx < startWeekday) return const SizedBox.shrink();
-                final day = idx - startWeekday + 1;
-                final date = DateTime(_month.year, _month.month, day);
-                final isFuture = date.isAfter(DateTime.now());
-                final cals = calsByDay[day] ?? 0.0;
-                final isToday = DateUtils.isSameDay(date, DateTime.now());
-
-                Color cellColor;
-                if (isFuture) {
-                  cellColor = AppColors.border;
-                } else if (cals == 0) {
-                  cellColor = AppColors.surfaceAlt;
-                } else if (cals > goal * 1.1) {
-                  cellColor = AppColors.danger.withOpacity(0.6);
-                } else if (cals >= goal * 0.85) {
-                  cellColor = AppColors.primary.withOpacity(0.75);
-                } else {
-                  cellColor = AppColors.primary.withOpacity(0.3);
-                }
-
-                // Any non-future day opens its editable day sheet.
-                return InkWell(
-                  borderRadius: BorderRadius.circular(4),
-                  onTap: isFuture ? null : () => showDaySheet(context, date),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: cellColor,
-                      borderRadius: BorderRadius.circular(4),
-                      border: isToday
-                          ? Border.all(color: AppColors.primary, width: 1.5)
-                          : null,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '$day',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: isToday
-                            ? FontWeight.w800
-                            : FontWeight.normal,
-                        color: cals > 0 && !isFuture
-                            ? Colors.white
-                            : AppColors.textMuted,
+                  ],
+                ),
+                const SizedBox(height: 6),
+                AnimatedSwitcher(
+                  duration: context.reduceMotion ? Duration.zero : Pt.slow,
+                  switchInCurve: Pt.ease,
+                  switchOutCurve: Curves.easeIn,
+                  transitionBuilder: (child, anim) {
+                    final incoming = child.key == ValueKey(_month);
+                    final dx = (incoming ? 0.25 : -0.25) * _direction;
+                    return FadeTransition(
+                      opacity: anim,
+                      child: SlideTransition(
+                        position: Tween(
+                          begin: Offset(dx, 0),
+                          end: Offset.zero,
+                        ).animate(anim),
+                        child: child,
                       ),
-                    ),
+                    );
+                  },
+                  layoutBuilder: (current, previous) => Stack(
+                    alignment: Alignment.topCenter,
+                    children: [...previous, ?current],
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            // Legend
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                _LegendDot(
-                  AppColors.primary.withOpacity(0.3),
-                  l10n.legendUnder,
+                  child: grid,
                 ),
-                const SizedBox(width: 8),
-                _LegendDot(
-                  AppColors.primary.withOpacity(0.75),
-                  l10n.legendOnTarget,
+                const SizedBox(height: 12),
+                Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 12,
+                  runSpacing: 6,
+                  children: [
+                    _LegendDot(
+                      p.fresh.withValues(alpha: 0.45),
+                      l10n.legendUnder,
+                    ),
+                    _LegendDot(p.fresh, l10n.legendOnTarget),
+                    _LegendDot(p.fat, l10n.legendOver),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                _LegendDot(AppColors.danger.withOpacity(0.6), l10n.legendOver),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -953,20 +891,18 @@ class _LegendDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 10,
-          height: 10,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
-        ),
+        const SizedBox(width: 5),
+        Text(label, style: PtText.tiny(color: context.pal.textMuted)),
       ],
     );
   }

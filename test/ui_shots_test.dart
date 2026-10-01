@@ -16,7 +16,10 @@ import 'package:simple_plate/screens/log/food_detail_screen.dart';
 import 'package:simple_plate/widgets/edit_entry_sheet.dart';
 import 'package:simple_plate/widgets/quick_add_sheet.dart';
 import 'package:simple_plate/widgets/share_card.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:simple_plate/screens/history/history_screen.dart';
 import 'package:simple_plate/screens/home/home_shell.dart';
+import 'package:simple_plate/screens/premium/premium_screen.dart';
 import 'package:simple_plate/screens/onboarding/onboarding_screen.dart';
 import 'package:simple_plate/services/food_store.dart';
 import 'package:simple_plate/services/storage_service.dart';
@@ -200,11 +203,50 @@ void main() {
       await shot(tester, '14_dialog_delete$s');
     });
 
+    testWidgets('history$s', (tester) async {
+      await pumpApp(tester, const HistoryScreen(), dark: dark);
+      await shot(tester, '15_history_free$s');
+      await SubscriptionService.instance.debugSetPremium(true);
+      await settle(tester);
+      await shot(tester, '16_history_premium$s');
+      showDaySheet(ctx(), DateTime.now().subtract(const Duration(days: 1)));
+      await settle(tester);
+      await shot(tester, '17_sheet_day$s');
+    });
+
+    testWidgets('premium$s', (tester) async {
+      SubscriptionService.instance.debugSetProducts([
+        ProductDetails(
+          id: SubscriptionService.kMonthlyId,
+          title: 'Monthly',
+          description: '',
+          price: '€3.99',
+          rawPrice: 3.99,
+          currencyCode: 'EUR',
+        ),
+        ProductDetails(
+          id: SubscriptionService.kYearlyId,
+          title: 'Yearly',
+          description: '',
+          price: '€24.99',
+          rawPrice: 24.99,
+          currencyCode: 'EUR',
+        ),
+      ]);
+      await pumpApp(tester, const PremiumScreen(), dark: dark);
+      await shot(tester, '18_premium$s');
+    });
+
     testWidgets('onboarding$s', (tester) async {
       await pumpApp(tester, const OnboardingScreen(), dark: dark, fresh: true);
       await shot(tester, '20_onboarding_welcome$s');
     });
   }
+
+  testWidgets('history_text13', (tester) async {
+    await pumpApp(tester, const HistoryScreen(), textScale: 1.3);
+    await shot(tester, '91_history_text13');
+  });
 
   testWidgets('today_text13', (tester) async {
     await pumpApp(tester, const HomeShell(), textScale: 1.3);

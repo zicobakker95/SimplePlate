@@ -111,7 +111,7 @@ class MealSection extends StatelessWidget {
               PopIn(
                 key: ValueKey('pop-${entry.id}'),
                 enabled: fresh.contains(entry.id),
-                child: _EntryRow(
+                child: EntryRow(
                   entry: entry,
                   highlight: fresh.contains(entry.id),
                   onDelete: onDelete,
@@ -131,8 +131,12 @@ class MealSection extends StatelessWidget {
   };
 }
 
-class _EntryRow extends StatelessWidget {
-  const _EntryRow({
+/// One logged food: name, amount, macro dots and calories. Tap edits,
+/// swipe left deletes (after a confirmation). Shared with the history day
+/// sheet so an entry behaves the same wherever it is found.
+class EntryRow extends StatelessWidget {
+  const EntryRow({
+    super.key,
     required this.entry,
     required this.onDelete,
     this.highlight = false,

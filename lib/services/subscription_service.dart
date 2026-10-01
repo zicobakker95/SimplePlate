@@ -45,6 +45,15 @@ class SubscriptionService extends ChangeNotifier {
   /// which leaves every gated screen untestable on a debug build. Written to
   /// the same cache key a real entitlement uses, so it survives a restart.
   Future<void> debugSetPremium(bool value) => _setPremium(value);
+
+  /// Tests only: stands in for the store's product list so the paywall can
+  /// be rendered (and screenshotted) with real-looking plans.
+  @visibleForTesting
+  void debugSetProducts(List<ProductDetails> products) {
+    _products = List.of(products);
+    _loadingProducts = false;
+    notifyListeners();
+  }
   bool get storeAvailable => _storeAvailable;
   bool get purchasing => _purchasing;
   bool get loadingProducts => _loadingProducts;
