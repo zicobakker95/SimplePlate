@@ -357,5 +357,6 @@
   "scanHint": "バーコードを枠内に合わせてください",
   "torchTooltip": "ライト",
   "waterAddGlass": "1杯追加",
-  "waterRemoveGlass": "1杯減らす"
+  "waterRemoveGlass": "1杯減らす",
+  "premiumTag": "プレミアム"
 }

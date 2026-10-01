@@ -357,5 +357,6 @@
   "scanHint": "Barcode im Rahmen ausrichten",
   "torchTooltip": "Taschenlampe",
   "waterAddGlass": "Glas hinzufügen",
-  "waterRemoveGlass": "Glas entfernen"
+  "waterRemoveGlass": "Glas entfernen",
+  "premiumTag": "Premium"
 }

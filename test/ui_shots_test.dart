@@ -17,6 +17,8 @@ import 'package:simple_plate/widgets/edit_entry_sheet.dart';
 import 'package:simple_plate/widgets/quick_add_sheet.dart';
 import 'package:simple_plate/widgets/share_card.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:simple_plate/screens/goals/goals_screen.dart';
+import 'package:simple_plate/screens/goals/tdee_calculator_sheet.dart';
 import 'package:simple_plate/screens/history/history_screen.dart';
 import 'package:simple_plate/screens/home/home_shell.dart';
 import 'package:simple_plate/screens/premium/premium_screen.dart';
@@ -237,15 +239,51 @@ void main() {
       await shot(tester, '18_premium$s');
     });
 
+    testWidgets('goals$s', (tester) async {
+      await pumpApp(tester, const GoalsScreen(), dark: dark);
+      await shot(tester, '19_goals$s');
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -1500));
+      await settle(tester);
+      await shot(tester, '19_goals_more$s');
+      TdeeCalculatorSheet.show(ctx());
+      await settle(tester);
+      final fields = find.byType(TextField);
+      await tester.enterText(fields.at(0), '34');
+      await tester.enterText(fields.at(1), '178');
+      await tester.enterText(fields.at(2), '79');
+      await tester.tap(find.text(en.calculate));
+      await settle(tester);
+      await shot(tester, '20_sheet_tdee$s');
+    });
+
     testWidgets('onboarding$s', (tester) async {
       await pumpApp(tester, const OnboardingScreen(), dark: dark, fresh: true);
-      await shot(tester, '20_onboarding_welcome$s');
+      await shot(tester, '21_onboarding_welcome$s');
+      await tester.tap(find.text(en.getStarted));
+      await settle(tester);
+      await shot(tester, '22_onboarding_goals$s');
+      await tester.tap(find.text(en.goalModePercent));
+      await settle(tester);
+      await tester.tap(find.text(en.continueLabel));
+      await settle(tester);
+      await shot(tester, '23_onboarding_reminders$s');
     });
   }
 
   testWidgets('history_text13', (tester) async {
     await pumpApp(tester, const HistoryScreen(), textScale: 1.3);
     await shot(tester, '91_history_text13');
+  });
+
+  testWidgets('goals_text13', (tester) async {
+    await pumpApp(tester, const GoalsScreen(), textScale: 1.3);
+    await shot(tester, '92_goals_text13');
+  });
+
+  testWidgets('onboarding_text13', (tester) async {
+    await pumpApp(tester, const OnboardingScreen(),
+        fresh: true, textScale: 1.3);
+    await shot(tester, '93_onboarding_text13');
   });
 
   testWidgets('today_text13', (tester) async {

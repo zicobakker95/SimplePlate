@@ -11,7 +11,8 @@ import '../../services/export_service.dart';
 import '../../services/food_store.dart';
 import '../../services/notification_service.dart';
 import '../../services/subscription_service.dart';
-import '../../theme/app_colors.dart';
+import '../../ui/kit.dart';
+import '../../ui/theme/appearance.dart';
 import '../../debug/debug_menu_screen.dart';
 import '../../utils/weight_math.dart';
 import '../../widgets/health_sync_setting.dart';
@@ -68,8 +69,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
     // Load reminder prefs
     final store = context.read<FoodStore>();
     _reminderEnabled = store.reminderEnabled;
-    _reminderTime =
-        TimeOfDay(hour: store.reminderHour, minute: store.reminderMinute);
+    _reminderTime = TimeOfDay(
+      hour: store.reminderHour,
+      minute: store.reminderMinute,
+    );
 
     // Load water prefs
     _waterEnabled = store.waterEnabled;
@@ -96,10 +99,20 @@ class _GoalsScreenState extends State<GoalsScreen> {
     _carbGCtrl = TextEditingController(text: g.carbsGrams.toString());
     _fatGCtrl = TextEditingController(text: g.fatGrams.toString());
 
-    // Rebuild when any field changes so live calculations update
+    // Rebuild when any field changes so live calculations (and the preview
+    // ring) update.
     for (final c in [
-      _calPctCtrl, _proPctCtrl, _carbPctCtrl, _fatPctCtrl,
-      _proGCtrl, _carbGCtrl, _fatGCtrl,
+      _calCtrl,
+      _proCtrl,
+      _carbCtrl,
+      _fatCtrl,
+      _calPctCtrl,
+      _proPctCtrl,
+      _carbPctCtrl,
+      _fatPctCtrl,
+      _proGCtrl,
+      _carbGCtrl,
+      _fatGCtrl,
     ]) {
       c.addListener(() => setState(() {}));
     }
@@ -108,9 +121,17 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   void dispose() {
     for (final c in [
-      _calCtrl, _proCtrl, _carbCtrl, _fatCtrl,
-      _calPctCtrl, _proPctCtrl, _carbPctCtrl, _fatPctCtrl,
-      _proGCtrl, _carbGCtrl, _fatGCtrl,
+      _calCtrl,
+      _proCtrl,
+      _carbCtrl,
+      _fatCtrl,
+      _calPctCtrl,
+      _proPctCtrl,
+      _carbPctCtrl,
+      _fatPctCtrl,
+      _proGCtrl,
+      _carbGCtrl,
+      _fatGCtrl,
       _waterGoalCtrl,
     ]) {
       c.dispose();
@@ -118,7 +139,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     super.dispose();
   }
 
-  // ── Derived values ──────────────────────────────────────────────────────────
+  // ── Derived values ──────────────────────────────────────────────────────
 
   /// Calories entered in percentage mode.
   int get _pctCalories => int.tryParse(_calPctCtrl.text) ?? 0;
@@ -137,42 +158,45 @@ class _GoalsScreenState extends State<GoalsScreen> {
   int get _calcCalories =>
       _macroProteinG * 4 + _macroCarbsG * 4 + _macroFatG * 9;
 
-  // ── Save ────────────────────────────────────────────────────────────────────
+  /// What Save would store right now, for the preview ring.
+  NutritionGoals get _pending => switch (_mode) {
+    _GoalMode.manual => NutritionGoals(
+      dailyCalories: int.tryParse(_calCtrl.text) ?? 2000,
+      proteinGrams: int.tryParse(_proCtrl.text) ?? 150,
+      carbsGrams: int.tryParse(_carbCtrl.text) ?? 200,
+      fatGrams: int.tryParse(_fatCtrl.text) ?? 65,
+    ),
+    _GoalMode.percentages => NutritionGoals(
+      dailyCalories: _pctCalories,
+      proteinGrams: _calcProteinG,
+      carbsGrams: _calcCarbsG,
+      fatGrams: _calcFatG,
+    ),
+    _GoalMode.macrosToCalories => NutritionGoals(
+      dailyCalories: _calcCalories,
+      proteinGrams: _macroProteinG,
+      carbsGrams: _macroCarbsG,
+      fatGrams: _macroFatG,
+    ),
+  };
+
+  // ── Save ────────────────────────────────────────────────────────────────
 
   Future<void> _save() async {
-    late NutritionGoals goals;
-    switch (_mode) {
-      case _GoalMode.manual:
-        goals = NutritionGoals(
-          dailyCalories: int.tryParse(_calCtrl.text) ?? 2000,
-          proteinGrams: int.tryParse(_proCtrl.text) ?? 150,
-          carbsGrams: int.tryParse(_carbCtrl.text) ?? 200,
-          fatGrams: int.tryParse(_fatCtrl.text) ?? 65,
-        );
-      case _GoalMode.percentages:
-        goals = NutritionGoals(
-          dailyCalories: _pctCalories,
-          proteinGrams: _calcProteinG,
-          carbsGrams: _calcCarbsG,
-          fatGrams: _calcFatG,
-        );
-      case _GoalMode.macrosToCalories:
-        goals = NutritionGoals(
-          dailyCalories: _calcCalories,
-          proteinGrams: _macroProteinG,
-          carbsGrams: _macroCarbsG,
-          fatGrams: _macroFatG,
-        );
-    }
+    final goals = _pending;
     setState(() => _saving = true);
     await context.read<FoodStore>().saveGoals(goals);
     if (!mounted) return;
     setState(() => _saving = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(context.l10n.goalsSavedSnack)));
+    showPtToast(
+      context,
+      context.l10n.goalsSavedSnack,
+      icon: Icons.check_circle_rounded,
+      tone: PtToastTone.success,
+    );
   }
 
-  // ── Widgets ─────────────────────────────────────────────────────────────────
+  // ── Widgets ─────────────────────────────────────────────────────────────
 
   /// The debug entry, or null in release. Spread with `...?` so a release
   /// build inserts literally nothing.
@@ -182,45 +206,45 @@ class _GoalsScreenState extends State<GoalsScreen> {
     return [const SizedBox(height: 24), tile];
   }
 
-  Widget _field(String label, TextEditingController ctrl, Color accent,
-      String suffix) {
+  Widget _field(
+    String label,
+    TextEditingController ctrl,
+    Color accent,
+    String suffix,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextField(
         controller: ctrl,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: accent),
           suffixText: suffix,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: accent, width: 2),
-          ),
+          prefixIcon: Icon(Icons.circle, size: 12, color: accent),
+          prefixIconConstraints: const BoxConstraints(minWidth: 36),
         ),
       ),
     );
   }
 
   Widget _readonlyCard(String label, String value, Color accent) {
+    final p = context.pal;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accent.withOpacity(0.35)),
+        color: p.freshSoft,
+        borderRadius: BorderRadius.circular(Pt.rSm + 2),
       ),
       child: Row(
         children: [
-          Text(label,
-              style: TextStyle(color: accent, fontWeight: FontWeight.w600)),
-          const Spacer(),
-          Text(value,
-              style: TextStyle(
-                  color: accent,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700)),
+          Expanded(
+            child: Text(
+              label,
+              style: PtText.small(color: p.text, weight: FontWeight.w600),
+            ),
+          ),
+          Text(value, style: PtText.number(18, color: accent)),
         ],
       ),
     );
@@ -228,41 +252,38 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   Widget _pctHint(String text, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 4),
-      child: Text(
-        text,
-        style: TextStyle(
-            color: color.withOpacity(0.8),
-            fontSize: 12,
-            fontWeight: FontWeight.w500),
-      ),
+      padding: const EdgeInsets.only(left: 12, bottom: 4),
+      child: Text(text, style: PtText.tiny(color: color)),
     );
   }
 
   Widget _pctSumIndicator() {
     final l10n = context.l10n;
+    final p = context.pal;
     final sum = _pctSum.round();
     final ok = sum == 100;
-    final color = ok ? AppColors.primary : AppColors.fat;
-    return Container(
+    final color = ok ? p.primary : p.dangerInk;
+    return AnimatedContainer(
+      duration: Pt.base,
       margin: const EdgeInsets.only(top: 8, bottom: 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.4)),
+        color: ok ? p.freshSoft : p.dangerSoft,
+        borderRadius: BorderRadius.circular(Pt.rSm),
       ),
       child: Row(
         children: [
-          Icon(ok ? Icons.check_circle_outline : Icons.warning_amber_rounded,
-              color: color, size: 18),
+          Icon(
+            ok ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+            color: color,
+            size: 18,
+          ),
           const SizedBox(width: 8),
-          Text(
-            ok ? l10n.pctTotalOk : l10n.pctTotalOff(sum),
-            style: TextStyle(
-                color: color,
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+          Expanded(
+            child: Text(
+              ok ? l10n.pctTotalOk : l10n.pctTotalOff(sum),
+              style: PtText.small(color: color, weight: FontWeight.w600),
+            ),
           ),
         ],
       ),
@@ -271,458 +292,514 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   Widget _manualMode() {
     final l10n = context.l10n;
-    return Column(children: [
-      _field(l10n.fieldCalories, _calCtrl, AppColors.calories, 'kcal'),
-      _field(l10n.fieldProtein, _proCtrl, AppColors.protein, 'g'),
-      _field(l10n.fieldCarbohydrates, _carbCtrl, AppColors.carbs, 'g'),
-      _field(l10n.fieldFat, _fatCtrl, AppColors.fat, 'g'),
-    ]);
+    final p = context.pal;
+    return Column(
+      children: [
+        _field(l10n.fieldCalories, _calCtrl, p.fresh, 'kcal'),
+        _field(l10n.fieldProtein, _proCtrl, p.protein, 'g'),
+        _field(l10n.fieldCarbohydrates, _carbCtrl, p.carbs, 'g'),
+        _field(l10n.fieldFat, _fatCtrl, p.fat, 'g'),
+      ],
+    );
   }
 
   Widget _percentagesMode() {
     final l10n = context.l10n;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _field(l10n.fieldDailyCalories, _calPctCtrl, AppColors.calories, 'kcal'),
-      const SizedBox(height: 4),
-      _field(l10n.fieldProteinPct, _proPctCtrl, AppColors.protein, '%'),
-      _pctHint(l10n.pctHintProtein(_calcProteinG), AppColors.protein),
-      _field(l10n.fieldCarbsPct, _carbPctCtrl, AppColors.carbs, '%'),
-      _pctHint(l10n.pctHintCarbs(_calcCarbsG), AppColors.carbs),
-      _field(l10n.fieldFatPct, _fatPctCtrl, AppColors.fat, '%'),
-      _pctHint(l10n.pctHintFat(_calcFatG), AppColors.fat),
-      _pctSumIndicator(),
-    ]);
+    final p = context.pal;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _field(l10n.fieldDailyCalories, _calPctCtrl, p.fresh, 'kcal'),
+        _field(l10n.fieldProteinPct, _proPctCtrl, p.protein, '%'),
+        _pctHint(l10n.pctHintProtein(_calcProteinG), p.proteinInk),
+        _field(l10n.fieldCarbsPct, _carbPctCtrl, p.carbs, '%'),
+        _pctHint(l10n.pctHintCarbs(_calcCarbsG), p.carbsInk),
+        _field(l10n.fieldFatPct, _fatPctCtrl, p.fat, '%'),
+        _pctHint(l10n.pctHintFat(_calcFatG), p.fatInk),
+        _pctSumIndicator(),
+      ],
+    );
   }
 
   Widget _macrosToCaloriesMode() {
     final l10n = context.l10n;
-    return Column(children: [
-      _field(l10n.fieldProtein, _proGCtrl, AppColors.protein, 'g'),
-      _field(l10n.fieldCarbohydrates, _carbGCtrl, AppColors.carbs, 'g'),
-      _field(l10n.fieldFat, _fatGCtrl, AppColors.fat, 'g'),
-      const SizedBox(height: 8),
-      _readonlyCard(l10n.calculatedCalories, '$_calcCalories kcal',
-          AppColors.calories),
-    ]);
+    final p = context.pal;
+    return Column(
+      children: [
+        _field(l10n.fieldProtein, _proGCtrl, p.protein, 'g'),
+        _field(l10n.fieldCarbohydrates, _carbGCtrl, p.carbs, 'g'),
+        _field(l10n.fieldFat, _fatGCtrl, p.fat, 'g'),
+        _readonlyCard(
+          l10n.calculatedCalories,
+          '$_calcCalories kcal',
+          p.primary,
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    final p = context.pal;
     final store = context.watch<FoodStore>();
+    final appearance = context.watch<AppearanceController>();
+    final pending = _pending;
+
+    var i = 0;
+    Widget enter(Widget child) => FadeSlideIn(index: i++, child: child);
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navGoals)),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
-          // ── Premium banner ────────────────────────────────────────────────
-          ListenableBuilder(
-            listenable: SubscriptionService.instance,
-            builder: (context, _) {
-              final isPremium = SubscriptionService.instance.isPremium;
-              return GestureDetector(
-                onTap: isPremium
-                    ? null
-                    : () => PremiumScreen.show(context, source: 'goals_banner'),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 24),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isPremium
-                          ? [const Color(0xFF1A2E1A), const Color(0xFF1B3A1B)]
-                          : [const Color(0xFF1A1A2E), const Color(0xFF2D1B69)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isPremium
-                          ? Colors.greenAccent.withValues(alpha: 0.4)
-                          : AppColors.primary.withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: Row(
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 16, 4, 12),
+              child: Text(l10n.navGoals, style: PtText.title(color: p.text)),
+            ),
+          ),
+
+          // ── Premium banner ──────────────────────────────────────────────
+          enter(
+            ListenableBuilder(
+              listenable: SubscriptionService.instance,
+              builder: (context, _) => _PremiumBanner(
+                isPremium: SubscriptionService.instance.isPremium,
+              ),
+            ),
+          ),
+
+          // ── Daily targets ───────────────────────────────────────────────
+          PtSectionHeader(
+            l10n.goalsDailyTargets,
+            subtitle: l10n.goalsChooseHow,
+          ),
+          enter(
+            PtCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Live preview of what Save would store.
+                  Row(
                     children: [
-                      Icon(
-                        isPremium
-                            ? Icons.verified_rounded
-                            : Icons.workspace_premium_rounded,
-                        color: isPremium
-                            ? Colors.greenAccent
-                            : AppColors.primary,
-                        size: 28,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
+                      MacroSplitRing(
+                        protein: pending.proteinGrams.toDouble(),
+                        carbs: pending.carbsGrams.toDouble(),
+                        fat: pending.fatGrams.toDouble(),
+                        size: 72,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              isPremium
-                                  ? l10n.premiumBannerMemberTitle
-                                  : l10n.premiumBannerUpgradeTitle,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: isPremium
-                                      ? Colors.greenAccent
-                                      : Colors.white),
+                            FittedBox(
+                              child: Text(
+                                '${pending.dailyCalories}',
+                                style: PtText.number(16, color: p.text),
+                              ),
                             ),
-                            const SizedBox(height: 2),
                             Text(
-                              isPremium
-                                  ? l10n.premiumBannerMemberSub
-                                  : l10n.premiumBannerUpgradeSub,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: isPremium
-                                      ? Colors.greenAccent.withValues(alpha: 0.8)
-                                      : Colors.white60),
+                              'kcal',
+                              style: PtText.tiny(color: p.textMuted),
                             ),
                           ],
                         ),
                       ),
-                      if (!isPremium)
-                        const Icon(Icons.chevron_right_rounded,
-                            color: Colors.white54),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            PtTag(
+                              label: 'P ${pending.proteinGrams}g',
+                              color: p.proteinInk,
+                            ),
+                            PtTag(
+                              label: 'C ${pending.carbsGrams}g',
+                              color: p.carbsInk,
+                            ),
+                            PtTag(
+                              label: 'F ${pending.fatGrams}g',
+                              color: p.fatInk,
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              );
-            },
-          ),
-          Text(l10n.goalsDailyTargets,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(l10n.goalsChooseHow,
-              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
-
-          // TDEE calculator shortcut
-          OutlinedButton.icon(
-            icon: const Icon(Icons.calculate_outlined, size: 18),
-            label: Text(l10n.goalsCalcTdee),
-            onPressed: () => TdeeCalculatorSheet.show(context),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // ── Mode toggle ────────────────────────────────────────────────────
-          SegmentedButton<_GoalMode>(
-            style: SegmentedButton.styleFrom(
-              selectedBackgroundColor: AppColors.primary.withOpacity(0.2),
-              selectedForegroundColor: AppColors.primary,
-              foregroundColor: AppColors.textSecondary,
-              side: const BorderSide(color: AppColors.border),
-            ),
-            segments: [
-              ButtonSegment(
-                value: _GoalMode.manual,
-                icon: const Icon(Icons.edit_outlined, size: 16),
-                label: Text(l10n.goalModeManual),
-              ),
-              ButtonSegment(
-                value: _GoalMode.percentages,
-                icon: const Icon(Icons.percent, size: 16),
-                label: Text(l10n.goalModePercent),
-              ),
-              ButtonSegment(
-                value: _GoalMode.macrosToCalories,
-                icon: const Icon(Icons.calculate_outlined, size: 16),
-                label: Text(l10n.goalModeMacros),
-              ),
-            ],
-            selected: {_mode},
-            onSelectionChanged: (s) => setState(() => _mode = s.first),
-          ),
-          const SizedBox(height: 6),
-
-          // ── Mode description ───────────────────────────────────────────────
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Padding(
-              key: ValueKey(_mode),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                switch (_mode) {
-                  _GoalMode.manual => l10n.goalModeManualDesc,
-                  _GoalMode.percentages => l10n.goalModePercentDesc,
-                  _GoalMode.macrosToCalories => l10n.goalModeMacrosDesc,
-                },
-                style:
-                    tt.bodySmall?.copyWith(color: AppColors.textMuted),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Mode content ───────────────────────────────────────────────────
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            transitionBuilder: (child, anim) =>
-                FadeTransition(opacity: anim, child: child),
-            child: KeyedSubtree(
-              key: ValueKey(_mode),
-              child: switch (_mode) {
-                _GoalMode.manual => _manualMode(),
-                _GoalMode.percentages => _percentagesMode(),
-                _GoalMode.macrosToCalories => _macrosToCaloriesMode(),
-              },
-            ),
-          ),
-
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : Text(l10n.goalsSaveBtn),
-            ),
-          ),
-
-          // ── Water tracking ─────────────────────────────────────────────────
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.waterTrackingTitle,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(l10n.waterTrackingSubtitle,
-              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
-          Card(
-            child: Column(
-              children: [
-                SwitchListTile(
-                  value: _waterEnabled,
-                  onChanged: (v) {
-                    setState(() => _waterEnabled = v);
-                    _saveWaterSettings();
-                  },
-                  title: Text(l10n.waterShowTracker,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text(l10n.waterShowTrackerSub),
-                  activeColor: AppColors.primary,
-                ),
-                if (_waterEnabled) ...[
-                  const Divider(height: 1, color: AppColors.border),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                    child: TextField(
-                      controller: _waterGoalCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: l10n.waterDailyGoal,
-                        suffixText: l10n.waterGlassesUnit,
-                        prefixIcon: const Icon(Icons.water_drop_rounded,
-                            color: Colors.lightBlue),
+                  const SizedBox(height: 14),
+                  // TDEE calculator shortcut
+                  PtButton(
+                    label: l10n.goalsCalcTdee,
+                    icon: Icons.calculate_outlined,
+                    tone: PtButtonTone.soft,
+                    expand: true,
+                    onPressed: () => TdeeCalculatorSheet.show(context),
+                  ),
+                  const SizedBox(height: 14),
+                  // ── Mode toggle ────────────────────────────────────────
+                  PtSegmented<_GoalMode>(
+                    segments: [
+                      PtSegment(_GoalMode.manual, l10n.goalModeManual),
+                      PtSegment(_GoalMode.percentages, l10n.goalModePercent),
+                      PtSegment(
+                        _GoalMode.macrosToCalories,
+                        l10n.goalModeMacros,
                       ),
-                      onChanged: (_) => _saveWaterSettings(),
+                    ],
+                    selected: _mode,
+                    onChanged: (m) => setState(() => _mode = m),
+                  ),
+                  // ── Mode description ───────────────────────────────────
+                  AnimatedSwitcher(
+                    duration: Pt.base,
+                    child: Padding(
+                      key: ValueKey(_mode),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(switch (_mode) {
+                        _GoalMode.manual => l10n.goalModeManualDesc,
+                        _GoalMode.percentages => l10n.goalModePercentDesc,
+                        _GoalMode.macrosToCalories => l10n.goalModeMacrosDesc,
+                      }, style: PtText.small(color: p.textMuted)),
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-
-          // ── Body weight ────────────────────────────────────────────────────
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.bodyWeight,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(l10n.goalsWeightSubtitle,
-              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.straighten_rounded,
-                  color: AppColors.primary),
-              title: Text(l10n.weightUnitTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text(l10n.weightUnitSub),
-              trailing: SegmentedButton<WeightUnit>(
-                segments: [
-                  for (final u in WeightUnit.values)
-                    ButtonSegment(value: u, label: Text(u.symbol)),
-                ],
-                selected: {store.weightUnit},
-                onSelectionChanged: (s) => store.setWeightUnit(s.first),
-                showSelectedIcon: false,
-                style: const ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                  textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 12)),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const WeightCard(),
-
-          // ── Health sync (Premium) ──────────────────────────────────────────
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.healthSync,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(l10n.healthSyncSettingSubtitle,
-              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
-          const HealthSyncSetting(),
-
-          // ── Reminders ──────────────────────────────────────────────────────
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.reminderTitle,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(l10n.reminderSubtitle,
-              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
-          _ReminderSection(
-            enabled: _reminderEnabled,
-            time: _reminderTime,
-            onToggle: (v) => _setReminder(enabled: v),
-            onTimeTap: _pickReminderTime,
-          ),
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.feedbackTitle,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(
-            l10n.feedbackBody,
-            style: tt.bodySmall?.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.feedback_rounded,
-                  color: AppColors.primary),
-              title: Text(l10n.feedbackShare,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: const Text('zibaentertainment.com/feedback'),
-              trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-              onTap: () => launchUrl(
-                Uri.parse('https://zibaentertainment.com/feedback/'),
-                mode: LaunchMode.externalApplication,
-              ),
-            ),
-          ),
-          // Required by Google wherever the consent form was shown: a way to
-          // change or withdraw ad consent later.
-          ValueListenableBuilder<bool>(
-            valueListenable: ConsentGate.instance.privacyOptionsRequired,
-            builder: (context, required, _) => !required
-                ? const SizedBox.shrink()
-                : Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.privacy_tip_outlined,
-                            color: AppColors.primary),
-                        title: Text(l10n.privacyOptions,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Text(l10n.privacyOptionsSubtitle),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => ConsentGate.instance.showPrivacyOptions(),
+                  // ── Mode content ───────────────────────────────────────
+                  AnimatedSize(
+                    duration: Pt.base,
+                    curve: Pt.ease,
+                    alignment: Alignment.topCenter,
+                    child: AnimatedSwitcher(
+                      duration: Pt.base,
+                      transitionBuilder: (child, anim) =>
+                          FadeTransition(opacity: anim, child: child),
+                      child: KeyedSubtree(
+                        key: ValueKey(_mode),
+                        child: switch (_mode) {
+                          _GoalMode.manual => _manualMode(),
+                          _GoalMode.percentages => _percentagesMode(),
+                          _GoalMode.macrosToCalories => _macrosToCaloriesMode(),
+                        },
                       ),
                     ),
                   ),
+                  const SizedBox(height: 14),
+                  PtButton(
+                    label: l10n.goalsSaveBtn,
+                    icon: Icons.check_rounded,
+                    expand: true,
+                    haptic: true,
+                    loading: _saving,
+                    onPressed: _saving ? null : _save,
+                  ),
+                ],
+              ),
+            ),
           ),
-          // ── Data export ────────────────────────────────────────────────────
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.dataExportTitle,
-              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(l10n.dataExportSubtitle,
-              style: tt.bodySmall?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.table_chart_outlined,
-                      color: AppColors.primary),
-                  title: Text(l10n.exportCsv,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text(l10n.exportCsvSub),
-                  trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-                  onTap: () async {
-                    final store = context.read<FoodStore>();
-                    await ExportService.exportCsv(
-                      entries: store.allEntries,
-                      weightLog: store.weightLog.toList(),
-                      activities: store.activities.toList(),
-                    );
-                  },
+
+          // ── Water tracking ──────────────────────────────────────────────
+          PtSectionHeader(
+            l10n.waterTrackingTitle,
+            subtitle: l10n.waterTrackingSubtitle,
+          ),
+          enter(
+            PtCard(
+              padding: EdgeInsets.zero,
+              child: AnimatedSize(
+                duration: Pt.base,
+                curve: Pt.ease,
+                alignment: Alignment.topCenter,
+                child: Column(
+                  children: [
+                    PtSwitchTile(
+                      value: _waterEnabled,
+                      leading: IconBadge(
+                        Icons.water_drop_rounded,
+                        color: p.water,
+                        size: 40,
+                      ),
+                      onChanged: (v) {
+                        setState(() => _waterEnabled = v);
+                        _saveWaterSettings();
+                      },
+                      title: l10n.waterShowTracker,
+                      subtitle: l10n.waterShowTrackerSub,
+                    ),
+                    if (_waterEnabled) ...[
+                      const PtDivider(indent: 0),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                        child: TextField(
+                          controller: _waterGoalCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: l10n.waterDailyGoal,
+                            suffixText: l10n.waterGlassesUnit,
+                            prefixIcon: Icon(
+                              Icons.local_drink_rounded,
+                              color: p.water,
+                            ),
+                          ),
+                          onChanged: (_) => _saveWaterSettings(),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                const Divider(height: 1, color: AppColors.border),
-                ListTile(
-                  leading: const Icon(Icons.data_object_rounded,
-                      color: AppColors.primary),
-                  title: Text(l10n.exportJson,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text(l10n.exportJsonSub),
-                  trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-                  onTap: () async {
-                    final store = context.read<FoodStore>();
-                    await ExportService.exportJson(
-                      entries: store.allEntries,
-                      weightLog: store.weightLog.toList(),
-                      activities: store.activities.toList(),
-                    );
-                  },
+              ),
+            ),
+          ),
+
+          // ── Body weight ─────────────────────────────────────────────────
+          PtSectionHeader(l10n.bodyWeight, subtitle: l10n.goalsWeightSubtitle),
+          enter(
+            PtCard(
+              padding: EdgeInsets.zero,
+              child: PtTile(
+                leading: IconBadge(
+                  Icons.straighten_rounded,
+                  color: p.primary,
+                  size: 40,
+                ),
+                title: l10n.weightUnitTitle,
+                titleStyle: PtText.tile(
+                  color: p.text,
+                ).copyWith(fontWeight: FontWeight.w600),
+                subtitle: l10n.weightUnitSub,
+                trailing: SizedBox(
+                  width: 112,
+                  child: PtSegmented<WeightUnit>(
+                    compact: true,
+                    segments: [
+                      for (final u in WeightUnit.values) PtSegment(u, u.symbol),
+                    ],
+                    selected: store.weightUnit,
+                    onChanged: store.setWeightUnit,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          enter(const WeightCard()),
+
+          // ── Health sync (Premium) ───────────────────────────────────────
+          PtSectionHeader(
+            l10n.healthSync,
+            subtitle: l10n.healthSyncSettingSubtitle,
+          ),
+          enter(const HealthSyncSetting()),
+
+          // ── Reminders ───────────────────────────────────────────────────
+          PtSectionHeader(l10n.reminderTitle, subtitle: l10n.reminderSubtitle),
+          enter(
+            _ReminderSection(
+              enabled: _reminderEnabled,
+              time: _reminderTime,
+              onToggle: (v) => _setReminder(enabled: v),
+              onTimeTap: _pickReminderTime,
+            ),
+          ),
+
+          // ── Appearance ──────────────────────────────────────────────────
+          PtSectionHeader(
+            l10n.appearanceTitle,
+            subtitle: l10n.appearanceSubtitle,
+          ),
+          enter(
+            PtSegmented<ThemeMode>(
+              segments: [
+                PtSegment(
+                  ThemeMode.system,
+                  l10n.themeSystem,
+                  icon: Icons.brightness_auto_rounded,
+                ),
+                PtSegment(
+                  ThemeMode.light,
+                  l10n.themeLight,
+                  icon: Icons.light_mode_rounded,
+                ),
+                PtSegment(
+                  ThemeMode.dark,
+                  l10n.themeDark,
+                  icon: Icons.dark_mode_rounded,
                 ),
               ],
+              selected: appearance.value,
+              onChanged: appearance.set,
+            ),
+          ),
+
+          // ── Feedback ────────────────────────────────────────────────────
+          PtSectionHeader(l10n.feedbackTitle, subtitle: l10n.feedbackBody),
+          enter(
+            PtCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  PtTile(
+                    leading: IconBadge(
+                      Icons.feedback_rounded,
+                      color: p.primary,
+                      size: 40,
+                    ),
+                    title: l10n.feedbackShare,
+                    titleStyle: PtText.tile(
+                      color: p.text,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                    subtitle: 'zibaentertainment.com/feedback',
+                    trailing: Icon(
+                      Icons.open_in_new_rounded,
+                      size: 18,
+                      color: p.textMuted,
+                    ),
+                    onTap: () => launchUrl(
+                      Uri.parse('https://zibaentertainment.com/feedback/'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                  ),
+                  // Required by Google wherever the consent form was shown: a
+                  // way to change or withdraw ad consent later.
+                  ValueListenableBuilder<bool>(
+                    valueListenable:
+                        ConsentGate.instance.privacyOptionsRequired,
+                    builder: (context, required, _) => !required
+                        ? const SizedBox.shrink()
+                        : Column(
+                            children: [
+                              const PtDivider(indent: 70),
+                              PtTile(
+                                leading: IconBadge(
+                                  Icons.privacy_tip_outlined,
+                                  color: p.protein,
+                                  size: 40,
+                                ),
+                                title: l10n.privacyOptions,
+                                titleStyle: PtText.tile(
+                                  color: p.text,
+                                ).copyWith(fontWeight: FontWeight.w600),
+                                subtitle: l10n.privacyOptionsSubtitle,
+                                trailing: Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: p.textMuted,
+                                ),
+                                onTap: () =>
+                                    ConsentGate.instance.showPrivacyOptions(),
+                              ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Data export ─────────────────────────────────────────────────
+          PtSectionHeader(
+            l10n.dataExportTitle,
+            subtitle: l10n.dataExportSubtitle,
+          ),
+          enter(
+            PtCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  PtTile(
+                    leading: IconBadge(
+                      Icons.table_chart_outlined,
+                      color: p.fresh,
+                      size: 40,
+                    ),
+                    title: l10n.exportCsv,
+                    titleStyle: PtText.tile(
+                      color: p.text,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                    subtitle: l10n.exportCsvSub,
+                    trailing: Icon(
+                      Icons.chevron_right_rounded,
+                      color: p.textMuted,
+                    ),
+                    onTap: () async {
+                      final store = context.read<FoodStore>();
+                      await ExportService.exportCsv(
+                        entries: store.allEntries,
+                        weightLog: store.weightLog.toList(),
+                        activities: store.activities.toList(),
+                      );
+                    },
+                  ),
+                  const PtDivider(indent: 70),
+                  PtTile(
+                    leading: IconBadge(
+                      Icons.data_object_rounded,
+                      color: p.carbs,
+                      size: 40,
+                    ),
+                    title: l10n.exportJson,
+                    titleStyle: PtText.tile(
+                      color: p.text,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                    subtitle: l10n.exportJsonSub,
+                    trailing: Icon(
+                      Icons.chevron_right_rounded,
+                      color: p.textMuted,
+                    ),
+                    onTap: () async {
+                      final store = context.read<FoodStore>();
+                      await ExportService.exportJson(
+                        entries: store.allEntries,
+                        weightLog: store.weightLog.toList(),
+                        activities: store.activities.toList(),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           // Debug tools — null in release, so this collapses to nothing in a
           // shipped build.
           ...?_debugSection(context),
 
-          // ── More from ZiBa ─────────────────────────────────────────────────
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
+          // ── More from ZiBa ──────────────────────────────────────────────
+          const SizedBox(height: 28),
           MoreFromZiba(
             selfId: 'platesimple',
             group: ZibaGroup.wellness,
             title: 'More from ZiBa',
-            textColor: Theme.of(context).colorScheme.onSurface,
-            mutedColor:
-                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            cardColor: AppColors.surfaceAlt,
-            borderColor: AppColors.border,
+            textColor: p.text,
+            mutedColor: p.textMuted,
+            cardColor: p.surface,
+            borderColor: p.isDark ? p.border : p.surface,
           ),
-          const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 16),
-          Text(l10n.aboutTitle,
-              style: tt.labelLarge
-                  ?.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 8),
-          Text(
-            'Version 1.0.0\n'
-            'Food data provided by Open Food Facts (openfoodfacts.org) — '
-            'open database, open data, made by everyone.',
-            style: tt.bodySmall
-                ?.copyWith(color: AppColors.textMuted, height: 1.6),
+
+          // ── About ───────────────────────────────────────────────────────
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              const Sprout(mood: SproutMood.happy, size: 44),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.aboutTitle.toUpperCase(),
+                      style: PtText.label(color: p.textMuted),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Version 1.0.0\n'
+                      'Food data provided by Open Food Facts (openfoodfacts.org) — '
+                      'open database, open data, made by everyone.',
+                      style: PtText.tiny(
+                        color: p.textMuted,
+                      ).copyWith(height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -731,22 +808,24 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   Future<void> _saveWaterSettings() async {
     final goal = int.tryParse(_waterGoalCtrl.text) ?? 8;
-    await context
-        .read<FoodStore>()
-        .setWaterSettings(enabled: _waterEnabled, goal: goal.clamp(1, 30));
+    await context.read<FoodStore>().setWaterSettings(
+      enabled: _waterEnabled,
+      goal: goal.clamp(1, 30),
+    );
   }
 
   Future<void> _setReminder({required bool enabled}) async {
-    await NotificationService.instance
-        .requestPermissions(context);
+    await NotificationService.instance.requestPermissions(context);
     if (!mounted) return;
 
     setState(() => _reminderEnabled = enabled);
     final store = context.read<FoodStore>();
     await store.setReminder(
-        enabled: enabled,
-        hour: _reminderTime.hour,
-        minute: _reminderTime.minute);
+      enabled: enabled,
+      hour: _reminderTime.hour,
+      minute: _reminderTime.minute,
+    );
+    if (!mounted) return;
 
     if (enabled) {
       final l10n = context.l10n;
@@ -772,9 +851,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
     setState(() => _reminderTime = picked);
     final store = context.read<FoodStore>();
     await store.setReminder(
-        enabled: _reminderEnabled,
-        hour: picked.hour,
-        minute: picked.minute);
+      enabled: _reminderEnabled,
+      hour: picked.hour,
+      minute: picked.minute,
+    );
     if (_reminderEnabled && mounted) {
       final l10n = context.l10n;
       await NotificationService.instance.scheduleDaily(
@@ -786,6 +866,73 @@ class _GoalsScreenState extends State<GoalsScreen> {
         channelDescription: l10n.notifChannelDesc,
       );
     }
+  }
+}
+
+/// Upgrade card for free users (opens the paywall), a quiet "member" card
+/// for subscribers.
+class _PremiumBanner extends StatelessWidget {
+  const _PremiumBanner({required this.isPremium});
+  final bool isPremium;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.pal;
+    const ink = Color(0xFF3A2606);
+    return PtCard(
+      onTap: isPremium
+          ? null
+          : () => PremiumScreen.show(context, source: 'goals_banner'),
+      gradient: isPremium ? null : Pt.premiumGradient(p),
+      color: isPremium ? p.freshSoft : null,
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: isPremium
+                  ? p.fresh.withValues(alpha: 0.2)
+                  : Colors.white.withValues(alpha: 0.35),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isPremium
+                  ? Icons.verified_rounded
+                  : Icons.workspace_premium_rounded,
+              color: isPremium ? p.primary : ink,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isPremium
+                      ? l10n.premiumBannerMemberTitle
+                      : l10n.premiumBannerUpgradeTitle,
+                  style: PtText.headline(color: isPremium ? p.text : ink),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isPremium
+                      ? l10n.premiumBannerMemberSub
+                      : l10n.premiumBannerUpgradeSub,
+                  style: PtText.small(
+                    color: isPremium ? p.textMuted : ink.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!isPremium) const Icon(Icons.chevron_right_rounded, color: ink),
+        ],
+      ),
+    );
   }
 }
 
@@ -805,34 +952,54 @@ class _ReminderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
-      child: Column(
-        children: [
-          SwitchListTile(
-            value: enabled,
-            onChanged: onToggle,
-            title: Text(l10n.reminderEnable,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: Text(l10n.reminderEnableSub),
-            activeColor: AppColors.primary,
-          ),
-          if (enabled) ...[
-            const Divider(height: 1, color: AppColors.border),
-            ListTile(
-              leading: const Icon(Icons.access_time_rounded,
-                  color: AppColors.primary),
-              title: Text(l10n.reminderTimeLabel),
-              trailing: Text(
-                time.format(context),
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                    fontSize: 16),
+    final p = context.pal;
+    return PtCard(
+      padding: EdgeInsets.zero,
+      child: AnimatedSize(
+        duration: Pt.base,
+        curve: Pt.ease,
+        alignment: Alignment.topCenter,
+        child: Column(
+          children: [
+            PtSwitchTile(
+              value: enabled,
+              onChanged: onToggle,
+              leading: IconBadge(
+                Icons.notifications_active_rounded,
+                color: p.honey,
+                size: 40,
               ),
-              onTap: onTimeTap,
+              title: l10n.reminderEnable,
+              subtitle: l10n.reminderEnableSub,
             ),
+            if (enabled) ...[
+              const PtDivider(indent: 0),
+              PtTile(
+                leading: IconBadge(
+                  Icons.access_time_rounded,
+                  color: p.primary,
+                  size: 40,
+                ),
+                title: l10n.reminderTimeLabel,
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: p.primarySoft,
+                    borderRadius: BorderRadius.circular(Pt.rPill),
+                  ),
+                  child: Text(
+                    time.format(context),
+                    style: PtText.number(16, color: p.primary),
+                  ),
+                ),
+                onTap: onTimeTap,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

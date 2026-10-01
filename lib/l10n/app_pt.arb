@@ -357,5 +357,6 @@
   "scanHint": "Alinhe o código de barras dentro da moldura",
   "torchTooltip": "Lanterna",
   "waterAddGlass": "Adicionar um copo",
-  "waterRemoveGlass": "Remover um copo"
+  "waterRemoveGlass": "Remover um copo",
+  "premiumTag": "Premium"
 }

@@ -1198,4 +1198,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get waterRemoveGlass => 'Glas verwijderen';
+
+  @override
+  String get premiumTag => 'Premium';
 }

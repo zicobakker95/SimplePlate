@@ -357,5 +357,6 @@
   "scanHint": "Inquadra il codice a barre nella cornice",
   "torchTooltip": "Torcia",
   "waterAddGlass": "Aggiungi un bicchiere",
-  "waterRemoveGlass": "Togli un bicchiere"
+  "waterRemoveGlass": "Togli un bicchiere",
+  "premiumTag": "Premium"
 }

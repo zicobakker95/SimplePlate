@@ -1153,4 +1153,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get waterRemoveGlass => '1杯減らす';
+
+  @override
+  String get premiumTag => 'プレミアム';
 }

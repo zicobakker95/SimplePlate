@@ -588,5 +588,9 @@
   "scanHint": "Line up the barcode inside the frame",
   "torchTooltip": "Flashlight",
   "waterAddGlass": "Add a glass",
-  "waterRemoveGlass": "Remove a glass"
+  "waterRemoveGlass": "Remove a glass",
+  "premiumTag": "Premium",
+  "@premiumTag": {
+    "description": "Short badge on cards whose feature is part of Premium."
+  }
 }

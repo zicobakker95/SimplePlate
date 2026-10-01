@@ -1197,4 +1197,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get waterRemoveGlass => 'Remover um copo';
+
+  @override
+  String get premiumTag => 'Premium';
 }

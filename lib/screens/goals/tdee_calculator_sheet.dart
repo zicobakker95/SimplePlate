@@ -5,7 +5,7 @@ import '../../l10n/l10n.dart';
 import '../../models/nutrition_goals.dart';
 import '../../models/user_profile.dart';
 import '../../services/food_store.dart';
-import '../../theme/app_colors.dart';
+import '../../ui/kit.dart';
 
 /// Modal bottom sheet that collects biometric info, calculates TDEE via
 /// Mifflin-St Jeor, and applies it to the user's nutrition goals.
@@ -16,9 +16,7 @@ class TdeeCalculatorSheet extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      useSafeArea: true,
       builder: (_) => const TdeeCalculatorSheet(),
     );
   }
@@ -66,15 +64,25 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
     final height = double.tryParse(_heightCtrl.text);
     final weight = double.tryParse(_weightCtrl.text);
 
-    if (age == null || height == null || weight == null ||
-        age < 10 || age > 120 || height < 50 || height > 280 ||
-        weight < 20 || weight > 500) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.tdeeInvalid)),
+    if (age == null ||
+        height == null ||
+        weight == null ||
+        age < 10 ||
+        age > 120 ||
+        height < 50 ||
+        height > 280 ||
+        weight < 20 ||
+        weight > 500) {
+      showPtToast(
+        context,
+        context.l10n.tdeeInvalid,
+        icon: Icons.error_outline_rounded,
+        tone: PtToastTone.warning,
       );
       return;
     }
 
+    FocusScope.of(context).unfocus();
     setState(() {
       _result = UserProfile(
         age: age,
@@ -94,51 +102,46 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
 
     final store = context.read<FoodStore>();
     await store.saveUserProfile(profile);
-    await store.saveGoals(NutritionGoals(
-      dailyCalories: profile.suggestedCalories,
-      proteinGrams: profile.suggestedProtein,
-      carbsGrams: profile.suggestedCarbs,
-      fatGrams: profile.suggestedFat,
-    ));
-
-    if (!mounted) return;
-    // Capture messenger before pop so the context is still valid.
-    final messenger = ScaffoldMessenger.of(context);
-    final msg = context.l10n.tdeeAppliedSnack;
-    Navigator.pop(context);
-    messenger.showSnackBar(SnackBar(content: Text(msg)));
-  }
-
-  Widget _dropdownField<T>({
-    required String label,
-    required T value,
-    required List<T> values,
-    required String Function(T) labelOf,
-    required void Function(T?) onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: DropdownButtonFormField<T>(
-        value: value,
-        decoration: InputDecoration(labelText: label),
-        dropdownColor: AppColors.surfaceAlt,
-        items: values
-            .map((v) => DropdownMenuItem(value: v, child: Text(labelOf(v))))
-            .toList(),
-        onChanged: onChanged,
+    await store.saveGoals(
+      NutritionGoals(
+        dailyCalories: profile.suggestedCalories,
+        proteinGrams: profile.suggestedProtein,
+        carbsGrams: profile.suggestedCarbs,
+        fatGrams: profile.suggestedFat,
       ),
     );
+
+    if (!mounted) return;
+    // Capture the outer context before pop so the toast lands on the screen
+    // underneath.
+    final outer = Navigator.of(context).context;
+    final msg = context.l10n.tdeeAppliedSnack;
+    Navigator.pop(context);
+    if (outer.mounted) {
+      showPtToast(
+        outer,
+        msg,
+        icon: Icons.check_circle_rounded,
+        tone: PtToastTone.success,
+      );
+    }
   }
 
-  Widget _numField(String label, TextEditingController ctrl, String suffix) {
+  Widget _numField(
+    String label,
+    TextEditingController ctrl,
+    String suffix,
+    IconData icon,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextField(
         controller: ctrl,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
           suffixText: suffix,
+          prefixIcon: Icon(icon),
         ),
       ),
     );
@@ -146,193 +149,280 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
-    final bottomPad = MediaQuery.of(context).viewInsets.bottom;
+    final p = context.pal;
+    final bottomPad = MediaQuery.viewInsetsOf(context).bottom;
+    final r = _result;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.85,
+      initialChildSize: 0.88,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
       builder: (_, ctrl) => ListView(
         controller: ctrl,
-        padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + bottomPad),
+        padding: EdgeInsets.fromLTRB(Pt.gutter, 0, Pt.gutter, 24 + bottomPad),
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(l10n.tdeeTitle,
-              style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          const PtGrabHandle(),
+          Text(l10n.tdeeTitle, style: PtText.title(color: p.text)),
           const SizedBox(height: 4),
-          Text(
-            l10n.tdeeSubtitle,
-            style: tt.bodySmall?.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 20),
+          Text(l10n.tdeeSubtitle, style: PtText.small(color: p.textMuted)),
+          const SizedBox(height: 18),
 
-          // Sex toggle
-          SegmentedButton<BiologicalSex>(
-            style: SegmentedButton.styleFrom(
-              selectedBackgroundColor: AppColors.primary.withOpacity(0.2),
-              selectedForegroundColor: AppColors.primary,
-              foregroundColor: AppColors.textSecondary,
-              side: const BorderSide(color: AppColors.border),
-            ),
+          PtSegmented<BiologicalSex>(
             segments: [
-              ButtonSegment(
-                  value: BiologicalSex.male,
-                  icon: const Icon(Icons.male_rounded, size: 18),
-                  label: Text(l10n.sexMale)),
-              ButtonSegment(
-                  value: BiologicalSex.female,
-                  icon: const Icon(Icons.female_rounded, size: 18),
-                  label: Text(l10n.sexFemale)),
+              PtSegment(
+                BiologicalSex.male,
+                l10n.sexMale,
+                icon: Icons.male_rounded,
+              ),
+              PtSegment(
+                BiologicalSex.female,
+                l10n.sexFemale,
+                icon: Icons.female_rounded,
+              ),
             ],
-            selected: {_sex},
-            onSelectionChanged: (s) => setState(() {
-              _sex = s.first;
+            selected: _sex,
+            onChanged: (s) => setState(() {
+              _sex = s;
               _showResults = false;
             }),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
 
-          _numField(l10n.fieldAge, _ageCtrl, l10n.unitYears),
-          _numField(l10n.fieldHeight, _heightCtrl, 'cm'),
-          _numField(l10n.fieldWeight, _weightCtrl, 'kg'),
-
-          _dropdownField<ActivityLevel>(
-            label: l10n.activityLevelLabel,
-            value: _activityLevel,
-            values: ActivityLevel.values,
-            labelOf: (v) => v.localizedLabel(l10n),
-            onChanged: (v) => setState(() {
-              if (v != null) _activityLevel = v;
-              _showResults = false;
-            }),
+          _numField(
+            l10n.fieldAge,
+            _ageCtrl,
+            l10n.unitYears,
+            Icons.cake_outlined,
+          ),
+          _numField(l10n.fieldHeight, _heightCtrl, 'cm', Icons.height_rounded),
+          _numField(
+            l10n.fieldWeight,
+            _weightCtrl,
+            'kg',
+            Icons.monitor_weight_outlined,
           ),
 
-          _dropdownField<WeightGoal>(
-            label: l10n.goalLabel,
-            value: _weightGoal,
-            values: WeightGoal.values,
-            labelOf: (v) => v.localizedLabel(l10n),
-            onChanged: (v) => setState(() {
-              if (v != null) _weightGoal = v;
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: DropdownButtonFormField<ActivityLevel>(
+              initialValue: _activityLevel,
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(Pt.rSm),
+              dropdownColor: p.surface,
+              decoration: InputDecoration(
+                labelText: l10n.activityLevelLabel,
+                prefixIcon: const Icon(Icons.directions_run_rounded),
+              ),
+              items: [
+                for (final v in ActivityLevel.values)
+                  DropdownMenuItem(
+                    value: v,
+                    child: Text(
+                      v.localizedLabel(l10n),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (v) => setState(() {
+                if (v != null) _activityLevel = v;
+                _showResults = false;
+              }),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+          Text(
+            l10n.goalLabel.toUpperCase(),
+            style: PtText.label(color: p.textMuted),
+          ),
+          const SizedBox(height: 8),
+          PtSegmented<WeightGoal>(
+            segments: [
+              for (final g in WeightGoal.values)
+                PtSegment(g, g.localizedLabel(l10n)),
+            ],
+            selected: _weightGoal,
+            onChanged: (g) => setState(() {
+              _weightGoal = g;
               _showResults = false;
             }),
           ),
 
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _calculate,
-              child: Text(l10n.calculate),
-            ),
+          PtButton(
+            label: l10n.calculate,
+            icon: Icons.calculate_rounded,
+            tone: _showResults ? PtButtonTone.soft : PtButtonTone.primary,
+            expand: true,
+            onPressed: _calculate,
           ),
 
-          if (_showResults && _result != null) ...[
-            const SizedBox(height: 24),
-            const Divider(color: AppColors.border),
-            const SizedBox(height: 12),
-            Text(l10n.yourResults,
-                style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 12),
-            _ResultRow(l10n.bmrLabel,
-                '${_result!.bmr.round()} kcal', AppColors.textSecondary),
-            _ResultRow(l10n.tdeeMaintenance,
-                '${_result!.tdee.round()} kcal', AppColors.calories),
-            _ResultRow(l10n.bmiLabel, _result!.bmi.toStringAsFixed(1),
-                AppColors.textSecondary,
-                subtitle: localizedBmiCategory(l10n, _result!.bmi)),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: AppColors.primary.withOpacity(0.35)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.suggestedGoals,
-                      style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 10),
-                  _ResultRow(l10n.macroCalories,
-                      '${_result!.suggestedCalories} kcal', AppColors.calories),
-                  _ResultRow(l10n.macroProtein,
-                      '${_result!.suggestedProtein} g', AppColors.protein),
-                  _ResultRow(l10n.macroCarbs,
-                      '${_result!.suggestedCarbs} g', AppColors.carbs),
-                  _ResultRow(l10n.macroFat,
-                      '${_result!.suggestedFat} g', AppColors.fat),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                icon: const Icon(Icons.check_rounded, size: 18),
-                label: Text(l10n.applyGoals),
-                onPressed: _applyGoals,
-                style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary),
-              ),
-            ),
-          ],
+          AnimatedSize(
+            duration: Pt.slow,
+            curve: Pt.ease,
+            alignment: Alignment.topCenter,
+            child: !_showResults || r == null
+                ? const SizedBox(width: double.infinity)
+                : PopIn(
+                    key: ValueKey(r),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            l10n.yourResults.toUpperCase(),
+                            style: PtText.label(color: p.textMuted),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              _Metric(
+                                l10n.bmrLabel,
+                                '${r.bmr.round()}',
+                                'kcal',
+                                p.textMuted,
+                              ),
+                              const SizedBox(width: 8),
+                              _Metric(
+                                l10n.tdeeMaintenance,
+                                '${r.tdee.round()}',
+                                'kcal',
+                                p.primary,
+                              ),
+                              const SizedBox(width: 8),
+                              _Metric(
+                                l10n.bmiLabel,
+                                r.bmi.toStringAsFixed(1),
+                                localizedBmiCategory(l10n, r.bmi),
+                                p.proteinInk,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          PtCard(
+                            color: p.freshSoft,
+                            shadow: false,
+                            child: Row(
+                              children: [
+                                MacroSplitRing(
+                                  protein: r.suggestedProtein.toDouble(),
+                                  carbs: r.suggestedCarbs.toDouble(),
+                                  fat: r.suggestedFat.toDouble(),
+                                  size: 84,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AnimatedCount(
+                                        value: r.suggestedCalories.toDouble(),
+                                        style: PtText.number(17, color: p.text),
+                                      ),
+                                      Text(
+                                        'kcal',
+                                        style: PtText.tiny(color: p.textMuted),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.suggestedGoals,
+                                        style: PtText.headline(
+                                          color: p.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        children: [
+                                          PtTag(
+                                            label:
+                                                '${l10n.macroProtein} ${r.suggestedProtein} g',
+                                            color: p.proteinInk,
+                                          ),
+                                          PtTag(
+                                            label:
+                                                '${l10n.macroCarbs} ${r.suggestedCarbs} g',
+                                            color: p.carbsInk,
+                                          ),
+                                          PtTag(
+                                            label:
+                                                '${l10n.macroFat} ${r.suggestedFat} g',
+                                            color: p.fatInk,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          PtButton(
+                            label: l10n.applyGoals,
+                            icon: Icons.check_rounded,
+                            expand: true,
+                            haptic: true,
+                            onPressed: _applyGoals,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _ResultRow extends StatelessWidget {
-  const _ResultRow(this.label, this.value, this.color, {this.subtitle});
-  final String label, value;
+class _Metric extends StatelessWidget {
+  const _Metric(this.label, this.value, this.unit, this.color);
+  final String label, value, unit;
   final Color color;
-  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 13)),
-                if (subtitle != null)
-                  Text(subtitle!,
-                      style: const TextStyle(
-                          color: AppColors.textMuted, fontSize: 11)),
-              ],
+    final p = context.pal;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: p.sunken,
+          borderRadius: BorderRadius.circular(Pt.rSm),
+        ),
+        child: Column(
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(value, style: PtText.number(19, color: color)),
             ),
-          ),
-          Text(value,
-              style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16)),
-        ],
+            Text(
+              unit,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PtText.tiny(color: p.textMuted),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: PtText.tiny(color: p.text, weight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-

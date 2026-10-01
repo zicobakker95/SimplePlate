@@ -357,5 +357,6 @@
   "scanHint": "Houd de barcode binnen het kader",
   "torchTooltip": "Zaklamp",
   "waterAddGlass": "Glas toevoegen",
-  "waterRemoveGlass": "Glas verwijderen"
+  "waterRemoveGlass": "Glas verwijderen",
+  "premiumTag": "Premium"
 }

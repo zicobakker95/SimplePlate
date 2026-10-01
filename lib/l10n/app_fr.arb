@@ -357,5 +357,6 @@
   "scanHint": "Placez le code-barres dans le cadre",
   "torchTooltip": "Lampe torche",
   "waterAddGlass": "Ajouter un verre",
-  "waterRemoveGlass": "Retirer un verre"
+  "waterRemoveGlass": "Retirer un verre",
+  "premiumTag": "Premium"
 }

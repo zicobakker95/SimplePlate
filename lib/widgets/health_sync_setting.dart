@@ -9,7 +9,7 @@ import '../screens/premium/premium_screen.dart';
 import '../services/food_store.dart';
 import '../services/health_sync_service.dart';
 import '../services/subscription_service.dart';
-import '../theme/app_colors.dart';
+import '../ui/kit.dart';
 
 /// The Health sync switch under Goals, with a plain account of what is read
 /// and written before anyone is asked for a permission. Premium: a free
@@ -54,6 +54,7 @@ class _HealthSyncSettingState extends State<HealthSyncSetting> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final p = context.pal;
     final store = context.watch<FoodStore>();
     final isIOS = Platform.isIOS;
     return ListenableBuilder(
@@ -61,71 +62,83 @@ class _HealthSyncSettingState extends State<HealthSyncSetting> {
       builder: (context, _) {
         final premium = SubscriptionService.instance.isPremium;
         final enabled = premium && store.healthSyncEnabled;
-        return Card(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SwitchListTile(
-                value: enabled,
-                onChanged: _busy ? null : _toggle,
-                secondary: _busy
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Icon(
-                        premium
-                            ? Icons.favorite_rounded
-                            : Icons.workspace_premium_rounded,
-                        color: premium ? Colors.redAccent : AppColors.primary,
-                      ),
-                title: Text(
-                  isIOS
+        return PtCard(
+          padding: EdgeInsets.zero,
+          child: AnimatedSize(
+            duration: Pt.base,
+            curve: Pt.ease,
+            alignment: Alignment.topCenter,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PtSwitchTile(
+                  value: enabled,
+                  onChanged: _busy ? null : _toggle,
+                  leading: _busy
+                      ? const SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : IconBadge(
+                          premium
+                              ? Icons.favorite_rounded
+                              : Icons.workspace_premium_rounded,
+                          color: premium ? p.fat : p.premium,
+                          size: 40,
+                        ),
+                  title: isIOS
                       ? l10n.healthSyncSettingApple
                       : l10n.healthSyncSettingGoogle,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  subtitle: premium ? null : l10n.healthSyncPremiumOnly,
                 ),
-                subtitle: premium ? null : Text(l10n.healthSyncPremiumOnly),
-                activeThumbColor: AppColors.primary,
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                child: Text(
-                  isIOS
-                      ? l10n.healthSyncExplainApple
-                      : l10n.healthSyncExplainGoogle,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12),
-                ),
-              ),
-              if (_denied) ...[
-                const Divider(height: 1, color: AppColors.border),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline_rounded,
-                          color: Colors.orange, size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          isIOS
-                              ? l10n.healthDeniedIos
-                              : l10n.healthDeniedAndroid,
-                          style: const TextStyle(
-                              color: Colors.orange, fontSize: 11),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () => AppSettings.openAppSettings(),
-                        child: Text(l10n.openSettings,
-                            style: const TextStyle(fontSize: 12)),
-                      ),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  child: Text(
+                    isIOS
+                        ? l10n.healthSyncExplainApple
+                        : l10n.healthSyncExplainGoogle,
+                    style: PtText.small(color: p.textMuted),
                   ),
                 ),
+                if (_denied)
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+                    decoration: BoxDecoration(
+                      color: p.honeySoft,
+                      borderRadius: BorderRadius.circular(Pt.rSm),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: p.honeyInk,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isIOS
+                                ? l10n.healthDeniedIos
+                                : l10n.healthDeniedAndroid,
+                            style: PtText.tiny(color: p.honeyInk),
+                          ),
+                        ),
+                        PtButton(
+                          label: l10n.openSettings,
+                          tone: PtButtonTone.ghost,
+                          compact: true,
+                          onPressed: () => AppSettings.openAppSettings(),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
-            ],
+            ),
           ),
         );
       },

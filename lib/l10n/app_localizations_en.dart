@@ -1191,4 +1191,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get waterRemoveGlass => 'Remove a glass';
+
+  @override
+  String get premiumTag => 'Premium';
 }

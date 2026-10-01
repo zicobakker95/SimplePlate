@@ -1198,4 +1198,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get waterRemoveGlass => 'Glas entfernen';
+
+  @override
+  String get premiumTag => 'Premium';
 }

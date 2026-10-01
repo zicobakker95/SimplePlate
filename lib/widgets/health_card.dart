@@ -143,7 +143,7 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
                   ),
                   if (!premium)
                     PtTag(
-                      label: 'Premium',
+                      label: l10n.premiumTag,
                       color: p.premiumInk,
                       icon: Icons.star_rounded,
                     )

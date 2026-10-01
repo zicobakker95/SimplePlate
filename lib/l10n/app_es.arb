@@ -357,5 +357,6 @@
   "scanHint": "Coloca el código de barras dentro del marco",
   "torchTooltip": "Linterna",
   "waterAddGlass": "Añadir un vaso",
-  "waterRemoveGlass": "Quitar un vaso"
+  "waterRemoveGlass": "Quitar un vaso",
+  "premiumTag": "Premium"
 }

@@ -1203,4 +1203,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get waterRemoveGlass => 'Retirer un verre';
+
+  @override
+  String get premiumTag => 'Premium';
 }

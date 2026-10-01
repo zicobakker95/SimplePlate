@@ -2215,6 +2215,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove a glass'**
   String get waterRemoveGlass;
+
+  /// Short badge on cards whose feature is part of Premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premiumTag;
 }
 
 class _AppLocalizationsDelegate

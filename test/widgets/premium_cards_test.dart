@@ -149,7 +149,7 @@ void main() {
       await tester.pumpWidget(host(store, const HealthSyncSetting()));
       await tester.pumpAndSettle();
 
-      final sw = tester.widget<SwitchListTile>(find.byType(SwitchListTile));
+      final sw = tester.widget<Switch>(find.byType(Switch));
       expect(sw.value, isFalse);
       expect(find.text('Health sync is part of Premium.'), findsOneWidget);
       expect(find.textContaining('Nothing is sent anywhere else.'),
@@ -163,7 +163,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-          tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
+          tester.widget<Switch>(find.byType(Switch)).value,
           isTrue);
       await tester.tap(find.byType(Switch));
       await tester.pumpAndSettle();
