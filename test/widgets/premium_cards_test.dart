@@ -10,7 +10,7 @@ import 'package:simple_plate/l10n/app_localizations.dart';
 import 'package:simple_plate/services/food_store.dart';
 import 'package:simple_plate/services/storage_service.dart';
 import 'package:simple_plate/services/subscription_service.dart';
-import 'package:simple_plate/theme/app_theme.dart';
+import 'package:simple_plate/ui/theme/plate_theme.dart';
 import 'package:simple_plate/utils/weight_math.dart';
 import 'package:simple_plate/widgets/health_card.dart';
 import 'package:simple_plate/widgets/health_sync_setting.dart';
@@ -20,7 +20,7 @@ import 'package:simple_plate/widgets/weight_trend_card.dart';
 Widget host(FoodStore store, Widget child) => ChangeNotifierProvider.value(
       value: store,
       child: MaterialApp(
-        theme: AppTheme.dark(),
+        theme: buildPlateTheme(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: ListView(children: [child])),

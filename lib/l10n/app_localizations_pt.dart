@@ -1144,4 +1144,57 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get privacyOptionsSubtitle =>
       'Altere seu consentimento para anúncios personalizados';
+
+  @override
+  String get appearanceTitle => 'Aparência';
+
+  @override
+  String get appearanceSubtitle => 'Siga o telefone ou escolha um visual.';
+
+  @override
+  String get themeSystem => 'Sistema';
+
+  @override
+  String get themeLight => 'Claro';
+
+  @override
+  String get themeDark => 'Escuro';
+
+  @override
+  String get goalReachedToast => 'No alvo hoje. Muito bem!';
+
+  @override
+  String get waterGoalToast => 'Meta de água atingida. Saúde!';
+
+  @override
+  String foodLoggedToast(String food, String meal) {
+    return '$food adicionado a $meal';
+  }
+
+  @override
+  String get greetingMorning => 'Bom dia';
+
+  @override
+  String get greetingAfternoon => 'Boa tarde';
+
+  @override
+  String get greetingEvening => 'Boa noite';
+
+  @override
+  String get searchStartTitle => 'O que tem no seu prato?';
+
+  @override
+  String get mealEmptyHint => 'Nada ainda';
+
+  @override
+  String get scanHint => 'Alinhe o código de barras dentro da moldura';
+
+  @override
+  String get torchTooltip => 'Lanterna';
+
+  @override
+  String get waterAddGlass => 'Adicionar um copo';
+
+  @override
+  String get waterRemoveGlass => 'Remover um copo';
 }

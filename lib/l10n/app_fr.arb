@@ -340,5 +340,22 @@
   "featHealthSyncTitle": "Synchro Santé",
   "featHealthSyncSub": "Les calories et le poids enregistrés partent vers Apple Santé ou Santé Connect ; les pas et le poids reviennent.",
   "privacyOptions": "Options de confidentialité",
-  "privacyOptionsSubtitle": "Modifie ton consentement aux annonces personnalisées"
+  "privacyOptionsSubtitle": "Modifie ton consentement aux annonces personnalisées",
+  "appearanceTitle": "Apparence",
+  "appearanceSubtitle": "Comme votre téléphone, ou choisissez un style.",
+  "themeSystem": "Système",
+  "themeLight": "Clair",
+  "themeDark": "Sombre",
+  "goalReachedToast": "Pile dans l'objectif aujourd'hui. Bravo !",
+  "waterGoalToast": "Objectif d'eau atteint. Santé !",
+  "foodLoggedToast": "{food} ajouté à {meal}",
+  "greetingMorning": "Bonjour",
+  "greetingAfternoon": "Bon après-midi",
+  "greetingEvening": "Bonsoir",
+  "searchStartTitle": "Qu'y a-t-il dans votre assiette ?",
+  "mealEmptyHint": "Rien pour l'instant",
+  "scanHint": "Placez le code-barres dans le cadre",
+  "torchTooltip": "Lampe torche",
+  "waterAddGlass": "Ajouter un verre",
+  "waterRemoveGlass": "Retirer un verre"
 }

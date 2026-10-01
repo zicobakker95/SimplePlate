@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
@@ -19,11 +20,17 @@ import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'services/subscription_service.dart';
 import 'services/widget_service.dart';
-import 'theme/app_theme.dart';
+import 'ui/theme/appearance.dart';
+import 'ui/theme/plate_theme.dart';
 import 'utils/crash_severity.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // The bundled UI font's licence, shown with the others on the licence page.
+  LicenseRegistry.addLicense(() async* {
+    final text = await rootBundle.loadString('assets/fonts/Rubik-OFL.txt');
+    yield LicenseEntryWithLineBreaks(const ['Rubik'], text);
+  });
 
   // Firebase: analytics (UA/marketing) + crash reporting. Wrapped so a
   // Firebase init failure never prevents the app from launching — a missing
@@ -70,23 +77,29 @@ class SimplePlateApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => FoodStore(storage),
-      child: MaterialApp(
-        title: 'PlateSimple',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.dark(),
-        themeMode: ThemeMode.dark,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        // Null when Firebase is unavailable — the app still runs, it just
-        // stops reporting screen views.
-        navigatorObservers: [
-          ?AnalyticsService.instance.observer,
-        ],
-        home: storage.onboardingDone
-            ? const HomeShell()
-            : const OnboardingScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => FoodStore(storage)),
+        ChangeNotifierProvider(create: (_) => AppearanceController(storage)),
+      ],
+      child: Consumer<AppearanceController>(
+        builder: (context, appearance, _) => MaterialApp(
+          title: 'PlateSimple',
+          debugShowCheckedModeBanner: false,
+          theme: buildPlateTheme(Brightness.light),
+          darkTheme: buildPlateTheme(Brightness.dark),
+          themeMode: appearance.value,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          // Null when Firebase is unavailable — the app still runs, it just
+          // stops reporting screen views.
+          navigatorObservers: [
+            ?AnalyticsService.instance.observer,
+          ],
+          home: storage.onboardingDone
+              ? const HomeShell()
+              : const OnboardingScreen(),
+        ),
       ),
     );
   }

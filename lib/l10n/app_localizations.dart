@@ -2113,6 +2113,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change your consent for personalised ads'**
   String get privacyOptionsSubtitle;
+
+  /// No description provided for @appearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceTitle;
+
+  /// No description provided for @appearanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your phone\'s setting or pick a look.'**
+  String get appearanceSubtitle;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// Celebration toast when the day's calories enter the 85-110% target window.
+  ///
+  /// In en, this message translates to:
+  /// **'Right on target today. Nicely done!'**
+  String get goalReachedToast;
+
+  /// No description provided for @waterGoalToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Water goal reached. Cheers!'**
+  String get waterGoalToast;
+
+  /// Toast on Today after a food or recipe is logged.
+  ///
+  /// In en, this message translates to:
+  /// **'{food} added to {meal}'**
+  String foodLoggedToast(String food, String meal);
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
+
+  /// Title of the empty search state before anything is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s on your plate?'**
+  String get searchStartTitle;
+
+  /// No description provided for @mealEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet'**
+  String get mealEmptyHint;
+
+  /// No description provided for @scanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Line up the barcode inside the frame'**
+  String get scanHint;
+
+  /// No description provided for @torchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashlight'**
+  String get torchTooltip;
+
+  /// No description provided for @waterAddGlass.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a glass'**
+  String get waterAddGlass;
+
+  /// No description provided for @waterRemoveGlass.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a glass'**
+  String get waterRemoveGlass;
 }
 
 class _AppLocalizationsDelegate

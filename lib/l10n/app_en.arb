@@ -554,5 +554,39 @@
   "@privacyOptions": {
     "description": "Settings entry that reopens the ad consent form (GDPR)."
   },
-  "privacyOptionsSubtitle": "Change your consent for personalised ads"
+  "privacyOptionsSubtitle": "Change your consent for personalised ads",
+  "appearanceTitle": "Appearance",
+  "appearanceSubtitle": "Follow your phone's setting or pick a look.",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "goalReachedToast": "Right on target today. Nicely done!",
+  "@goalReachedToast": {
+    "description": "Celebration toast when the day's calories enter the 85-110% target window."
+  },
+  "waterGoalToast": "Water goal reached. Cheers!",
+  "foodLoggedToast": "{food} added to {meal}",
+  "@foodLoggedToast": {
+    "description": "Toast on Today after a food or recipe is logged.",
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "searchStartTitle": "What's on your plate?",
+  "@searchStartTitle": {
+    "description": "Title of the empty search state before anything is typed."
+  },
+  "mealEmptyHint": "Nothing yet",
+  "scanHint": "Line up the barcode inside the frame",
+  "torchTooltip": "Flashlight",
+  "waterAddGlass": "Add a glass",
+  "waterRemoveGlass": "Remove a glass"
 }

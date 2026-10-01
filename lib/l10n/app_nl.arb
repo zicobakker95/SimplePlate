@@ -340,5 +340,22 @@
   "featHealthSyncTitle": "Health-synchronisatie",
   "featHealthSyncSub": "Gelogde calorieën en gewicht gaan naar Apple Health of Health Connect; stappen en gewicht komen terug.",
   "privacyOptions": "Privacyopties",
-  "privacyOptionsSubtitle": "Wijzig je toestemming voor gepersonaliseerde advertenties"
+  "privacyOptionsSubtitle": "Wijzig je toestemming voor gepersonaliseerde advertenties",
+  "appearanceTitle": "Weergave",
+  "appearanceSubtitle": "Volg je telefoon of kies zelf een stijl.",
+  "themeSystem": "Systeem",
+  "themeLight": "Licht",
+  "themeDark": "Donker",
+  "goalReachedToast": "Vandaag precies op doel. Goed gedaan!",
+  "waterGoalToast": "Waterdoel gehaald. Proost!",
+  "foodLoggedToast": "{food} toegevoegd aan {meal}",
+  "greetingMorning": "Goedemorgen",
+  "greetingAfternoon": "Goedemiddag",
+  "greetingEvening": "Goedenavond",
+  "searchStartTitle": "Wat ligt er op je bord?",
+  "mealEmptyHint": "Nog niets",
+  "scanHint": "Houd de barcode binnen het kader",
+  "torchTooltip": "Zaklamp",
+  "waterAddGlass": "Glas toevoegen",
+  "waterRemoveGlass": "Glas verwijderen"
 }

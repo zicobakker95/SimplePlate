@@ -1137,4 +1137,58 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyOptionsSubtitle =>
       'Change your consent for personalised ads';
+
+  @override
+  String get appearanceTitle => 'Appearance';
+
+  @override
+  String get appearanceSubtitle =>
+      'Follow your phone\'s setting or pick a look.';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get goalReachedToast => 'Right on target today. Nicely done!';
+
+  @override
+  String get waterGoalToast => 'Water goal reached. Cheers!';
+
+  @override
+  String foodLoggedToast(String food, String meal) {
+    return '$food added to $meal';
+  }
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get searchStartTitle => 'What\'s on your plate?';
+
+  @override
+  String get mealEmptyHint => 'Nothing yet';
+
+  @override
+  String get scanHint => 'Line up the barcode inside the frame';
+
+  @override
+  String get torchTooltip => 'Flashlight';
+
+  @override
+  String get waterAddGlass => 'Add a glass';
+
+  @override
+  String get waterRemoveGlass => 'Remove a glass';
 }

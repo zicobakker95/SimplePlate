@@ -1145,4 +1145,57 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get privacyOptionsSubtitle =>
       'Wijzig je toestemming voor gepersonaliseerde advertenties';
+
+  @override
+  String get appearanceTitle => 'Weergave';
+
+  @override
+  String get appearanceSubtitle => 'Volg je telefoon of kies zelf een stijl.';
+
+  @override
+  String get themeSystem => 'Systeem';
+
+  @override
+  String get themeLight => 'Licht';
+
+  @override
+  String get themeDark => 'Donker';
+
+  @override
+  String get goalReachedToast => 'Vandaag precies op doel. Goed gedaan!';
+
+  @override
+  String get waterGoalToast => 'Waterdoel gehaald. Proost!';
+
+  @override
+  String foodLoggedToast(String food, String meal) {
+    return '$food toegevoegd aan $meal';
+  }
+
+  @override
+  String get greetingMorning => 'Goedemorgen';
+
+  @override
+  String get greetingAfternoon => 'Goedemiddag';
+
+  @override
+  String get greetingEvening => 'Goedenavond';
+
+  @override
+  String get searchStartTitle => 'Wat ligt er op je bord?';
+
+  @override
+  String get mealEmptyHint => 'Nog niets';
+
+  @override
+  String get scanHint => 'Houd de barcode binnen het kader';
+
+  @override
+  String get torchTooltip => 'Zaklamp';
+
+  @override
+  String get waterAddGlass => 'Glas toevoegen';
+
+  @override
+  String get waterRemoveGlass => 'Glas verwijderen';
 }

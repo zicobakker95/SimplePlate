@@ -38,6 +38,7 @@ class StorageService {
   static const _kRecipes = 'sp.recipes.v1';
   static const _kWeightUnit = 'sp.weightUnit.v1';
   static const _kHealthSync = 'sp.healthSync.enabled.v1';
+  static const _kThemeMode = 'sp.themeMode.v1';
 
   final SharedPreferences _prefs;
 
@@ -153,6 +154,11 @@ class StorageService {
   // --- Health sync (Premium) ---
   bool get healthSyncEnabled => _prefs.getBool(_kHealthSync) ?? false;
   Future<void> setHealthSyncEnabled(bool v) => _prefs.setBool(_kHealthSync, v);
+
+  // --- Appearance ---
+  /// 'system', 'light' or 'dark'; null until the user picks one.
+  String? get themeMode => _prefs.getString(_kThemeMode);
+  Future<void> setThemeMode(String v) => _prefs.setString(_kThemeMode, v);
 
   // --- Activity entries ---
   List<ActivityEntry> loadActivities() =>

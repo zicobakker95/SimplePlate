@@ -340,5 +340,22 @@
   "featHealthSyncTitle": "Sincronización de Salud",
   "featHealthSyncSub": "Las calorías y el peso registrados van a Apple Salud o Health Connect; los pasos y el peso vuelven.",
   "privacyOptions": "Opciones de privacidad",
-  "privacyOptionsSubtitle": "Cambia tu consentimiento para anuncios personalizados"
+  "privacyOptionsSubtitle": "Cambia tu consentimiento para anuncios personalizados",
+  "appearanceTitle": "Apariencia",
+  "appearanceSubtitle": "Igual que tu teléfono o elige un estilo.",
+  "themeSystem": "Sistema",
+  "themeLight": "Claro",
+  "themeDark": "Oscuro",
+  "goalReachedToast": "¡Justo en tu objetivo hoy! Bien hecho.",
+  "waterGoalToast": "¡Meta de agua alcanzada! Salud.",
+  "foodLoggedToast": "{food} añadido a {meal}",
+  "greetingMorning": "Buenos días",
+  "greetingAfternoon": "Buenas tardes",
+  "greetingEvening": "Buenas noches",
+  "searchStartTitle": "¿Qué hay en tu plato?",
+  "mealEmptyHint": "Nada aún",
+  "scanHint": "Coloca el código de barras dentro del marco",
+  "torchTooltip": "Linterna",
+  "waterAddGlass": "Añadir un vaso",
+  "waterRemoveGlass": "Quitar un vaso"
 }

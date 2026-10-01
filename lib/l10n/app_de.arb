@@ -340,5 +340,22 @@
   "featHealthSyncTitle": "Health-Sync",
   "featHealthSyncSub": "Erfasste Kalorien und Gewicht gehen an Apple Health oder Health Connect; Schritte und Gewicht kommen zurück.",
   "privacyOptions": "Datenschutzoptionen",
-  "privacyOptionsSubtitle": "Ändere deine Einwilligung zu personalisierter Werbung"
+  "privacyOptionsSubtitle": "Ändere deine Einwilligung zu personalisierter Werbung",
+  "appearanceTitle": "Darstellung",
+  "appearanceSubtitle": "Wie dein Handy, oder wähle selbst hell oder dunkel.",
+  "themeSystem": "System",
+  "themeLight": "Hell",
+  "themeDark": "Dunkel",
+  "goalReachedToast": "Heute genau im Ziel. Gut gemacht!",
+  "waterGoalToast": "Wasserziel erreicht. Prost!",
+  "foodLoggedToast": "{food} zu {meal} hinzugefügt",
+  "greetingMorning": "Guten Morgen",
+  "greetingAfternoon": "Guten Tag",
+  "greetingEvening": "Guten Abend",
+  "searchStartTitle": "Was ist auf deinem Teller?",
+  "mealEmptyHint": "Noch nichts",
+  "scanHint": "Barcode im Rahmen ausrichten",
+  "torchTooltip": "Taschenlampe",
+  "waterAddGlass": "Glas hinzufügen",
+  "waterRemoveGlass": "Glas entfernen"
 }

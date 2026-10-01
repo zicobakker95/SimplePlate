@@ -1100,4 +1100,57 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get privacyOptionsSubtitle => 'パーソナライズ広告への同意を変更';
+
+  @override
+  String get appearanceTitle => '外観';
+
+  @override
+  String get appearanceSubtitle => '端末の設定に合わせるか、表示を選びます。';
+
+  @override
+  String get themeSystem => 'システム';
+
+  @override
+  String get themeLight => 'ライト';
+
+  @override
+  String get themeDark => 'ダーク';
+
+  @override
+  String get goalReachedToast => '今日は目標どおり。よくできました！';
+
+  @override
+  String get waterGoalToast => '水分目標を達成。乾杯！';
+
+  @override
+  String foodLoggedToast(String food, String meal) {
+    return '$foodを$mealに追加しました';
+  }
+
+  @override
+  String get greetingMorning => 'おはようございます';
+
+  @override
+  String get greetingAfternoon => 'こんにちは';
+
+  @override
+  String get greetingEvening => 'こんばんは';
+
+  @override
+  String get searchStartTitle => 'お皿には何がありますか？';
+
+  @override
+  String get mealEmptyHint => 'まだありません';
+
+  @override
+  String get scanHint => 'バーコードを枠内に合わせてください';
+
+  @override
+  String get torchTooltip => 'ライト';
+
+  @override
+  String get waterAddGlass => '1杯追加';
+
+  @override
+  String get waterRemoveGlass => '1杯減らす';
 }
