@@ -39,7 +39,6 @@ import 'package:simple_plate/services/storage_service.dart';
 import 'package:simple_plate/services/subscription_service.dart';
 import 'package:simple_plate/ui/kit.dart';
 import 'package:simple_plate/ui/theme/appearance.dart';
-import 'package:simple_plate/ui/theme/plate_theme.dart';
 
 import 'helpers/ui_harness.dart';
 
