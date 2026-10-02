@@ -1,0 +1,82 @@
+{
+  "en": {
+    "01_today": "Your whole day on one plate",
+    "02_log": "Log food in seconds",
+    "03_scan": "Just scan the barcode",
+    "04_detail": "Every macro, crystal clear",
+    "05_recipes": "Recipes, counted for you",
+    "06_celebrate": "Sprout cheers every win",
+    "07_history": "Watch your progress grow",
+    "08_dark": "Dark mode for night owls"
+  },
+  "nl": {
+    "01_today": "Je hele dag op één bord",
+    "02_log": "Eten loggen in seconden",
+    "03_scan": "Scan gewoon de barcode",
+    "04_detail": "Alle macro's in één oogopslag",
+    "05_recipes": "Recepten, voor je uitgerekend",
+    "06_celebrate": "Sprout juicht elk succes toe",
+    "07_history": "Zie je vooruitgang groeien",
+    "08_dark": "Donkere modus voor nachtbrakers"
+  },
+  "de": {
+    "01_today": "Dein ganzer Tag auf einem Teller",
+    "02_log": "Essen in Sekunden erfasst",
+    "03_scan": "Barcode scannen, fertig",
+    "04_detail": "Alle Makros auf einen Blick",
+    "05_recipes": "Rezepte, automatisch berechnet",
+    "06_celebrate": "Sprout feiert jeden Erfolg",
+    "07_history": "Sieh deine Fortschritte",
+    "08_dark": "Dunkelmodus für Nachteulen"
+  },
+  "fr": {
+    "01_today": "Toute votre journée dans l'assiette",
+    "02_log": "Un repas noté en quelques secondes",
+    "03_scan": "Scannez, c'est noté",
+    "04_detail": "Chaque macro, en toute clarté",
+    "05_recipes": "Vos recettes, calculées pour vous",
+    "06_celebrate": "Sprout fête chaque victoire",
+    "07_history": "Voyez vos progrès",
+    "08_dark": "Mode sombre pour noctambules"
+  },
+  "es": {
+    "01_today": "Todo tu día en un plato",
+    "02_log": "Registra comidas en segundos",
+    "03_scan": "Escanea y listo",
+    "04_detail": "Todos tus macros, claros",
+    "05_recipes": "Tus recetas, ya calculadas",
+    "06_celebrate": "Sprout celebra cada logro",
+    "07_history": "Mira cómo progresas",
+    "08_dark": "Modo oscuro para noctámbulos"
+  },
+  "it": {
+    "01_today": "La tua giornata in un piatto",
+    "02_log": "Registra i pasti in un attimo",
+    "03_scan": "Scansiona e via",
+    "04_detail": "Ogni macro, chiarissimo",
+    "05_recipes": "Le tue ricette, già calcolate",
+    "06_celebrate": "Sprout festeggia ogni traguardo",
+    "07_history": "Guarda i tuoi progressi",
+    "08_dark": "Modalità scura per nottambuli"
+  },
+  "pt": {
+    "01_today": "Seu dia inteiro em um prato",
+    "02_log": "Registre refeições em segundos",
+    "03_scan": "Escaneie e pronto",
+    "04_detail": "Todos os macros, bem claros",
+    "05_recipes": "Receitas calculadas para você",
+    "06_celebrate": "O Sprout comemora cada conquista",
+    "07_history": "Veja seu progresso crescer",
+    "08_dark": "Modo escuro para a noite"
+  },
+  "ja": {
+    "01_today": "1日の食事が\nひと皿でわかる",
+    "02_log": "食事の記録は\n数秒で完了",
+    "03_scan": "バーコードを\nかざすだけ",
+    "04_detail": "PFCバランスも\nひと目でわかる",
+    "05_recipes": "レシピのカロリーも\n自動で計算",
+    "06_celebrate": "目標達成を\nSproutがお祝い",
+    "07_history": "体重の変化も\nグラフで実感",
+    "08_dark": "夜にやさしい\nダークモード"
+  }
+}
