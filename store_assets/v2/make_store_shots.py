@@ -460,52 +460,52 @@ def phone_tilt(raw_name, height, angle):
 
 def feature_A():
     """Linen table: icon + wordmark + tagline left, the Today screen on a
-    tilted phone over a plate, Sprout cheering. Works with today's icon."""
+    tilted phone over the plate, Sprout cheering. Works with today's icon."""
     W, H = 1024, 500
     c = ground((W, H), 'linen', 'fa')
-    c = plate(c, 760, 250, 290)
-    c = confetti(c, 11, n=16, keep_out=(40, 100, 520, 400), scale=1.6)
-    ph, pad = phone_tilt('en_01_today.png', 560, -8)
-    c.alpha_composite(ph, (760 - ph.width // 2, 70 - pad + 0))
-    icon = Image.open(REPO / 'assets' / 'icon' / 'icon.png').convert('RGBA').resize((120, 120), Image.LANCZOS)
+    c = plate(c, 800, 250, 250)
+    c = confetti(c, 11, n=14, keep_out=(40, 60, 540, 420), scale=0.9)
+    ph, pad = phone_tilt('en_01_today.png', 600, -7)
+    c.alpha_composite(ph, (800 - ph.width // 2, 64 - pad))
+    icon = Image.open(REPO / 'assets' / 'icon' / 'icon.png').convert('RGBA').resize((112, 112), Image.LANCZOS)
     m = Image.new('L', icon.size, 0)
-    ImageDraw.Draw(m).rounded_rectangle((0, 0, 119, 119), radius=28, fill=255)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, 111, 111), radius=26, fill=255)
     icon.putalpha(m)
     icon, ip = with_shadow(icon, 8, opacity=60, offset=(0, 5))
-    c.alpha_composite(icon, (64 - ip, 92 - ip))
-    wm = wordmark(76, INK)
-    c.alpha_composite(wm, (60, 232))
-    tag = fl.render_line('Calories & macros, simply.', *F_LATIN_MED, 36, HERB)
-    c.alpha_composite(tag, (64, 330))
-    sp = sprout('celebrate', 150)
+    c.alpha_composite(icon, (64 - ip, 96 - ip))
+    wm = wordmark(70, INK)
+    c.alpha_composite(wm, (58, 228))
+    tag = fl.render_line('Calories & macros, simply.', *F_LATIN_MED, 32, HERB)
+    c.alpha_composite(tag, (62, 318))
+    sp = sprout('celebrate', 136)
     sp, sp_pad = with_shadow(sp, 6, opacity=60, offset=(0, 5))
-    c.alpha_composite(sp, (560 - sp_pad, 330 - sp_pad))
+    c.alpha_composite(sp, (590 - sp_pad, 346 - sp_pad))
     return c.convert('RGB')
 
 
 def feature_B():
-    """Herb green: big Sprout on a plate in the middle, wordmark left."""
+    """Herb green: big Sprout on the plate, wordmark left."""
     W, H = 1024, 500
     c = ground((W, H), 'herb', 'fb')
-    c = confetti(c, 21, n=22, keep_out=(40, 150, 560, 360), scale=1.5)
-    c = plate(c, 770, 250, 215)
-    sp = sprout('happy', 250)
+    c = confetti(c, 21, n=16, keep_out=(40, 150, 560, 360), scale=0.9)
+    c = plate(c, 800, 250, 190)
+    sp = sprout('happy', 220)
     sp, p = with_shadow(sp, 8, opacity=60, offset=(0, 6))
-    c.alpha_composite(sp, (770 - sp.width // 2, 250 - sp.height // 2 - 6))
-    wm = wordmark(84, WHITE)
+    c.alpha_composite(sp, (800 - sp.width // 2, 250 - sp.height // 2 - 6))
+    wm = wordmark(76, WHITE)
     wm, wp = with_shadow(wm, 5, opacity=60, offset=(0, 3))
-    c.alpha_composite(wm, (60 - wp, 170 - wp))
-    tag = fl.render_line('Track calories & macros', *F_LATIN_MED, 38, (225, 245, 232))
-    c.alpha_composite(tag, (66, 284))
+    c.alpha_composite(wm, (60 - wp, 172 - wp))
+    tag = fl.render_line('Track calories & macros', *F_LATIN_MED, 36, (225, 245, 232))
+    c.alpha_composite(tag, (66, 280))
     return c.convert('RGB')
 
 
 def feature_C():
-    """Three phones fanned on linen: Today, scan, history; wordmark on top."""
+    """Three phones fanned on linen: history, Today, dark; wordmark on top."""
     W, H = 1024, 500
     c = ground((W, H), 'linen', 'fc')
-    c = plate(c, 512, 540, 360)
-    c = confetti(c, 31, n=14, keep_out=(200, 20, 824, 130), scale=1.5)
+    c = plate(c, 512, 560, 380)
+    c = confetti(c, 31, n=14, keep_out=(200, 20, 824, 130), scale=0.9)
     wm = wordmark(64, INK)
     c.alpha_composite(wm, ((W - wm.width) // 2, 28))
     for name, x, ang, h in [('en_07_history.png', 300, 7, 420), ('en_08_dark.png', 724, -7, 420),
@@ -513,7 +513,7 @@ def feature_C():
         ph, pad = phone_tilt(name, h, ang)
         c.alpha_composite(ph, (x - ph.width // 2, 128 - pad))
     sp = sprout('celebrate', 120)
-    c.alpha_composite(sp, (840, 360))
+    c.alpha_composite(sp, (850, 360))
     return c.convert('RGB')
 
 
