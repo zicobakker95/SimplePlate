@@ -1,0 +1,79 @@
+<en-US>
+PlateSimple 2.0 is here!
+• A warm, all-new look, light or dark (or like your phone).
+• Meet Sprout, a little pea who smiles when you log and cheers when you hit your daily target.
+• Smooth animations: your plate ring fills, water glasses fill up, and food confetti pops on goal days.
+• See at a glance where a food's calories come from.
+• A fresh new app icon.
+• Fixes: steadier first launch, calendar weekdays in your language.
+</en-US>
+
+<de-DE>
+PlateSimple 2.0 ist da!
+• Ein warmes, ganz neues Design, hell oder dunkel (oder wie dein Handy).
+• Das ist Sprout: eine kleine Erbse, die sich über jeden Eintrag freut und mit dir dein Tagesziel feiert.
+• Lebendige Animationen: Tellerring und Wassergläser füllen sich, an Zieltagen gibt's Food-Konfetti.
+• Sieh auf einen Blick, woher die Kalorien kommen.
+• Ein frisches App-Icon.
+• Fixes: stabilerer erster Start, Wochentage im Kalender in deiner Sprache.
+</de-DE>
+
+<es-ES>
+¡Llega PlateSimple 2.0!
+• Un diseño nuevo y acogedor, claro u oscuro (o como tu móvil).
+• Te presentamos a Sprout, un guisante que sonríe cuando registras y celebra contigo tu objetivo diario.
+• Animaciones fluidas: tu plato y tus vasos de agua se llenan, y hay confeti de comida los días de objetivo.
+• Ve de un vistazo de dónde salen las calorías.
+• Un icono nuevo y fresco.
+• Arreglos: primer inicio más estable, días del calendario en tu idioma.
+</es-ES>
+
+<fr-FR>
+PlateSimple 2.0 est là !
+• Un tout nouveau look chaleureux, clair ou sombre (ou comme ton téléphone).
+• Voici Sprout, un petit pois qui sourit à chaque repas noté et fête avec toi ton objectif du jour.
+• Animations fluides : ton assiette et tes verres d'eau se remplissent, confettis gourmands les jours d'objectif.
+• Vois d'un coup d'œil d'où viennent les calories.
+• Une nouvelle icône.
+• Corrections : premier lancement plus fiable, calendrier dans ta langue.
+</fr-FR>
+
+<it-IT>
+Arriva PlateSimple 2.0!
+• Un look tutto nuovo e accogliente, chiaro o scuro (o come il telefono).
+• Ecco Sprout, un piccolo pisello che sorride quando registri e festeggia con te l'obiettivo del giorno.
+• Animazioni fluide: piatto e bicchieri d'acqua si riempiono, e nei giorni da obiettivo piovono coriandoli di cibo.
+• Scopri a colpo d'occhio da dove arrivano le calorie.
+• Una nuova icona.
+• Correzioni: primo avvio più stabile, calendario nella tua lingua.
+</it-IT>
+
+<ja-JP>
+PlateSimple 2.0 登場！
+• あたたかみのある全く新しいデザイン。ライト・ダーク・端末に合わせるから選べます。
+• 新キャラクター「Sprout」が登場。記録するとにっこり、1日の目標を達成すると一緒にお祝いしてくれる小さなお豆です。
+• なめらかなアニメーション：食べるほどお皿のリングが満ち、水のグラスも満たされ、目標達成の日には食べ物の紙吹雪が舞います。
+• 食品のカロリーの内訳がひと目でわかります。
+• アプリアイコンも新しくなりました。
+• 修正：初回起動がより安定、カレンダーの曜日を各言語で表示。
+</ja-JP>
+
+<nl-NL>
+PlateSimple 2.0 is er!
+• Een warm, compleet nieuw uiterlijk, licht of donker (of zoals je telefoon).
+• Maak kennis met Sprout, een klein erwtje dat blij wordt als je logt en met je viert als je je dagdoel haalt.
+• Soepele animaties: je bord en waterglazen vullen zich, en op doeldagen regent het eten-confetti.
+• Zie in één oogopslag waar de calorieën vandaan komen.
+• Een fris nieuw app-icoon.
+• Fixes: stabielere eerste start, kalender in je eigen taal.
+</nl-NL>
+
+<pt-BR>
+Chegou o PlateSimple 2.0!
+• Um visual novinho e acolhedor, claro ou escuro (ou igual ao celular).
+• Conheça o Sprout, uma ervilhinha que sorri quando você registra e comemora com você a meta do dia.
+• Animações suaves: seu prato e os copos de água vão enchendo, e rola confete de comida nos dias de meta.
+• Veja num relance de onde vêm as calorias.
+• Um ícone novinho.
+• Correções: primeira abertura mais estável, calendário no seu idioma.
+</pt-BR>
