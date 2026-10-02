@@ -244,7 +244,9 @@ class _TodayScreenState extends State<TodayScreen> {
           Positioned.fill(child: ConfettiLayer(controller: _confetti)),
         ],
       ),
-      floatingActionButton: _HiddenWhileTyping(
+      // An empty day already shows its own "Log food" button in the card;
+      // the floating one would sit right below it.
+      floatingActionButton: today.isEmpty ? null : _HiddenWhileTyping(
         child: PtButton(
           label: l10n.logFood,
           icon: Icons.add_rounded,
