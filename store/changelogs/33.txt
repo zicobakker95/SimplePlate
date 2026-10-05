@@ -1,0 +1,47 @@
+<en-US>
+Small improvements.
+• Free trials are now handled more accurately behind the scenes.
+• Stability fixes.
+</en-US>
+
+<de-DE>
+Kleine Verbesserungen.
+• Kostenlose Testzeiträume werden im Hintergrund jetzt genauer verarbeitet.
+• Stabilitätsverbesserungen.
+</de-DE>
+
+<es-ES>
+Pequeñas mejoras.
+• Las pruebas gratuitas ahora se gestionan con más precisión.
+• Mejoras de estabilidad.
+</es-ES>
+
+<fr-FR>
+Petites améliorations.
+• Les essais gratuits sont désormais gérés plus précisément en coulisses.
+• Corrections de stabilité.
+</fr-FR>
+
+<it-IT>
+Piccoli miglioramenti.
+• Le prove gratuite ora vengono gestite in modo più preciso.
+• Correzioni di stabilità.
+</it-IT>
+
+<ja-JP>
+小さな改善。
+• 無料トライアルの処理をより正確にしました。
+• 安定性を向上しました。
+</ja-JP>
+
+<nl-NL>
+Kleine verbeteringen.
+• Gratis proefperiodes worden nu nauwkeuriger verwerkt.
+• Stabiliteitsverbeteringen.
+</nl-NL>
+
+<pt-BR>
+Pequenas melhorias.
+• Os testes gratuitos agora são tratados com mais precisão.
+• Melhorias de estabilidade.
+</pt-BR>

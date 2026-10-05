@@ -62,27 +62,54 @@ class AnalyticsService {
   /// that buys the cheapest installs on earth, which is exactly what the
   /// PlateSimple test did: 224 installs at EUR 0.18 and no measured action
   /// after any of them.
+  ///
+  /// A free-trial start is NOT a purchase; see [logStartTrial]. Neither is
+  /// sent from a debug build: a developer's test subscriptions once made up
+  /// all of PlateSimple's "revenue" in Firebase while the stores showed none.
   Future<void> logPurchase({
     required String productId,
     required double value,
     required String currency,
     String? transactionId,
-    bool isTrial = false,
   }) async {
+    if (kDebugMode) {
+      debugSales.add('purchase $productId $value $currency');
+      return;
+    }
     try {
       await _fa?.logPurchase(
         currency: currency,
         value: value,
         transactionId: transactionId,
-        parameters: <String, Object>{
-          'product_id': productId,
-          'is_trial': isTrial ? 1 : 0,
-        },
+        parameters: <String, Object>{'product_id': productId},
       );
     } catch (e) {
       debugPrint('Analytics purchase failed: $e');
     }
   }
+
+  /// A subscription began with a free trial: nothing paid yet, so no value.
+  /// The paid conversion, if it happens, reaches Firebase through the
+  /// stores' own revenue events (Google Play link, App Store auto-collection).
+  Future<void> logStartTrial({
+    required String productId,
+    required String currency,
+  }) async {
+    if (kDebugMode) {
+      debugSales.add('start_trial $productId');
+      return;
+    }
+    await logEvent('start_trial', {
+      'product_id': productId,
+      'currency': currency,
+      'value': 0,
+    });
+  }
+
+  /// What [logPurchase] / [logStartTrial] were asked to send, newest last.
+  /// Recorded in debug builds only, where nothing is sent; tests read it.
+  @visibleForTesting
+  final List<String> debugSales = [];
 
   /// The paywall was shown. The denominator for paywall conversion, and a
   /// usable optimisation signal on its own while purchases are still rare.

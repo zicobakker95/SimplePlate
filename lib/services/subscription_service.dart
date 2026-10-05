@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 
 import 'analytics_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,6 +108,41 @@ class SubscriptionService extends ChangeNotifier {
     return (value: p.rawPrice, currency: p.currencyCode);
   }
 
+  /// Whether buying [product] starts a free trial instead of charging.
+  ///
+  /// Play lists the trial as its own offer whose first phase costs nothing,
+  /// and only lists offers the user is still eligible for. The App Store
+  /// sells one product with an introductory free-trial offer; whether this
+  /// user still qualifies is not known on the device, so a returning
+  /// subscriber is counted as a trial too. Either way the money, when it
+  /// comes, reaches Firebase through the stores' own revenue events.
+  static bool startsFreeTrial(ProductDetails product) {
+    if (product.rawPrice == 0) return true;
+    if (product is AppStoreProductDetails) {
+      final intro = product.skProduct.introductoryPrice;
+      // NB: the plugin enum has a known typo, `freeTrail` (not freeTrial).
+      return intro != null &&
+          intro.paymentMode == SKProductDiscountPaymentMode.freeTrail;
+    }
+    return false;
+  }
+
+  /// The offer a completed purchase of [productId] was for: the one this
+  /// session sent to the store, or, when the purchase arrives later (a
+  /// pending payment, an app restart), the offer the paywall would buy.
+  @visibleForTesting
+  ProductDetails? offerBoughtFor(String productId) {
+    final sent = _buying;
+    if (sent != null && sent.id == productId) return sent;
+    for (final plan in planOptions) {
+      if (plan.id == productId) return plan.purchaseTarget;
+    }
+    return _byId(productId);
+  }
+
+  /// The offer last handed to the store by [purchase].
+  ProductDetails? _buying;
+
   ProductDetails? _byId(String id) {
     try {
       return _products.firstWhere((p) => p.id == id);
@@ -148,12 +185,14 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> purchase(ProductDetails product) async {
     if (_purchasing) return;
     _purchasing = true;
+    _buying = product;
     notifyListeners();
     try {
       await InAppPurchase.instance
           .buyNonConsumable(purchaseParam: PurchaseParam(productDetails: product));
     } catch (_) {
       _purchasing = false;
+      _buying = null;
       notifyListeners();
     }
   }
@@ -177,14 +216,7 @@ class SubscriptionService extends ChangeNotifier {
           // subscriber on a second device, and counting it would teach the
           // bidder that reinstalls are revenue.
           if (p.status == PurchaseStatus.purchased) {
-            final price = priceOf(p.productID);
-            await AnalyticsService.instance.logPurchase(
-              productId: p.productID,
-              value: price?.value ?? 0,
-              currency: price?.currency ?? 'EUR',
-              transactionId: p.purchaseID,
-              isTrial: (price?.value ?? 0) == 0,
-            );
+            await reportSale(p.productID, transactionId: p.purchaseID);
           }
         }
         // Note: cancellation / expiry is handled via subscription management
@@ -197,6 +229,32 @@ class SubscriptionService extends ChangeNotifier {
     }
     _purchasing = false;
     notifyListeners();
+  }
+
+  /// Tells analytics about a new subscription. A free-trial start is a
+  /// `start_trial` with no value: nothing has been paid, and most trials end
+  /// without a charge. It used to be a `purchase` at the full recurring
+  /// price, which showed revenue in Firebase the stores never received and
+  /// fed that value to Google Ads bidding. Only a paid start is a `purchase`,
+  /// at the price of the offer actually bought.
+  @visibleForTesting
+  Future<void> reportSale(String productId, {String? transactionId}) async {
+    final offer = offerBoughtFor(productId);
+    _buying = null;
+    if (offer != null && startsFreeTrial(offer)) {
+      final display = priceOf(productId);
+      await AnalyticsService.instance.logStartTrial(
+        productId: productId,
+        currency: display?.currency ?? offer.currencyCode,
+      );
+      return;
+    }
+    await AnalyticsService.instance.logPurchase(
+      productId: productId,
+      value: offer?.rawPrice ?? 0,
+      currency: offer?.currencyCode ?? 'EUR',
+      transactionId: transactionId,
+    );
   }
 
   Future<void> _setPremium(bool value) async {
