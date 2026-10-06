@@ -281,6 +281,7 @@
   "subsRenew": "Abos verlängern sich automatisch. Jederzeit in den Geräteeinstellungen kündbar.",
   "premiumRestored": "Premium erfolgreich wiederhergestellt!",
   "noSubFound": "Kein aktives Abo gefunden.",
+  "paymentPending": "Zahlung ausstehend. Premium wird automatisch freigeschaltet, sobald sie bezahlt ist.",
   "planYearly": "Jährlich",
   "planMonthly": "Monatlich",
   "bestValue": "BESTER WERT",

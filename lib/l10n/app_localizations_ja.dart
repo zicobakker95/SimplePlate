@@ -908,6 +908,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noSubFound => '有効なサブスクリプションが見つかりません。';
 
   @override
+  String get paymentPending => 'お支払い待ちです。お支払いが完了すると、プレミアムが自動的に有効になります。';
+
+  @override
   String get planYearly => '年額';
 
   @override

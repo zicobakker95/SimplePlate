@@ -938,6 +938,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noSubFound => 'Kein aktives Abo gefunden.';
 
   @override
+  String get paymentPending =>
+      'Zahlung ausstehend. Premium wird automatisch freigeschaltet, sobald sie bezahlt ist.';
+
+  @override
   String get planYearly => 'Jährlich';
 
   @override

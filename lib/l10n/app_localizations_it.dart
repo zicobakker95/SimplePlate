@@ -939,6 +939,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get noSubFound => 'Nessun abbonamento attivo trovato.';
 
   @override
+  String get paymentPending =>
+      'Pagamento in sospeso. Premium si sbloccherà automaticamente appena il pagamento sarà completato.';
+
+  @override
   String get planYearly => 'Annuale';
 
   @override

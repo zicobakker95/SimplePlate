@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 
@@ -31,15 +33,32 @@ class SubscriptionService extends ChangeNotifier {
 
   static const _kCacheKey = 'sp.premium.active';
 
+  /// Orders already reported to analytics as sales, so the purchase stream
+  /// and a later launch reconcile delivering the same order never count it
+  /// twice (e.g. when the acknowledgement failed and Play re-delivers it).
+  static const _kReportedKey = 'sp.premium.reportedOrders';
+
   // ── State ──────────────────────────────────────────────────────────────────
   bool _isPremium = false;
   bool _storeAvailable = false;
   bool _purchasing = false;
+  bool _paymentPending = false;
   bool _loadingProducts = true;
   List<ProductDetails> _products = const [];
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
 
+  /// Completed when the purchase stream has handled its next batch; a user
+  /// Restore waits on it so the paywall reads the result, not the old state.
+  Completer<void>? _batchHandled;
+
   bool get isPremium => _isPremium;
+
+  /// A subscription was bought with a pay-later method (cash voucher, bank
+  /// transfer) that has not been paid yet. Premium is NOT granted for it:
+  /// Play grants it once the payment clears, through the purchase stream or
+  /// the next launch's reconcile. The paywall tells the user so instead of
+  /// leaving them wondering why nothing unlocked.
+  bool get paymentPending => _paymentPending && !_isPremium;
 
   /// Debug builds only — see lib/debug.
   ///
@@ -168,8 +187,24 @@ class SubscriptionService extends ChangeNotifier {
         .listen(_onPurchaseUpdates, onError: (_) {});
 
     await _loadProducts();
-    // Silently restore in case user reinstalled / switched device
-    await InAppPurchase.instance.restorePurchases();
+    await _reconcilePurchases();
+  }
+
+  /// Silent launch reconcile. Re-grants premium after a reinstall or device
+  /// switch, and picks up purchases the purchase stream never delivered: a
+  /// pay-later payment (cash voucher, bank transfer) that cleared while the
+  /// app was closed, or an app killed between payment and acknowledgement.
+  /// Play refunds anything left unacknowledged for 3 days, so without this
+  /// such a buyer loses both the subscription and their money. The results
+  /// arrive through [_onPurchaseUpdates], which grants, acknowledges and
+  /// reports them; no UI is shown and failures (offline, Play unavailable)
+  /// only wait for the next launch.
+  Future<void> _reconcilePurchases() async {
+    try {
+      await InAppPurchase.instance.restorePurchases();
+    } catch (e) {
+      debugPrint('[subscriptions] launch reconcile failed: $e');
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -197,39 +232,151 @@ class SubscriptionService extends ChangeNotifier {
     }
   }
 
+  /// Resolves once the store has answered and the answer has been handled,
+  /// so the caller can read [isPremium] / [paymentPending] straight after.
   Future<void> restorePurchases() async {
     if (!_storeAvailable) return;
     _purchasing = true;
+    // Re-established by the restore itself if the payment is still open; an
+    // expired voucher simply drops out of Play's list.
+    _paymentPending = false;
+    final handled = _batchHandled = Completer<void>();
     notifyListeners();
-    await InAppPurchase.instance.restorePurchases();
-    // _purchasing cleared in _onPurchaseUpdates
+    try {
+      await InAppPurchase.instance.restorePurchases();
+      // Both stores deliver a batch (empty when there is nothing to
+      // restore); don't hang the button if one never comes.
+      await handled.future
+          .timeout(const Duration(seconds: 5), onTimeout: () {});
+    } catch (e) {
+      debugPrint('[subscriptions] restore failed: $e');
+    } finally {
+      if (identical(_batchHandled, handled)) _batchHandled = null;
+      _purchasing = false;
+      notifyListeners();
+    }
   }
 
   // ── Purchase stream handler ────────────────────────────────────────────────
-  void _onPurchaseUpdates(List<PurchaseDetails> updates) async {
-    for (final p in updates) {
-      if (p.productID == kMonthlyId || p.productID == kYearlyId) {
-        if (p.status == PurchaseStatus.purchased ||
-            p.status == PurchaseStatus.restored) {
-          await _setPremium(true);
-          // Only a NEW purchase is a conversion. A restore is the same
-          // subscriber on a second device, and counting it would teach the
-          // bidder that reinstalls are revenue.
-          if (p.status == PurchaseStatus.purchased) {
-            await reportSale(p.productID, transactionId: p.purchaseID);
-          }
+
+  /// The purchase exists but is not paid yet. On Play a restored purchase is
+  /// reported as `restored` even while its cash voucher or bank transfer is
+  /// still open, so the real state has to be read from the Play purchase;
+  /// granting on `restored` alone unlocked premium for nothing.
+  static bool awaitingPayment(PurchaseDetails p) =>
+      p.status == PurchaseStatus.pending ||
+      (p is GooglePlayPurchaseDetails &&
+          p.billingClientPurchase.purchaseState ==
+              PurchaseStateWrapper.pending);
+
+  /// A Play purchase nobody has acknowledged yet is a sale this app has not
+  /// counted before, even when it arrives as `restored`: a pay-later payment
+  /// that cleared while the app was closed reaches the app through the launch
+  /// reconcile (a restore), never as `purchased`. A reinstall's restore is
+  /// already acknowledged, so it is not counted again. Must be read before
+  /// the purchase is acknowledged.
+  static bool _isNewPlaySale(PurchaseDetails p) =>
+      p is GooglePlayPurchaseDetails && !p.billingClientPurchase.isAcknowledged;
+
+  Future<void> _onPurchaseUpdates(List<PurchaseDetails> updates) async {
+    try {
+      for (final p in updates) {
+        if (p.productID != kMonthlyId && p.productID != kYearlyId) {
+          await _complete(p);
+          continue;
+        }
+        if (awaitingPayment(p)) {
+          // Unpaid: no premium, no sale, and nothing to acknowledge (Play
+          // refuses to acknowledge a pending purchase). The store sheet has
+          // closed, so the button stops spinning (see finally) and the
+          // paywall explains that premium follows the payment.
+          _paymentPending = true;
+          continue;
+        }
+        switch (p.status) {
+          case PurchaseStatus.purchased:
+          case PurchaseStatus.restored:
+            // Only a NEW purchase is a conversion. A restore is the same
+            // subscriber on a second device, and counting it would teach the
+            // bidder that reinstalls are revenue -- except a Play purchase
+            // that was never acknowledged, which is a pay-later sale that
+            // cleared since. Decided before _complete acknowledges it.
+            final newSale =
+                p.status == PurchaseStatus.purchased || _isNewPlaySale(p);
+            _paymentPending = false;
+            await _setPremium(true);
+            await _complete(p);
+            if (newSale) await _reportSaleOnce(p);
+            break;
+          case PurchaseStatus.error:
+          case PurchaseStatus.canceled:
+            _buying = null;
+            await _complete(p);
+            break;
+          case PurchaseStatus.pending:
+            break; // handled by awaitingPayment above
         }
         // Note: cancellation / expiry is handled via subscription management
         // in the store — we don't clear premium on error to avoid false
         // negatives caused by network issues.
       }
-      if (p.pendingCompletePurchase) {
-        await InAppPurchase.instance.completePurchase(p);
-      }
+    } catch (e) {
+      debugPrint('[subscriptions] purchase update failed: $e');
+    } finally {
+      _purchasing = false;
+      final handled = _batchHandled;
+      _batchHandled = null;
+      if (handled != null && !handled.isCompleted) handled.complete();
+      notifyListeners();
     }
-    _purchasing = false;
-    notifyListeners();
   }
+
+  Future<void> _complete(PurchaseDetails p) async {
+    if (!p.pendingCompletePurchase) return;
+    try {
+      await InAppPurchase.instance.completePurchase(p);
+    } catch (e) {
+      // Not fatal: the next launch's reconcile acknowledges it again.
+      debugPrint('[subscriptions] completePurchase failed: $e');
+    }
+  }
+
+  /// [reportSale] at most once per order, across launches.
+  Future<void> _reportSaleOnce(PurchaseDetails p) async {
+    final id = p.purchaseID ?? '';
+    if (id.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final seen = prefs.getStringList(_kReportedKey) ?? const <String>[];
+      if (seen.contains(id)) return;
+      // A short tail is enough: only a re-delivery of a recent order matters.
+      final keep = [...seen, id];
+      await prefs.setStringList(
+        _kReportedKey,
+        keep.length > 20 ? keep.sublist(keep.length - 20) : keep,
+      );
+    }
+    await reportSale(p.productID, transactionId: id.isEmpty ? null : id);
+  }
+
+  /// Feeds a purchase-stream update straight in, as the store would.
+  @visibleForTesting
+  Future<void> debugHandlePurchases(List<PurchaseDetails> updates) =>
+      _onPurchaseUpdates(updates);
+
+  /// Tests only: back to a fresh, non-premium, idle service (it is a
+  /// singleton, so state would otherwise leak between tests).
+  @visibleForTesting
+  void debugReset() {
+    _isPremium = false;
+    _paymentPending = false;
+    _purchasing = false;
+    _buying = null;
+    _storeAvailable = false;
+  }
+
+  /// Tests only: pretend the store answered, so [restorePurchases] runs.
+  @visibleForTesting
+  void debugSetStoreAvailable() => _storeAvailable = true;
 
   /// Tells analytics about a new subscription. A free-trial start is a
   /// `start_trial` with no value: nothing has been paid, and most trials end

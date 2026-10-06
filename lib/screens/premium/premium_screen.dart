@@ -29,6 +29,13 @@ class PremiumScreen extends StatefulWidget {
 class _PremiumScreenState extends State<PremiumScreen> {
   String? _selectedId;
 
+  /// Last seen [SubscriptionService.paymentPending], to tell the user once
+  /// when a purchase comes back unpaid (cash voucher, bank transfer).
+  bool _wasPending = false;
+
+  /// A user Restore reports its own result; don't toast twice.
+  bool _restoring = false;
+
   @override
   void initState() {
     super.initState();
@@ -39,11 +46,15 @@ class _PremiumScreenState extends State<PremiumScreen> {
     } else if (svc.monthly != null) {
       _selectedId = SubscriptionService.kMonthlyId;
     }
+    _wasPending = svc.paymentPending;
     svc.addListener(_onServiceUpdate);
   }
 
   void _onServiceUpdate() {
     if (!mounted) return;
+    final pending = SubscriptionService.instance.paymentPending;
+    if (pending && !_wasPending && !_restoring) _showPendingToast();
+    _wasPending = pending;
     // Auto-select yearly once products load
     if (_selectedId == null) {
       final svc = SubscriptionService.instance;
@@ -274,6 +285,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         ? null
                         : _purchase,
                   ),
+                  if (svc.paymentPending) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.paymentPending,
+                      textAlign: TextAlign.center,
+                      style: PtText.small(color: p.textMuted),
+                    ),
+                  ],
                   const SizedBox(height: 6),
 
                   // ── Restore ───────────────────────────────────────────
@@ -333,10 +352,30 @@ class _PremiumScreenState extends State<PremiumScreen> {
     await svc.purchase(plan.purchaseTarget);
   }
 
+  void _showPendingToast() {
+    showPtToast(
+      context,
+      context.l10n.paymentPending,
+      icon: Icons.schedule_rounded,
+      duration: const Duration(seconds: 5),
+    );
+  }
+
   Future<void> _restore() async {
-    await SubscriptionService.instance.restorePurchases();
+    _restoring = true;
+    try {
+      await SubscriptionService.instance.restorePurchases();
+    } finally {
+      _restoring = false;
+    }
     if (!mounted) return;
-    final isPremium = SubscriptionService.instance.isPremium;
+    final svc = SubscriptionService.instance;
+    _wasPending = svc.paymentPending;
+    if (svc.paymentPending) {
+      _showPendingToast();
+      return;
+    }
+    final isPremium = svc.isPremium;
     showPtToast(
       context,
       isPremium ? context.l10n.premiumRestored : context.l10n.noSubFound,

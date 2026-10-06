@@ -934,6 +934,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSubFound => 'No active subscription found.';
 
   @override
+  String get paymentPending =>
+      'Payment pending. Premium unlocks automatically once it\'s paid.';
+
+  @override
   String get planYearly => 'Yearly';
 
   @override

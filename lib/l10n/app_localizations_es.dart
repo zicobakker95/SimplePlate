@@ -940,6 +940,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noSubFound => 'No se encontró ninguna suscripción activa.';
 
   @override
+  String get paymentPending =>
+      'Pago pendiente. Premium se activará automáticamente en cuanto se complete el pago.';
+
+  @override
   String get planYearly => 'Anual';
 
   @override

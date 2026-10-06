@@ -1754,6 +1754,12 @@ abstract class AppLocalizations {
   /// **'No active subscription found.'**
   String get noSubFound;
 
+  /// Shown on the paywall when a subscription was bought with a pay-later method (cash voucher, bank transfer) that is not paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment pending. Premium unlocks automatically once it\'s paid.'**
+  String get paymentPending;
+
   /// No description provided for @planYearly.
   ///
   /// In en, this message translates to:

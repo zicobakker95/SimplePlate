@@ -281,6 +281,7 @@
   "subsRenew": "Les abonnements se renouvellent automatiquement. Annulez à tout moment dans les réglages de votre appareil.",
   "premiumRestored": "Premium restauré avec succès !",
   "noSubFound": "Aucun abonnement actif trouvé.",
+  "paymentPending": "Paiement en attente. Premium se débloquera automatiquement dès que le paiement sera effectué.",
   "planYearly": "Annuel",
   "planMonthly": "Mensuel",
   "bestValue": "MEILLEURE OFFRE",

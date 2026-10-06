@@ -942,6 +942,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noSubFound => 'Aucun abonnement actif trouvé.';
 
   @override
+  String get paymentPending =>
+      'Paiement en attente. Premium se débloquera automatiquement dès que le paiement sera effectué.';
+
+  @override
   String get planYearly => 'Annuel';
 
   @override

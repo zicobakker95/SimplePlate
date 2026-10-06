@@ -281,6 +281,7 @@
   "subsRenew": "Las suscripciones se renuevan automáticamente. Cancela cuando quieras en los ajustes de tu dispositivo.",
   "premiumRestored": "¡Premium restaurado correctamente!",
   "noSubFound": "No se encontró ninguna suscripción activa.",
+  "paymentPending": "Pago pendiente. Premium se activará automáticamente en cuanto se complete el pago.",
   "planYearly": "Anual",
   "planMonthly": "Mensual",
   "bestValue": "MEJOR VALOR",

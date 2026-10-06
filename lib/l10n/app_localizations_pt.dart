@@ -936,6 +936,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noSubFound => 'Nenhuma assinatura ativa encontrada.';
 
   @override
+  String get paymentPending =>
+      'Pagamento pendente. O Premium será liberado automaticamente assim que o pagamento for concluído.';
+
+  @override
   String get planYearly => 'Anual';
 
   @override

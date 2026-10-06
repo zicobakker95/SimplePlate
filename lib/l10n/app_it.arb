@@ -281,6 +281,7 @@
   "subsRenew": "Gli abbonamenti si rinnovano automaticamente. Annulla quando vuoi nelle impostazioni del dispositivo.",
   "premiumRestored": "Premium ripristinato con successo!",
   "noSubFound": "Nessun abbonamento attivo trovato.",
+  "paymentPending": "Pagamento in sospeso. Premium si sbloccherà automaticamente appena il pagamento sarà completato.",
   "planYearly": "Annuale",
   "planMonthly": "Mensile",
   "bestValue": "MIGLIOR VALORE",

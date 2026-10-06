@@ -281,6 +281,7 @@
   "subsRenew": "Abonnementen worden automatisch verlengd. Annuleer altijd via je apparaatinstellingen.",
   "premiumRestored": "Premium succesvol hersteld!",
   "noSubFound": "Geen actief abonnement gevonden.",
+  "paymentPending": "Betaling in behandeling. Premium wordt automatisch ontgrendeld zodra er betaald is.",
   "planYearly": "Jaarlijks",
   "planMonthly": "Maandelijks",
   "bestValue": "BESTE KEUS",

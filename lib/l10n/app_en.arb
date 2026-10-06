@@ -454,6 +454,10 @@
   "subsRenew": "Subscriptions renew automatically. Cancel anytime in your device settings.",
   "premiumRestored": "Premium restored successfully!",
   "noSubFound": "No active subscription found.",
+  "paymentPending": "Payment pending. Premium unlocks automatically once it's paid.",
+  "@paymentPending": {
+    "description": "Shown on the paywall when a subscription was bought with a pay-later method (cash voucher, bank transfer) that is not paid yet."
+  },
   "planYearly": "Yearly",
   "planMonthly": "Monthly",
   "bestValue": "BEST VALUE",

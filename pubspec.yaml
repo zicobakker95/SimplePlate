@@ -2,7 +2,7 @@ name: simple_plate
 description: "PlateSimple — fast, clean calorie and macro tracker by ZiBa Entertainment."
 publish_to: 'none'
 
-version: 2.0.1+33
+version: 2.0.2+34
 
 environment:
   sdk: ^3.10.0
@@ -52,6 +52,8 @@ dependencies:
 
   # IAP
   in_app_purchase: ^3.2.0
+  # Read directly to tell an unpaid (pending) Play purchase from a paid one.
+  in_app_purchase_android: ^0.5.0
   # Read directly to spot an App Store free-trial offer.
   in_app_purchase_storekit: ^0.4.10
 
@@ -87,6 +89,9 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   build_runner: ^2.4.14
   drift_dev: ^2.21.0
+  # Tests feed fake Play purchases through a fake store.
+  in_app_purchase_platform_interface: ^1.4.0
+  plugin_platform_interface: ^2.1.8
 
 flutter_launcher_icons:
   android: true

@@ -936,6 +936,10 @@ class AppLocalizationsNl extends AppLocalizations {
   String get noSubFound => 'Geen actief abonnement gevonden.';
 
   @override
+  String get paymentPending =>
+      'Betaling in behandeling. Premium wordt automatisch ontgrendeld zodra er betaald is.';
+
+  @override
   String get planYearly => 'Jaarlijks';
 
   @override
