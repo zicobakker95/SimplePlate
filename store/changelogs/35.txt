@@ -43,7 +43,7 @@
 <nl-NL>
 • Later betalen met contant geld of een bankoverschrijving? Premium wordt nu automatisch ontgrendeld zodra je betaling binnen is.
 • De abonneerknop blijft niet meer draaien terwijl een betaling in behandeling is.
-• Je Premium-status loopt nu synchroon met Google Play.
+• Je Premium-status wordt nu gesynchroniseerd met Google Play.
 • Kleine oplossingen en verbeteringen.
 </nl-NL>
 
