@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_app_purchase/in_app_purchase.dart' show InAppPurchase;
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
@@ -25,6 +27,19 @@ class _FakeStore extends InAppPurchasePlatform
     with MockPlatformInterfaceMixin {
   final completed = <PurchaseDetails>[];
   List<PurchaseDetails> owned = const [];
+  bool available = true;
+  List<ProductDetails> products = const [];
+
+  @override
+  Future<bool> isAvailable() async => available;
+
+  @override
+  Stream<List<PurchaseDetails>> get purchaseStream => const Stream.empty();
+
+  @override
+  Future<ProductDetailsResponse> queryProductDetails(
+          Set<String> identifiers) async =>
+      ProductDetailsResponse(productDetails: products, notFoundIDs: const []);
 
   @override
   Future<void> completePurchase(PurchaseDetails purchase) async =>
@@ -39,6 +54,29 @@ class _FakeStore extends InAppPurchasePlatform
     // The plugin pushes the result onto the purchase stream.
     SubscriptionService.instance.debugHandlePurchases(owned);
   }
+}
+
+/// Stands in for Play's purchase query (queryPastPurchases), which answers
+/// with what the account owns right now, or with an error.
+class _FakePlayQuery implements InAppPurchaseAndroidPlatformAddition {
+  List<GooglePlayPurchaseDetails> owned = const [];
+  IAPError? error;
+  bool throws = false;
+  int calls = 0;
+
+  @override
+  Future<QueryPurchaseDetailsResponse> queryPastPurchases(
+      {String? applicationUserName}) async {
+    calls++;
+    if (throws) throw PlatformException(code: 'SERVICE_DISCONNECTED');
+    return QueryPurchaseDetailsResponse(
+      pastPurchases: error == null ? owned : const [],
+      error: error,
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// A Play subscription purchase. [restored] mimics restorePurchases(), which
@@ -75,18 +113,28 @@ void main() {
   final yearly = SubscriptionService.kYearlyId;
   final monthly = SubscriptionService.kMonthlyId;
   late _FakeStore store;
+  late _FakePlayQuery play;
 
   setUp(() {
     sales.clear();
     // InAppPurchase.instance installs the real Play store over any fake when
-    // the target platform is Android, which it is under flutter_test.
+    // the target platform is Android, which it is under flutter_test. It
+    // only does so the first time, so it is created here, before any test
+    // switches the platform to Android.
     debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+    InAppPurchase.instance;
     SharedPreferences.setMockInitialValues({});
     store = _FakeStore();
     InAppPurchasePlatform.instance = store;
+    play = _FakePlayQuery();
+    InAppPurchasePlatformAddition.instance = play;
     svc.debugReset();
+    svc.debugIsOnline = () async => true;
   });
-  tearDown(() => debugDefaultTargetPlatformOverride = null);
+  tearDown(() {
+    debugDefaultTargetPlatformOverride = null;
+    InAppPurchasePlatformAddition.instance = null;
+  });
 
   test('a free-trial offer is a trial start, never a purchase', () {
     expect(SubscriptionService.startsFreeTrial(_offer(yearly, 0)), isTrue);
@@ -212,6 +260,143 @@ void main() {
       await svc.restorePurchases();
       expect(svc.purchasing, isFalse);
       expect(svc.paymentPending, isFalse);
+    });
+  });
+
+  group('launch reconcile ends a lapsed subscription', () {
+    /// An app start for a user who had premium cached, on [platform].
+    Future<void> launch({
+      Map<String, Object> prefs = const {'sp.premium.active': true},
+      TargetPlatform platform = TargetPlatform.android,
+    }) async {
+      SharedPreferences.setMockInitialValues(prefs);
+      debugDefaultTargetPlatformOverride = platform;
+      await svc.initialize();
+    }
+
+    Future<bool?> cachedPremium() async =>
+        (await SharedPreferences.getInstance()).getBool('sp.premium.active');
+
+    test('Play owns nothing any more: premium ends, nothing is logged',
+        () async {
+      var notified = 0;
+      void listener() => notified++;
+      svc.addListener(listener);
+      addTearDown(() => svc.removeListener(listener));
+
+      await launch();
+      expect(play.calls, 1);
+      expect(svc.isPremium, isFalse);
+      expect(await cachedPremium(), isFalse,
+          reason: 'must not come back on the next launch');
+      expect(notified, greaterThan(1), reason: 'gated screens must rebuild');
+      expect(sales, isEmpty, reason: 'a lapse is not a sale');
+    });
+
+    test('offline (Play answered empty from its cache) keeps premium',
+        () async {
+      svc.debugIsOnline = () async => false;
+      await launch();
+      expect(play.calls, 1);
+      expect(svc.isPremium, isTrue);
+      expect(await cachedPremium(), isTrue);
+    });
+
+    test('a query error keeps premium', () async {
+      play.error = IAPError(
+          source: 'google_play', code: 'restore_transactions_failed',
+          message: 'BillingResponse.serviceUnavailable');
+      await launch();
+      expect(play.calls, 1);
+      expect(svc.isPremium, isTrue);
+      expect(await cachedPremium(), isTrue);
+    });
+
+    test('a query that throws (offline, billing unavailable) keeps premium',
+        () async {
+      play.throws = true;
+      await launch();
+      expect(play.calls, 1);
+      expect(svc.isPremium, isTrue);
+      expect(await cachedPremium(), isTrue);
+    });
+
+    test('no Play store on the device keeps premium', () async {
+      store.available = false;
+      await launch();
+      expect(play.calls, 0);
+      expect(svc.isPremium, isTrue);
+    });
+
+    test('an active subscription keeps premium and is not a new sale',
+        () async {
+      play.owned = [
+        _play(yearly, PurchaseStateWrapper.purchased, acknowledged: true),
+      ];
+      await launch();
+      expect(svc.isPremium, isTrue);
+      expect(store.completed, isEmpty);
+      expect(sales, isEmpty, reason: 'the order was counted when it was made');
+    });
+
+    test('a free trial in progress keeps premium', () async {
+      // Play lists a trialling subscription as owned and paid.
+      store.products = [_offer(monthly, 4.99), _offer(monthly, 0)];
+      play.owned = [
+        _play(monthly, PurchaseStateWrapper.purchased,
+            acknowledged: true, orderId: 'GPA.trial'),
+      ];
+      await launch();
+      expect(svc.isPremium, isTrue);
+      expect(sales, isEmpty);
+    });
+
+    test('an unacknowledged paid order is granted, acknowledged and counted',
+        () async {
+      final paid = _play(monthly, PurchaseStateWrapper.purchased,
+          orderId: 'GPA.cleared');
+      store.products = [_offer(monthly, 4.99)];
+      play.owned = [paid];
+      await launch(prefs: const {});
+      expect(svc.isPremium, isTrue);
+      expect(store.completed, [paid]);
+      expect(sales, ['purchase $monthly 4.99 EUR']);
+    });
+
+    test('only an unpaid pay-later purchase: premium ends, payment pending',
+        () async {
+      play.owned = [_play(yearly, PurchaseStateWrapper.pending)];
+      await launch();
+      expect(svc.isPremium, isFalse);
+      expect(svc.paymentPending, isTrue);
+      expect(store.completed, isEmpty);
+      expect(sales, isEmpty);
+    });
+
+    test('another app product does not count as premium', () async {
+      play.owned = [
+        _play('simple_plate.something_else', PurchaseStateWrapper.purchased,
+            acknowledged: true),
+      ];
+      await launch();
+      expect(svc.isPremium, isFalse);
+    });
+
+    test('a debug-menu override is left alone', () async {
+      await launch(prefs: const {
+        'sp.premium.active': true,
+        'sp.premium.debugOverride': true,
+      });
+      expect(play.calls, 1);
+      expect(svc.isPremium, isTrue);
+    });
+
+    test('iOS never takes premium away', () async {
+      // StoreKit restore answers with nothing owned.
+      await launch(platform: TargetPlatform.iOS);
+      expect(play.calls, 0, reason: 'the Play query is Android-only');
+      expect(svc.isPremium, isTrue);
+      expect(await cachedPremium(), isTrue);
     });
   });
 }

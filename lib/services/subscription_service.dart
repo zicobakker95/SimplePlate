@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -38,8 +39,17 @@ class SubscriptionService extends ChangeNotifier {
   /// twice (e.g. when the acknowledgement failed and Play re-delivers it).
   static const _kReportedKey = 'sp.premium.reportedOrders';
 
+  /// Set while premium was switched on from the debug menu rather than
+  /// bought, so the launch reconcile does not take a QA override away.
+  static const _kDebugOverrideKey = 'sp.premium.debugOverride';
+
   // ── State ──────────────────────────────────────────────────────────────────
   bool _isPremium = false;
+  bool _debugOverride = false;
+
+  /// Bumped on every store grant, so a reconcile can tell that the purchase
+  /// stream granted premium while its query was still out.
+  int _storeGrants = 0;
   bool _storeAvailable = false;
   bool _purchasing = false;
   bool _paymentPending = false;
@@ -64,8 +74,15 @@ class SubscriptionService extends ChangeNotifier {
   ///
   /// Premium is otherwise reachable only through a real store subscription,
   /// which leaves every gated screen untestable on a debug build. Written to
-  /// the same cache key a real entitlement uses, so it survives a restart.
-  Future<void> debugSetPremium(bool value) => _setPremium(value);
+  /// the same cache key a real entitlement uses, so it survives a restart,
+  /// and marked as an override so the launch reconcile leaves it alone.
+  Future<void> debugSetPremium(bool value) async {
+    if (_isPremium == value && _debugOverride == value) return;
+    _debugOverride = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kDebugOverrideKey, value);
+    await _setPremium(value);
+  }
 
   /// Tests only: stands in for the store's product list so the paywall can
   /// be rendered (and screenshotted) with real-looking plans.
@@ -174,6 +191,7 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
     _isPremium = prefs.getBool(_kCacheKey) ?? false;
+    _debugOverride = prefs.getBool(_kDebugOverrideKey) ?? false;
     notifyListeners();
 
     _storeAvailable = await InAppPurchase.instance.isAvailable();
@@ -199,13 +217,98 @@ class SubscriptionService extends ChangeNotifier {
   /// arrive through [_onPurchaseUpdates], which grants, acknowledges and
   /// reports them; no UI is shown and failures (offline, Play unavailable)
   /// only wait for the next launch.
+  ///
+  /// Only Android also takes premium away here (see [_reconcilePlay]). iOS
+  /// never does: there is no server-side receipt check, and a StoreKit
+  /// restore can prompt for the Apple ID password, so its answer is not
+  /// trusted to end a subscription.
   Future<void> _reconcilePurchases() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _reconcilePlay();
+      return;
+    }
     try {
       await InAppPurchase.instance.restorePurchases();
     } catch (e) {
       debugPrint('[subscriptions] launch reconcile failed: $e');
     }
   }
+
+  /// The Android launch reconcile, which also ends a lapsed subscription.
+  ///
+  /// Play's purchase query returns only what the account owns right now:
+  /// active subscriptions, including one cancelled but still inside its paid
+  /// period, a free trial and a grace period. A query that succeeds without
+  /// a paid premium purchase therefore means the subscription expired, was
+  /// refunded or revoked, or is on account hold, and premium ends. Unlike
+  /// restorePurchases(), the query reports a failure as an error instead of
+  /// an empty list. A failed query says nothing about what is owned -- an
+  /// offline launch must not take away a paid subscription -- so then
+  /// nothing changes.
+  Future<void> _reconcilePlay() async {
+    final grantsBefore = _storeGrants;
+    final QueryPurchaseDetailsResponse response;
+    try {
+      response = await InAppPurchase.instance
+          .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>()
+          .queryPastPurchases();
+    } catch (e) {
+      debugPrint('[subscriptions] launch reconcile failed: $e');
+      return;
+    }
+    if (response.error != null) {
+      debugPrint('[subscriptions] launch reconcile failed: ${response.error}');
+      return;
+    }
+    // Marked as restorePurchases() marks them, so an order acknowledged
+    // long ago is not counted as a new sale (see _isNewPlaySale).
+    final owned = [
+      for (final p in response.pastPurchases)
+        p..status = PurchaseStatus.restored,
+    ];
+    // Granted, acknowledged and reported exactly as the stream would.
+    await _onPurchaseUpdates(owned);
+    final entitled = owned.any(
+        (p) => _isPremiumProduct(p.productID) && !awaitingPayment(p));
+    // A grant from the stream while the query was out is newer than it.
+    if (entitled || _storeGrants != grantsBefore) return;
+    await _endLapsedPremium();
+  }
+
+  /// Premium ends with the subscription. Neither a sale nor a refund as far
+  /// as analytics is concerned (the stores report cancellations and refunds
+  /// themselves), so nothing is logged. A debug-menu override is kept.
+  Future<void> _endLapsedPremium() async {
+    if (!_isPremium || _debugOverride) return;
+    // Belt and braces: Play answers from its own cache, which can come back
+    // empty but "OK" offline after the Play Store's data was cleared.
+    if (!await _isOnline()) {
+      debugPrint('[subscriptions] offline: premium kept');
+      return;
+    }
+    debugPrint('[subscriptions] no active subscription on Play: premium ends');
+    await _setPremium(false);
+  }
+
+  /// A cheap reachability check, only made when about to end premium.
+  Future<bool> _isOnline() async {
+    final hook = debugIsOnline;
+    if (hook != null) return hook();
+    try {
+      final r = await InternetAddress.lookup('play.googleapis.com')
+          .timeout(const Duration(seconds: 3));
+      return r.isNotEmpty && r.first.rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Tests only: stands in for the reachability check.
+  @visibleForTesting
+  Future<bool> Function()? debugIsOnline;
+
+  static bool _isPremiumProduct(String id) =>
+      id == kMonthlyId || id == kYearlyId;
 
   Future<void> _loadProducts() async {
     final response = await InAppPurchase.instance
@@ -281,7 +384,7 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> _onPurchaseUpdates(List<PurchaseDetails> updates) async {
     try {
       for (final p in updates) {
-        if (p.productID != kMonthlyId && p.productID != kYearlyId) {
+        if (!_isPremiumProduct(p.productID)) {
           await _complete(p);
           continue;
         }
@@ -304,6 +407,7 @@ class SubscriptionService extends ChangeNotifier {
             final newSale =
                 p.status == PurchaseStatus.purchased || _isNewPlaySale(p);
             _paymentPending = false;
+            _storeGrants++;
             await _setPremium(true);
             await _complete(p);
             if (newSale) await _reportSaleOnce(p);
@@ -316,9 +420,8 @@ class SubscriptionService extends ChangeNotifier {
           case PurchaseStatus.pending:
             break; // handled by awaitingPayment above
         }
-        // Note: cancellation / expiry is handled via subscription management
-        // in the store — we don't clear premium on error to avoid false
-        // negatives caused by network issues.
+        // An error never clears premium (it may only be the network);
+        // expiry and refunds are picked up by the Android launch reconcile.
       }
     } catch (e) {
       debugPrint('[subscriptions] purchase update failed: $e');
@@ -367,11 +470,15 @@ class SubscriptionService extends ChangeNotifier {
   /// singleton, so state would otherwise leak between tests).
   @visibleForTesting
   void debugReset() {
+    _purchaseSub?.cancel();
+    _purchaseSub = null;
     _isPremium = false;
+    _debugOverride = false;
     _paymentPending = false;
     _purchasing = false;
     _buying = null;
     _storeAvailable = false;
+    debugIsOnline = null;
   }
 
   /// Tests only: pretend the store answered, so [restorePurchases] runs.

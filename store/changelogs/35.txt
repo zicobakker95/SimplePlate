@@ -1,0 +1,55 @@
+<en-US>
+• Paying later with cash or a bank transfer? Premium now unlocks automatically as soon as your payment goes through.
+• The subscribe button no longer keeps spinning while a payment is pending.
+• Your Premium status now stays in sync with Google Play.
+• Small fixes and improvements.
+</en-US>
+
+<de-DE>
+• Später per Barzahlung oder Überweisung bezahlen? Premium wird jetzt automatisch freigeschaltet, sobald deine Zahlung eingegangen ist.
+• Der Abo-Button dreht sich nicht mehr endlos, während eine Zahlung aussteht.
+• Dein Premium-Status bleibt jetzt mit Google Play synchron.
+• Kleine Fehlerbehebungen und Verbesserungen.
+</de-DE>
+
+<es-ES>
+• ¿Pagas más tarde en efectivo o por transferencia? Premium ahora se activa automáticamente en cuanto se confirma tu pago.
+• El botón de suscripción ya no se queda cargando mientras un pago está pendiente.
+• Tu estado Premium ahora se mantiene sincronizado con Google Play.
+• Pequeñas correcciones y mejoras.
+</es-ES>
+
+<fr-FR>
+• Vous payez plus tard en espèces ou par virement ? Premium se débloque désormais automatiquement dès que votre paiement est validé.
+• Le bouton d'abonnement ne tourne plus en boucle pendant qu'un paiement est en attente.
+• Votre statut Premium reste désormais synchronisé avec Google Play.
+• Petites corrections et améliorations.
+</fr-FR>
+
+<it-IT>
+• Paghi più tardi in contanti o con bonifico? Premium ora si sblocca automaticamente non appena il pagamento va a buon fine.
+• Il pulsante di abbonamento non resta più in caricamento mentre un pagamento è in sospeso.
+• Il tuo stato Premium ora resta sincronizzato con Google Play.
+• Piccole correzioni e miglioramenti.
+</it-IT>
+
+<ja-JP>
+• コンビニ払いや銀行振込などの後払いでも、お支払いが完了すると自動的にプレミアムが有効になります。
+• 支払い待ちの間、登録ボタンが読み込み中のままになる問題を修正しました。
+• プレミアムの状態がGoogle Playと同期されるようになりました。
+• 細かな修正と改善。
+</ja-JP>
+
+<nl-NL>
+• Later betalen met contant geld of een bankoverschrijving? Premium wordt nu automatisch ontgrendeld zodra je betaling binnen is.
+• De abonneerknop blijft niet meer draaien terwijl een betaling in behandeling is.
+• Je Premium-status loopt nu synchroon met Google Play.
+• Kleine oplossingen en verbeteringen.
+</nl-NL>
+
+<pt-BR>
+• Vai pagar depois com boleto ou transferência? O Premium agora é liberado automaticamente assim que o pagamento for confirmado.
+• O botão de assinatura não fica mais carregando enquanto um pagamento está pendente.
+• Seu status Premium agora fica sincronizado com o Google Play.
+• Pequenas correções e melhorias.
+</pt-BR>
