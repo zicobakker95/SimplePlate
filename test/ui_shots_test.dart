@@ -65,6 +65,7 @@ void main() {
     bool emptyToday = false,
     bool fresh = false,
     double textScale = 1,
+    bool reduceMotion = false,
   }) async {
     await usePhoneSurface(tester);
     SharedPreferences.setMockInitialValues(
@@ -91,7 +92,10 @@ void main() {
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(
                 context,
-              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              ).copyWith(
+                textScaler: TextScaler.linear(textScale),
+                disableAnimations: reduceMotion,
+              ),
               child: child!,
             ),
             home: home,
@@ -102,6 +106,19 @@ void main() {
     await settle(tester);
     return store;
   }
+
+  // Crashed on OnePlus phones with "Remove animations" on: nextPage() with
+  // Duration.zero throws a LateInitializationError ('_controller').
+  testWidgets('onboarding pages forward with animations off', (tester) async {
+    await pumpApp(tester, const OnboardingScreen(), fresh: true, reduceMotion: true);
+    await tester.tap(find.text(en.getStarted));
+    await settle(tester);
+    expect(tester.takeException(), isNull);
+    expect(find.text(en.continueLabel), findsOneWidget);
+    await tester.tap(find.text(en.continueLabel));
+    await settle(tester);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final dark in [false, true]) {
     final s = dark ? '_dark' : '';

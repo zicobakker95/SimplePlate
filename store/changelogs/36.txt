@@ -1,0 +1,39 @@
+<en-US>
+• Fixed a crash when starting the app for the first time on phones with animations turned off.
+• Small fixes and improvements.
+</en-US>
+
+<de-DE>
+• Absturz beim ersten Start auf Geräten mit deaktivierten Animationen behoben.
+• Kleine Fehlerbehebungen und Verbesserungen.
+</de-DE>
+
+<es-ES>
+• Corregido un cierre inesperado al abrir la app por primera vez en móviles con las animaciones desactivadas.
+• Pequeñas correcciones y mejoras.
+</es-ES>
+
+<fr-FR>
+• Correction d'un plantage au premier lancement sur les téléphones dont les animations sont désactivées.
+• Petites corrections et améliorations.
+</fr-FR>
+
+<it-IT>
+• Risolto un arresto anomalo al primo avvio sui telefoni con le animazioni disattivate.
+• Piccole correzioni e miglioramenti.
+</it-IT>
+
+<ja-JP>
+• アニメーションをオフにしている端末で、初回起動時にアプリが終了する問題を修正しました。
+• 細かな修正と改善。
+</ja-JP>
+
+<nl-NL>
+• Crash opgelost bij de eerste start op telefoons met animaties uitgeschakeld.
+• Kleine oplossingen en verbeteringen.
+</nl-NL>
+
+<pt-BR>
+• Corrigido um travamento ao abrir o app pela primeira vez em celulares com as animações desativadas.
+• Pequenas correções e melhorias.
+</pt-BR>

@@ -36,10 +36,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() {
     if (_page < 2) {
-      _pageController.nextPage(
-        duration: context.reduceMotion ? Duration.zero : Pt.slow,
-        curve: Pt.ease,
-      );
+      // With animations off, jump: nextPage() with Duration.zero finishes
+      // inside DrivenScrollActivity's constructor and throws a
+      // LateInitializationError on '_controller' (crashed on OnePlus phones
+      // with "Remove animations" on).
+      if (context.reduceMotion) {
+        _pageController.jumpToPage(_page + 1);
+      } else {
+        _pageController.nextPage(duration: Pt.slow, curve: Pt.ease);
+      }
     } else {
       _finish();
     }
