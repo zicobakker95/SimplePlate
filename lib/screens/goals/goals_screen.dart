@@ -1,3 +1,4 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +19,10 @@ import '../../utils/weight_math.dart';
 import '../../widgets/health_sync_setting.dart';
 import '../../widgets/weight_card.dart';
 import '../../services/consent_gate.dart';
+
+/// PlateSimple's privacy policy, linked from settings and the paywall.
+const privacyPolicyUrl =
+    'https://zibaentertainment.com/privacy-policy-platesimple.html';
 
 enum _GoalMode { manual, percentages, macrosToCalories }
 
@@ -658,6 +663,28 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       mode: LaunchMode.externalApplication,
                     ),
                   ),
+                  const PtDivider(indent: 70),
+                  PtTile(
+                    leading: IconBadge(
+                      Icons.policy_outlined,
+                      color: p.protein,
+                      size: 40,
+                    ),
+                    title: l10n.privacyPolicy,
+                    titleStyle: PtText.tile(
+                      color: p.text,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                    subtitle: l10n.privacyPolicySubtitle,
+                    trailing: Icon(
+                      Icons.open_in_new_rounded,
+                      size: 18,
+                      color: p.textMuted,
+                    ),
+                    onTap: () => launchUrl(
+                      Uri.parse(privacyPolicyUrl),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                  ),
                   // Required by Google wherever the consent form was shown: a
                   // way to change or withdraw ad consent later.
                   ValueListenableBuilder<bool>(
@@ -704,54 +731,66 @@ class _GoalsScreenState extends State<GoalsScreen> {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  PtTile(
-                    leading: IconBadge(
-                      Icons.table_chart_outlined,
-                      color: p.fresh,
-                      size: 40,
+                  Builder(
+                    builder: (tileContext) => PtTile(
+                      leading: IconBadge(
+                        Icons.table_chart_outlined,
+                        color: p.fresh,
+                        size: 40,
+                      ),
+                      title: l10n.exportCsv,
+                      titleStyle: PtText.tile(
+                        color: p.text,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                      subtitle: l10n.exportCsvSub,
+                      trailing: Icon(
+                        Icons.chevron_right_rounded,
+                        color: p.textMuted,
+                      ),
+                      onTap: () {
+                        final store = context.read<FoodStore>();
+                        _export(
+                          tileContext,
+                          (origin) => ExportService.exportCsv(
+                            entries: store.allEntries,
+                            weightLog: store.weightLog.toList(),
+                            activities: store.activities.toList(),
+                            sharePositionOrigin: origin,
+                          ),
+                        );
+                      },
                     ),
-                    title: l10n.exportCsv,
-                    titleStyle: PtText.tile(
-                      color: p.text,
-                    ).copyWith(fontWeight: FontWeight.w600),
-                    subtitle: l10n.exportCsvSub,
-                    trailing: Icon(
-                      Icons.chevron_right_rounded,
-                      color: p.textMuted,
-                    ),
-                    onTap: () async {
-                      final store = context.read<FoodStore>();
-                      await ExportService.exportCsv(
-                        entries: store.allEntries,
-                        weightLog: store.weightLog.toList(),
-                        activities: store.activities.toList(),
-                      );
-                    },
                   ),
                   const PtDivider(indent: 70),
-                  PtTile(
-                    leading: IconBadge(
-                      Icons.data_object_rounded,
-                      color: p.carbs,
-                      size: 40,
+                  Builder(
+                    builder: (tileContext) => PtTile(
+                      leading: IconBadge(
+                        Icons.data_object_rounded,
+                        color: p.carbs,
+                        size: 40,
+                      ),
+                      title: l10n.exportJson,
+                      titleStyle: PtText.tile(
+                        color: p.text,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                      subtitle: l10n.exportJsonSub,
+                      trailing: Icon(
+                        Icons.chevron_right_rounded,
+                        color: p.textMuted,
+                      ),
+                      onTap: () {
+                        final store = context.read<FoodStore>();
+                        _export(
+                          tileContext,
+                          (origin) => ExportService.exportJson(
+                            entries: store.allEntries,
+                            weightLog: store.weightLog.toList(),
+                            activities: store.activities.toList(),
+                            sharePositionOrigin: origin,
+                          ),
+                        );
+                      },
                     ),
-                    title: l10n.exportJson,
-                    titleStyle: PtText.tile(
-                      color: p.text,
-                    ).copyWith(fontWeight: FontWeight.w600),
-                    subtitle: l10n.exportJsonSub,
-                    trailing: Icon(
-                      Icons.chevron_right_rounded,
-                      color: p.textMuted,
-                    ),
-                    onTap: () async {
-                      final store = context.read<FoodStore>();
-                      await ExportService.exportJson(
-                        entries: store.allEntries,
-                        weightLog: store.weightLog.toList(),
-                        activities: store.activities.toList(),
-                      );
-                    },
                   ),
                 ],
               ),
@@ -815,8 +854,17 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   Future<void> _setReminder({required bool enabled}) async {
-    await NotificationService.instance.requestPermissions(context);
-    if (!mounted) return;
+    if (enabled) {
+      final granted =
+          await NotificationService.instance.requestPermissions(context);
+      if (!mounted) return;
+      if (!granted) {
+        // A reminder that can never be shown must not look switched on.
+        setState(() => _reminderEnabled = false);
+        _showNotificationsOffHint();
+        return;
+      }
+    }
 
     setState(() => _reminderEnabled = enabled);
     final store = context.read<FoodStore>();
@@ -839,6 +887,43 @@ class _GoalsScreenState extends State<GoalsScreen> {
       );
     } else {
       await NotificationService.instance.cancelReminder();
+    }
+  }
+
+  /// Notification permission is denied: say so, and offer the system
+  /// settings, the only place it can be turned back on.
+  void _showNotificationsOffHint() {
+    final l10n = context.l10n;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.reminderPermissionDenied),
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: l10n.openSettings,
+            onPressed: () => AppSettings.openAppSettings(
+              type: AppSettingsType.notification,
+            ),
+          ),
+        ),
+      );
+  }
+
+  /// Runs an export, anchored to the tapped row for the iPad popover, and
+  /// reports a failure instead of letting it vanish.
+  Future<void> _export(
+    BuildContext tileContext,
+    Future<void> Function(Rect? origin) run,
+  ) async {
+    final origin = ExportService.shareOriginOf(tileContext);
+    final messenger = ScaffoldMessenger.of(context);
+    final failed = context.l10n.shareFailed;
+    try {
+      await run(origin);
+    } catch (e) {
+      debugPrint('[export] failed: $e');
+      messenger.showSnackBar(SnackBar(content: Text(failed)));
     }
   }
 

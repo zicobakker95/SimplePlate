@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'mediation_consent.dart';
@@ -111,6 +113,11 @@ class ConsentGate {
     }
     if (!allowed || _started) return;
     _started = true;
+    // iOS: Apple's tracking prompt comes after the GDPR answer and before the
+    // first ad request, so that request already carries the user's choice.
+    // The AdMob account has no UMP IDFA explainer message configured, so
+    // this is the plain system prompt. Never throws.
+    await requestTrackingAuthorization();
     // Bidding partners initialise inside MobileAds.initialize(), so they get
     // the US-privacy answer first (GDPR/TCF they read themselves). Never
     // throws.
@@ -121,6 +128,42 @@ class ConsentGate {
       debugPrint('[consent] starting ads failed: $e');
     }
     canRequestAds.value = true;
+  }
+
+  /// Shows the App Tracking Transparency prompt once, on iOS, while the
+  /// user has not answered it yet. iOS ignores the request while the app is
+  /// not active (it answers "not determined" without showing anything), so
+  /// it waits for the app to be in the foreground first. Never throws.
+  @visibleForTesting
+  static Future<void> requestTrackingAuthorization() async {
+    if (defaultTargetPlatform != TargetPlatform.iOS || kIsWeb) return;
+    try {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status != TrackingStatus.notDetermined) return;
+      await _untilResumed();
+      // Let the first frame (or the consent form closing) settle, so the
+      // prompt appears over the app rather than over a blank launch screen.
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    } catch (e) {
+      debugPrint('[consent] ATT request failed: $e');
+    }
+  }
+
+  /// Completes once the app is in the foreground, or after 30 seconds.
+  static Future<void> _untilResumed() async {
+    final binding = WidgetsBinding.instance;
+    if (binding.lifecycleState == AppLifecycleState.resumed) return;
+    final resumed = Completer<void>();
+    final listener = AppLifecycleListener(onResume: () {
+      if (!resumed.isCompleted) resumed.complete();
+    });
+    try {
+      await resumed.future
+          .timeout(const Duration(seconds: 30), onTimeout: () {});
+    } finally {
+      listener.dispose();
+    }
   }
 
   Future<void> _refreshPrivacyOptions() async {

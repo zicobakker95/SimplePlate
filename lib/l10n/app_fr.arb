@@ -359,5 +359,10 @@
   "torchTooltip": "Lampe torche",
   "waterAddGlass": "Ajouter un verre",
   "waterRemoveGlass": "Retirer un verre",
-  "premiumTag": "Premium"
+  "premiumTag": "Premium",
+  "adNotReadyTitle": "Pas de vidéo pour le moment",
+  "adNotReadyPremiumHint": "Premium le débloque pour de bon, sans publicité.",
+  "shareFailed": "Le partage a échoué. Réessaie.",
+  "reminderPermissionDenied": "Les notifications de PlateSimple sont désactivées. Active-les dans les réglages pour recevoir des rappels.",
+  "privacyPolicySubtitle": "Comment PlateSimple traite tes données"
 }

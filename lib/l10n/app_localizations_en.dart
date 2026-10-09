@@ -1198,4 +1198,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumTag => 'Premium';
+
+  @override
+  String get adNotReadyTitle => 'No video right now';
+
+  @override
+  String get adNotReadyPremiumHint =>
+      'Premium unlocks this for good, with no ads.';
+
+  @override
+  String get shareFailed => 'Couldn\'t share right now. Please try again.';
+
+  @override
+  String get reminderPermissionDenied =>
+      'Notifications are off for PlateSimple. Turn them on in Settings to get reminders.';
+
+  @override
+  String get privacyPolicySubtitle => 'How PlateSimple handles your data';
 }

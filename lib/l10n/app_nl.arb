@@ -359,5 +359,10 @@
   "torchTooltip": "Zaklamp",
   "waterAddGlass": "Glas toevoegen",
   "waterRemoveGlass": "Glas verwijderen",
-  "premiumTag": "Premium"
+  "premiumTag": "Premium",
+  "adNotReadyTitle": "Nu geen video",
+  "adNotReadyPremiumHint": "Met Premium is dit altijd vrij, zonder advertenties.",
+  "shareFailed": "Delen lukte niet. Probeer het opnieuw.",
+  "reminderPermissionDenied": "Meldingen voor PlateSimple staan uit. Zet ze aan in Instellingen om herinneringen te krijgen.",
+  "privacyPolicySubtitle": "Hoe PlateSimple met je gegevens omgaat"
 }

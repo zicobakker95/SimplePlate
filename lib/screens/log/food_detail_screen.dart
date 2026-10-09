@@ -61,7 +61,13 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   Future<void> _log() async {
     setState(() => _logging = true);
     final store = context.read<FoodStore>();
-    await store.logFood(widget.item, _grams, _meal);
+    // Never ask for a review on the tap that opens an interstitial.
+    await store.logFood(
+      widget.item,
+      _grams,
+      _meal,
+      promptReview: !AdService.instance.postLogInterstitialDue,
+    );
     if (!mounted) return;
 
     // Pop navigation first, then show interstitial (once per session).

@@ -2227,6 +2227,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Premium'**
   String get premiumTag;
+
+  /// Dialog title when a rewarded ad is requested but none is available.
+  ///
+  /// In en, this message translates to:
+  /// **'No video right now'**
+  String get adNotReadyTitle;
+
+  /// Second line of the no-ad dialog: Premium as the alternative.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium unlocks this for good, with no ads.'**
+  String get adNotReadyPremiumHint;
+
+  /// Snackbar when the share sheet or an export fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t share right now. Please try again.'**
+  String get shareFailed;
+
+  /// Shown when the user turns on reminders but notification permission is denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for PlateSimple. Turn them on in Settings to get reminders.'**
+  String get reminderPermissionDenied;
+
+  /// Subtitle of the Privacy Policy row in settings.
+  ///
+  /// In en, this message translates to:
+  /// **'How PlateSimple handles your data'**
+  String get privacyPolicySubtitle;
 }
 
 class _AppLocalizationsDelegate

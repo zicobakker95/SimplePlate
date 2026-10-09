@@ -177,8 +177,12 @@ class FoodStore extends ChangeNotifier {
   /// [at] back-dates the entry; it defaults to now. Nothing in the UI passes
   /// it yet, but an entry that cannot be given a date can only ever be logged
   /// for today, which is also why seeding history was impossible.
+  ///
+  /// [promptReview] false keeps the store-review prompt off this log; the
+  /// food detail screen passes false when an interstitial is about to show
+  /// on the same tap. The prompt never delays or breaks the log itself.
   Future<void> logFood(FoodItem item, double grams, MealType meal,
-      {DateTime? at}) async {
+      {DateTime? at, bool promptReview = true}) async {
     // Logging food is the whole point of the app, so this is the activation
     // signal the ad campaigns should optimise toward — an install that never
     // logs anything is not a user. Read before the entry is appended.
@@ -214,9 +218,6 @@ class FoodStore extends ChangeNotifier {
     // Update streak.
     await _updateStreak();
 
-    // Prompt for a review after 3+ day streak, at most once every 60 days.
-    await _maybeRequestReview();
-
     _pushWidgetTotals();
 
     AnalyticsService.instance.logEvent('food_logged', {
@@ -232,6 +233,12 @@ class FoodStore extends ChangeNotifier {
     }
 
     notifyListeners();
+
+    // Prompt for a review after 3+ day streak, at most once every 60 days.
+    // Last, unawaited and guarded: the entry is already saved, and when this
+    // threw (a platform failure in the review plugin) logFood failed after
+    // the save, so the user tapped again and logged the same food twice.
+    if (promptReview) unawaited(_maybeRequestReview());
   }
 
   /// Mirrors today's totals onto the home screen widget.
@@ -450,10 +457,11 @@ class FoodStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<int> logRecipe(Recipe recipe, int servingCount, MealType meal) async {
+  Future<int> logRecipe(Recipe recipe, int servingCount, MealType meal,
+      {bool promptReview = true}) async {
     final item = recipe.toFoodItem();
     final grams = recipe.gramsPerServing * servingCount;
-    await logFood(item, grams, meal);
+    await logFood(item, grams, meal, promptReview: promptReview);
     return servingCount;
   }
 
@@ -468,23 +476,40 @@ class FoodStore extends ChangeNotifier {
   Future<void> markOnboardingDone() => _storage.setOnboardingDone(true);
 
   // --- Review prompt ---
+
+  /// Stands in for the store review call in tests. Resolves true when the
+  /// prompt was requested.
+  @visibleForTesting
+  Future<bool> Function()? debugRequestReview;
+
+  /// Never throws: see [logFood].
   Future<void> _maybeRequestReview() async {
-    if (_streak < 3) return;
+    try {
+      if (_streak < 3) return;
 
-    final lastRaw = _storage.lastReviewDate;
-    if (lastRaw != null) {
-      final last = DateTime.tryParse(lastRaw);
-      if (last != null &&
-          DateTime.now().difference(last).inDays < 60) return;
+      final lastRaw = _storage.lastReviewDate;
+      if (lastRaw != null) {
+        final last = DateTime.tryParse(lastRaw);
+        if (last != null && DateTime.now().difference(last).inDays < 60) {
+          return;
+        }
+      }
+
+      final requested = await (debugRequestReview ?? _requestStoreReview)();
+      if (!requested) return;
+      // Record the date only after a successful call so a platform failure
+      // doesn't silently burn the 60-day cooldown.
+      await _storage.setLastReviewDate(DateTime.now().toIso8601String());
+    } catch (e) {
+      debugPrint('[review] prompt failed: $e');
     }
+  }
 
+  static Future<bool> _requestStoreReview() async {
     final review = InAppReview.instance;
-    if (!await review.isAvailable()) return;
-
+    if (!await review.isAvailable()) return false;
     await review.requestReview();
-    // Record the date only after a successful call so a platform failure
-    // doesn't silently burn the 60-day cooldown.
-    await _storage.setLastReviewDate(DateTime.now().toIso8601String());
+    return true;
   }
 
   // --- Internal ---

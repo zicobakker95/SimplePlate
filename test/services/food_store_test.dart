@@ -148,4 +148,67 @@ void main() {
       });
     });
   });
+
+  group('review prompt never breaks logging', () {
+    /// A user on a 3-day streak who last logged yesterday, so today's log
+    /// makes the review prompt due.
+    Future<FoodStore> dueStore() async {
+      final y = DateTime.now().subtract(const Duration(days: 1));
+      final key = '${y.year}-${y.month.toString().padLeft(2, '0')}-'
+          '${y.day.toString().padLeft(2, '0')}';
+      SharedPreferences.setMockInitialValues({
+        'sp.streak.v1': 2,
+        'sp.lastLogged.v1': key,
+      });
+      return FoodStore(await StorageService.init());
+    }
+
+    test('a failing review prompt does not fail the log', () async {
+      final store = await dueStore();
+      var asked = 0;
+      store.debugRequestReview = () async {
+        asked++;
+        throw Exception('review plugin exploded');
+      };
+
+      await store.logFood(_apple, 100, MealType.lunch);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(asked, 1);
+      expect(store.todayEntries, hasLength(1),
+          reason: 'saved exactly once, and logFood completed normally');
+      expect(store.streak, 3);
+    });
+
+    test('the prompt is skipped when the log asks for no review', () async {
+      final store = await dueStore();
+      var asked = 0;
+      store.debugRequestReview = () async {
+        asked++;
+        return true;
+      };
+
+      await store.logFood(_apple, 100, MealType.lunch, promptReview: false);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(asked, 0, reason: 'an interstitial is about to show');
+      expect(store.todayEntries, hasLength(1));
+    });
+
+    test('a due prompt is requested once and starts the cooldown', () async {
+      final store = await dueStore();
+      var asked = 0;
+      store.debugRequestReview = () async {
+        asked++;
+        return true;
+      };
+
+      await store.logFood(_apple, 100, MealType.lunch);
+      await Future<void>.delayed(Duration.zero);
+      await store.logFood(_apple, 50, MealType.dinner);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(asked, 1, reason: '60-day cooldown after a successful request');
+    });
+  });
 }

@@ -359,5 +359,10 @@
   "torchTooltip": "Taschenlampe",
   "waterAddGlass": "Glas hinzufügen",
   "waterRemoveGlass": "Glas entfernen",
-  "premiumTag": "Premium"
+  "premiumTag": "Premium",
+  "adNotReadyTitle": "Gerade kein Video",
+  "adNotReadyPremiumHint": "Mit Premium ist das dauerhaft freigeschaltet, ganz ohne Werbung.",
+  "shareFailed": "Teilen hat gerade nicht geklappt. Versuche es noch einmal.",
+  "reminderPermissionDenied": "Benachrichtigungen für PlateSimple sind aus. Aktiviere sie in den Einstellungen, um Erinnerungen zu bekommen.",
+  "privacyPolicySubtitle": "Wie PlateSimple mit deinen Daten umgeht"
 }

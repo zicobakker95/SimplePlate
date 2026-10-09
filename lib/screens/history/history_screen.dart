@@ -13,10 +13,10 @@ import '../../services/subscription_service.dart';
 import '../../ui/kit.dart';
 import '../../widgets/edit_entry_sheet.dart';
 import '../../widgets/meal_section.dart';
+import '../../widgets/rewarded_unlock.dart';
 import '../../widgets/weight_trend_card.dart';
 import '../../services/ad_service.dart';
 import '../../services/ad_config.dart';
-import '../../services/analytics_service.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -352,19 +352,11 @@ class _DaySheet extends StatelessWidget {
 /// for a rewarded ad. The History gate listens to AdService, so a successful
 /// unlock swaps this teaser for the real card with no restart.
 Future<void> _unlockInsightsWithAd(BuildContext context) async {
-  final l10n = context.l10n;
-  final messenger = ScaffoldMessenger.of(context);
-  await AdService.instance.showRewardedUnlock(
+  await unlockWithRewardedAd(
+    context,
     key: AdService.insightsUnlockKey,
     days: AdConfig.instance.insightsUnlockDays,
-    onUnlocked: () {
-      AnalyticsService.instance.logEvent('rewarded_ad_watched', {
-        'placement': 'weekly_insights',
-      });
-    },
-    onCancelled: () {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.unlockAdUnavailable)));
-    },
+    placement: 'weekly_insights',
   );
 }
 

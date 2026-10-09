@@ -359,5 +359,10 @@
   "torchTooltip": "Torcia",
   "waterAddGlass": "Aggiungi un bicchiere",
   "waterRemoveGlass": "Togli un bicchiere",
-  "premiumTag": "Premium"
+  "premiumTag": "Premium",
+  "adNotReadyTitle": "Nessun video al momento",
+  "adNotReadyPremiumHint": "Con Premium è sbloccato per sempre, senza pubblicità.",
+  "shareFailed": "Condivisione non riuscita. Riprova.",
+  "reminderPermissionDenied": "Le notifiche di PlateSimple sono disattivate. Attivale nelle Impostazioni per ricevere i promemoria.",
+  "privacyPolicySubtitle": "Come PlateSimple tratta i tuoi dati"
 }

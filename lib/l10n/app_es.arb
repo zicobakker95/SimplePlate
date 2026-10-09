@@ -359,5 +359,10 @@
   "torchTooltip": "Linterna",
   "waterAddGlass": "Añadir un vaso",
   "waterRemoveGlass": "Quitar un vaso",
-  "premiumTag": "Premium"
+  "premiumTag": "Premium",
+  "adNotReadyTitle": "Ahora no hay vídeo",
+  "adNotReadyPremiumHint": "Con Premium lo tienes siempre, sin anuncios.",
+  "shareFailed": "No se pudo compartir. Inténtalo de nuevo.",
+  "reminderPermissionDenied": "Las notificaciones de PlateSimple están desactivadas. Actívalas en Ajustes para recibir recordatorios.",
+  "privacyPolicySubtitle": "Cómo trata PlateSimple tus datos"
 }

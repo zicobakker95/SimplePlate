@@ -1159,4 +1159,20 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get premiumTag => 'プレミアム';
+
+  @override
+  String get adNotReadyTitle => '今は動画がありません';
+
+  @override
+  String get adNotReadyPremiumHint => 'プレミアムなら広告なしでずっと使えます。';
+
+  @override
+  String get shareFailed => '共有できませんでした。もう一度お試しください。';
+
+  @override
+  String get reminderPermissionDenied =>
+      'PlateSimpleの通知がオフになっています。リマインダーを受け取るには、設定で通知をオンにしてください。';
+
+  @override
+  String get privacyPolicySubtitle => 'PlateSimpleによるデータの取り扱い';
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -10,10 +11,24 @@ import '../models/weight_entry.dart';
 import '../models/activity_entry.dart';
 
 class ExportService {
+  /// Where the share sheet should point from: the global rect of the widget
+  /// behind [context] (the tapped row or button).
+  ///
+  /// iPad presents the share sheet as a popover and crashes without an
+  /// anchor; phones ignore it. Null when the widget has no size yet, which
+  /// share_plus then treats as "no anchor".
+  static Rect? shareOriginOf(BuildContext context) {
+    final box = context.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) return null;
+    final origin = box.localToGlobal(Offset.zero) & box.size;
+    return origin.isEmpty ? null : origin;
+  }
+
   static Future<void> exportCsv({
     required List<FoodEntry> entries,
     required List<WeightEntry> weightLog,
     required List<ActivityEntry> activities,
+    Rect? sharePositionOrigin,
   }) async {
     final rows = <List<dynamic>>[
       ['date', 'meal', 'food', 'brand', 'grams', 'calories', 'protein_g', 'carbs_g', 'fat_g'],
@@ -45,17 +60,23 @@ class ExportService {
     final activityFile = File('${dir.path}/platesimple_activities.csv');
     await activityFile.writeAsString(activityCsv);
 
-    await Share.shareXFiles(
-      [XFile(file.path), XFile(weightFile.path), XFile(activityFile.path)],
+    await SharePlus.instance.share(ShareParams(
+      files: [
+        XFile(file.path),
+        XFile(weightFile.path),
+        XFile(activityFile.path),
+      ],
       subject: 'PlateSimple data export',
       text: 'Your PlateSimple food, weight, and activity data.',
-    );
+      sharePositionOrigin: sharePositionOrigin,
+    ));
   }
 
   static Future<void> exportJson({
     required List<FoodEntry> entries,
     required List<WeightEntry> weightLog,
     required List<ActivityEntry> activities,
+    Rect? sharePositionOrigin,
   }) async {
     final data = {
       'exported_at': DateTime.now().toIso8601String(),
@@ -68,11 +89,12 @@ class ExportService {
     final file = File('${dir.path}/platesimple_export.json');
     await file.writeAsString(const JsonEncoder.withIndent('  ').convert(data));
 
-    await Share.shareXFiles(
-      [XFile(file.path)],
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(file.path)],
       subject: 'PlateSimple JSON export',
       text: 'Your full PlateSimple data export.',
-    );
+      sharePositionOrigin: sharePositionOrigin,
+    ));
   }
 
   static String _buildWeightCsv(List<WeightEntry> log) {

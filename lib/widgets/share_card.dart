@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/l10n.dart';
+import '../services/export_service.dart';
 import '../ui/kit.dart';
 
 // Update these once the app is live in the stores.
@@ -225,8 +226,13 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
   final _boundaryKey = GlobalKey();
   bool _sharing = false;
 
-  Future<void> _share() async {
+  Future<void> _share(BuildContext buttonContext) async {
     final shareText = context.l10n.shareText(_shareStoreUrl);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final failedText = context.l10n.shareFailed;
+    // iPad shows the share sheet as a popover anchored here; without an
+    // anchor it crashes.
+    final origin = ExportService.shareOriginOf(buttonContext);
     setState(() => _sharing = true);
     try {
       final boundary =
@@ -243,9 +249,14 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
       final file = File('${dir.path}/platesimple_day.png');
       await file.writeAsBytes(bytes);
 
-      await Share.shareXFiles([
-        XFile(file.path, mimeType: 'image/png'),
-      ], text: shareText);
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(file.path, mimeType: 'image/png')],
+        text: shareText,
+        sharePositionOrigin: origin,
+      ));
+    } catch (e) {
+      debugPrint('[share] day card failed: $e');
+      messenger?.showSnackBar(SnackBar(content: Text(failedText)));
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
@@ -280,12 +291,14 @@ class _ShareCardSheetState extends State<_ShareCardSheet> {
           ),
         ),
         const SizedBox(height: 20),
-        PtButton(
-          label: _sharing ? l10n.preparing : l10n.share,
-          icon: Icons.ios_share_rounded,
-          loading: _sharing,
-          expand: true,
-          onPressed: _sharing ? null : _share,
+        Builder(
+          builder: (buttonContext) => PtButton(
+            label: _sharing ? l10n.preparing : l10n.share,
+            icon: Icons.ios_share_rounded,
+            loading: _sharing,
+            expand: true,
+            onPressed: _sharing ? null : () => _share(buttonContext),
+          ),
         ),
       ],
     );

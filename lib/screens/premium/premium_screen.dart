@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -5,6 +6,16 @@ import '../../l10n/l10n.dart';
 import '../../services/subscription_service.dart';
 import '../../services/analytics_service.dart';
 import '../../ui/kit.dart';
+
+/// The paywall's Terms of Use link. Google Play wants the app's own terms;
+/// on iOS, Apple's standard EULA is the licence the App Store applies.
+@visibleForTesting
+String termsOfUseUrlFor(TargetPlatform platform) =>
+    platform == TargetPlatform.iOS
+        ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
+        : 'https://zibaentertainment.com/terms-of-use-platesimple.html';
+
+String get termsOfUseUrl => termsOfUseUrlFor(defaultTargetPlatform);
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -247,12 +258,25 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2.5),
                       ),
                     )
-                  else if (svc.products.isEmpty)
+                  else if (svc.products.isEmpty) ...[
+                    // A failed or empty product query (offline, Play Store
+                    // updating) gets a way out instead of a dead end.
                     Text(
                       l10n.loadPricingError,
                       textAlign: TextAlign.center,
                       style: PtText.small(color: p.textMuted),
-                    )
+                    ),
+                    const SizedBox(height: 6),
+                    Center(
+                      child: PtButton(
+                        label: l10n.tryAgain,
+                        icon: Icons.refresh_rounded,
+                        tone: PtButtonTone.ghost,
+                        compact: true,
+                        onPressed: svc.reloadProducts,
+                      ),
+                    ),
+                  ]
                   else ...[
                     Text(
                       l10n.choosePlan.toUpperCase(),
@@ -316,11 +340,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         url:
                             'https://zibaentertainment.com/privacy-policy-platesimple.html',
                       ),
-                      _LegalLink(
-                        label: l10n.termsOfUse,
-                        url:
-                            'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
-                      ),
+                      _LegalLink(label: l10n.termsOfUse, url: termsOfUseUrl),
                     ],
                   ),
                   const SizedBox(height: 4),

@@ -7,6 +7,7 @@ import '../../l10n/l10n.dart';
 import '../../models/food_entry.dart';
 import '../../models/food_item.dart';
 import '../../models/recipe.dart';
+import '../../services/ad_config.dart';
 import '../../services/ad_service.dart';
 import '../../services/food_search_service.dart';
 import '../../services/food_store.dart';
@@ -14,6 +15,7 @@ import '../../services/openfoodfacts_service.dart';
 import '../../ui/kit.dart';
 import '../../widgets/ad_banner.dart';
 import '../../widgets/quick_add_sheet.dart';
+import '../../widgets/rewarded_unlock.dart';
 import 'barcode_screen.dart';
 import 'create_custom_food_screen.dart';
 import 'create_recipe_screen.dart';
@@ -164,18 +166,15 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       );
       if (watch != true || !mounted) return;
 
-      setState(() => _loading = true);
-      bool scannerReady = false;
-      await AdService.instance.showScannerRewardedAd(
-        onUnlocked: () => scannerReady = true,
-        onCancelled: () => scannerReady = false,
+      // Unlocks only on the ad's reward; with no ad it explains and offers
+      // a retry or Premium (see unlockWithRewardedAd).
+      final unlocked = await unlockWithRewardedAd(
+        context,
+        key: AdService.scannerUnlockKey,
+        days: AdConfig.instance.scannerUnlockDays,
+        placement: 'barcode_scanner',
       );
-      if (!mounted) return;
-      setState(() => _loading = false);
-      if (!scannerReady) {
-        setState(() => _error = l10n.adUnavailable);
-        return;
-      }
+      if (!unlocked || !mounted) return;
     }
 
     if (!mounted) return;

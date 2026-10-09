@@ -1204,4 +1204,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get premiumTag => 'Premium';
+
+  @override
+  String get adNotReadyTitle => 'Nenhum vídeo agora';
+
+  @override
+  String get adNotReadyPremiumHint =>
+      'Com o Premium isso fica liberado de vez, sem anúncios.';
+
+  @override
+  String get shareFailed => 'Não foi possível compartilhar. Tente novamente.';
+
+  @override
+  String get reminderPermissionDenied =>
+      'As notificações do PlateSimple estão desativadas. Ative-as nas Configurações para receber lembretes.';
+
+  @override
+  String get privacyPolicySubtitle => 'Como o PlateSimple trata seus dados';
 }

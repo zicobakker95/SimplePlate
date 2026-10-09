@@ -359,5 +359,10 @@
   "torchTooltip": "Lanterna",
   "waterAddGlass": "Adicionar um copo",
   "waterRemoveGlass": "Remover um copo",
-  "premiumTag": "Premium"
+  "premiumTag": "Premium",
+  "adNotReadyTitle": "Nenhum vídeo agora",
+  "adNotReadyPremiumHint": "Com o Premium isso fica liberado de vez, sem anúncios.",
+  "shareFailed": "Não foi possível compartilhar. Tente novamente.",
+  "reminderPermissionDenied": "As notificações do PlateSimple estão desativadas. Ative-as nas Configurações para receber lembretes.",
+  "privacyPolicySubtitle": "Como o PlateSimple trata seus dados"
 }

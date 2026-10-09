@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -54,6 +55,10 @@ class SubscriptionService extends ChangeNotifier {
   bool _purchasing = false;
   bool _paymentPending = false;
   bool _loadingProducts = true;
+
+  /// The last product query failed (threw, or the store reported an error).
+  /// The paywall shows a retry instead of an endless spinner.
+  bool _productsError = false;
   List<ProductDetails> _products = const [];
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
 
@@ -95,6 +100,7 @@ class SubscriptionService extends ChangeNotifier {
   bool get storeAvailable => _storeAvailable;
   bool get purchasing => _purchasing;
   bool get loadingProducts => _loadingProducts;
+  bool get productsError => _productsError;
   List<ProductDetails> get products => List.unmodifiable(_products);
 
   ProductDetails? get monthly => _byId(kMonthlyId);
@@ -201,11 +207,47 @@ class SubscriptionService extends ChangeNotifier {
       return;
     }
 
-    _purchaseSub = InAppPurchase.instance.purchaseStream
-        .listen(_onPurchaseUpdates, onError: (_) {});
+    _listenToPurchases();
 
+    // The reconcile must run even when the product query fails: it is what
+    // acknowledges purchases the stream never delivered, and Play refunds
+    // anything left unacknowledged for 3 days.
+    try {
+      await _loadProducts();
+    } finally {
+      await _reconcilePurchases();
+    }
+  }
+
+  void _listenToPurchases() {
+    _purchaseSub ??= InAppPurchase.instance.purchaseStream
+        .listen(_onPurchaseUpdates, onError: (_) {});
+  }
+
+  /// The paywall's "Try again" after a failed or empty product query. Also
+  /// covers a store that was unavailable at launch (Play Store updating,
+  /// signed out) and has come back since.
+  Future<void> reloadProducts() async {
+    if (_loadingProducts) return;
+    _loadingProducts = true;
+    _productsError = false;
+    notifyListeners();
+    try {
+      if (!_storeAvailable) {
+        _storeAvailable = await InAppPurchase.instance.isAvailable();
+        if (_storeAvailable) _listenToPurchases();
+      }
+    } catch (e) {
+      debugPrint('[subscriptions] store check failed: $e');
+      _storeAvailable = false;
+    }
+    if (!_storeAvailable) {
+      _loadingProducts = false;
+      _productsError = true;
+      notifyListeners();
+      return;
+    }
     await _loadProducts();
-    await _reconcilePurchases();
   }
 
   /// Silent launch reconcile. Re-grants premium after a reinstall or device
@@ -310,13 +352,26 @@ class SubscriptionService extends ChangeNotifier {
   static bool _isPremiumProduct(String id) =>
       id == kMonthlyId || id == kYearlyId;
 
+  /// Never throws, and always ends the loading state: an unguarded throw
+  /// here left the paywall spinning forever and skipped the launch
+  /// reconcile.
   Future<void> _loadProducts() async {
-    final response = await InAppPurchase.instance
-        .queryProductDetails({kMonthlyId, kYearlyId});
-    _products = List.of(response.productDetails)
-      ..sort((a, b) => a.id == kMonthlyId ? -1 : 1); // monthly first
-    _loadingProducts = false;
-    notifyListeners();
+    try {
+      final response = await InAppPurchase.instance
+          .queryProductDetails({kMonthlyId, kYearlyId});
+      if (response.error != null) {
+        debugPrint('[subscriptions] product query: ${response.error}');
+      }
+      _products = List.of(response.productDetails)
+        ..sort((a, b) => a.id == kMonthlyId ? -1 : 1); // monthly first
+      _productsError = response.error != null && _products.isEmpty;
+    } catch (e) {
+      debugPrint('[subscriptions] product query failed: $e');
+      _productsError = true;
+    } finally {
+      _loadingProducts = false;
+      notifyListeners();
+    }
   }
 
   // ── Purchase ───────────────────────────────────────────────────────────────
@@ -444,8 +499,52 @@ class SubscriptionService extends ChangeNotifier {
     }
   }
 
-  /// [reportSale] at most once per order, across launches.
+  /// A store test purchase, which must never be reported as a sale.
+  ///
+  /// * Google Play: a real order has an order id of the form `GPA.1234-...`.
+  ///   License-test and other test orders have none or a different one.
+  ///   This is a best-effort client check; Play's server API (purchaseType)
+  ///   is the only definitive signal.
+  /// * App Store (StoreKit 2): the transaction's JSON names its environment;
+  ///   `Sandbox` covers TestFlight and sandbox testers, `Xcode` local
+  ///   StoreKit testing. StoreKit 1 transactions carry no such field and
+  ///   are treated as real.
+  static bool isTestPurchase(PurchaseDetails p) {
+    if (p is GooglePlayPurchaseDetails) {
+      final orderId = p.billingClientPurchase.orderId.trim();
+      return !orderId.startsWith('GPA.');
+    }
+    if (p.verificationData.source == 'app_store') {
+      final env = appStoreEnvironment(p.verificationData.localVerificationData);
+      return env != null && env != 'Production';
+    }
+    return false;
+  }
+
+  /// The `environment` of a StoreKit 2 transaction's JSON representation,
+  /// or null when there is none (StoreKit 1 receipt, unparseable data).
+  @visibleForTesting
+  static String? appStoreEnvironment(String localVerificationData) {
+    if (!localVerificationData.trimLeft().startsWith('{')) return null;
+    try {
+      final json = jsonDecode(localVerificationData);
+      if (json is Map && json['environment'] is String) {
+        return json['environment'] as String;
+      }
+    } catch (_) {
+      // Not JSON: a StoreKit 1 base64 receipt.
+    }
+    return null;
+  }
+
+  /// [reportSale] at most once per order, across launches. Store test
+  /// purchases (license testers, TestFlight, sandbox) are never reported.
   Future<void> _reportSaleOnce(PurchaseDetails p) async {
+    if (isTestPurchase(p)) {
+      AnalyticsService.instance.noteTestPurchase(p.productID);
+      _buying = null;
+      return;
+    }
     final id = p.purchaseID ?? '';
     if (id.isNotEmpty) {
       final prefs = await SharedPreferences.getInstance();
@@ -478,6 +577,9 @@ class SubscriptionService extends ChangeNotifier {
     _purchasing = false;
     _buying = null;
     _storeAvailable = false;
+    _productsError = false;
+    _loadingProducts = true;
+    _products = const [];
     debugIsOnline = null;
   }
 
@@ -503,9 +605,9 @@ class SubscriptionService extends ChangeNotifier {
       );
       return;
     }
-    await AnalyticsService.instance.logPurchase(
+    await AnalyticsService.instance.logSubscriptionPurchase(
       productId: productId,
-      value: offer?.rawPrice ?? 0,
+      price: offer?.rawPrice ?? 0,
       currency: offer?.currencyCode ?? 'EUR',
       transactionId: transactionId,
     );

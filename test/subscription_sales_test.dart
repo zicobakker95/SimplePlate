@@ -29,6 +29,7 @@ class _FakeStore extends InAppPurchasePlatform
   List<PurchaseDetails> owned = const [];
   bool available = true;
   List<ProductDetails> products = const [];
+  bool queryThrows = false;
 
   @override
   Future<bool> isAvailable() async => available;
@@ -38,8 +39,11 @@ class _FakeStore extends InAppPurchasePlatform
 
   @override
   Future<ProductDetailsResponse> queryProductDetails(
-          Set<String> identifiers) async =>
-      ProductDetailsResponse(productDetails: products, notFoundIDs: const []);
+          Set<String> identifiers) async {
+    if (queryThrows) throw PlatformException(code: 'BILLING_UNAVAILABLE');
+    return ProductDetailsResponse(
+        productDetails: products, notFoundIDs: const []);
+  }
 
   @override
   Future<void> completePurchase(PurchaseDetails purchase) async =>
@@ -152,7 +156,7 @@ void main() {
   test('a plan without a trial logs a purchase at its real price', () async {
     svc.debugSetProducts([_offer(monthly, 4.99)]);
     await svc.reportSale(monthly, transactionId: 'GPA.2');
-    expect(sales, ['purchase $monthly 4.99 EUR']);
+    expect(sales, ['subscription_purchase $monthly 4.99 EUR']);
   });
 
   test('a purchase that arrives later is judged by the offer the paywall buys',
@@ -205,7 +209,7 @@ void main() {
       // because the acknowledgement failed: not a second sale.
       await svc.debugHandlePurchases(
           [_play(monthly, PurchaseStateWrapper.purchased, restored: true)]);
-      expect(sales, ['purchase $monthly 4.99 EUR']);
+      expect(sales, ['subscription_purchase $monthly 4.99 EUR']);
     });
 
     test('a voucher paid while the app was closed is granted, acknowledged '
@@ -218,7 +222,7 @@ void main() {
       expect(svc.isPremium, isTrue);
       expect(store.completed, [paid],
           reason: 'Play refunds what is not acknowledged within 3 days');
-      expect(sales, ['purchase $yearly 29.99 EUR']);
+      expect(sales, ['subscription_purchase $yearly 29.99 EUR']);
     });
 
     test('a reinstall restore (already acknowledged) is not revenue',
@@ -360,7 +364,7 @@ void main() {
       await launch(prefs: const {});
       expect(svc.isPremium, isTrue);
       expect(store.completed, [paid]);
-      expect(sales, ['purchase $monthly 4.99 EUR']);
+      expect(sales, ['subscription_purchase $monthly 4.99 EUR']);
     });
 
     test('only an unpaid pay-later purchase: premium ends, payment pending',
@@ -397,6 +401,105 @@ void main() {
       expect(play.calls, 0, reason: 'the Play query is Android-only');
       expect(svc.isPremium, isTrue);
       expect(await cachedPremium(), isTrue);
+    });
+  });
+
+  group('store test purchases are never revenue', () {
+    test('a Play order without a GPA. order id is a test purchase', () {
+      expect(
+          SubscriptionService.isTestPurchase(_play(
+              monthly, PurchaseStateWrapper.purchased,
+              orderId: 'GPA.3312-1234-5678-12345')),
+          isFalse);
+      expect(
+          SubscriptionService.isTestPurchase(
+              _play(monthly, PurchaseStateWrapper.purchased, orderId: '')),
+          isTrue);
+      expect(
+          SubscriptionService.isTestPurchase(_play(
+              monthly, PurchaseStateWrapper.purchased,
+              orderId: 'test-order-1')),
+          isTrue);
+    });
+
+    test('a license-test Play purchase grants premium but logs no sale',
+        () async {
+      svc.debugSetProducts([_offer(monthly, 4.99)]);
+      final p = _play(monthly, PurchaseStateWrapper.purchased, orderId: '')
+        ..status = PurchaseStatus.purchased;
+      await svc.debugHandlePurchases([p]);
+      expect(svc.isPremium, isTrue);
+      expect(store.completed, [p], reason: 'still acknowledged');
+      expect(sales, ['test_purchase $monthly']);
+    });
+
+    test('StoreKit 2 environment is read from the transaction JSON', () {
+      expect(
+          SubscriptionService.appStoreEnvironment(
+              '{"environment":"Sandbox","productId":"x"}'),
+          'Sandbox');
+      expect(
+          SubscriptionService.appStoreEnvironment(
+              '{"environment":"Production"}'),
+          'Production');
+      expect(SubscriptionService.appStoreEnvironment('MIIT...base64'), isNull);
+      expect(SubscriptionService.appStoreEnvironment('{not json'), isNull);
+    });
+
+    test('a TestFlight / sandbox App Store purchase is a test purchase', () {
+      PurchaseDetails ios(String json) => PurchaseDetails(
+            purchaseID: '2000000123',
+            productID: monthly,
+            verificationData: PurchaseVerificationData(
+              localVerificationData: json,
+              serverVerificationData: 'jws',
+              source: 'app_store',
+            ),
+            transactionDate: '0',
+            status: PurchaseStatus.purchased,
+          );
+      expect(
+          SubscriptionService.isTestPurchase(
+              ios('{"environment":"Sandbox"}')),
+          isTrue);
+      expect(
+          SubscriptionService.isTestPurchase(ios('{"environment":"Xcode"}')),
+          isTrue);
+      expect(
+          SubscriptionService.isTestPurchase(
+              ios('{"environment":"Production"}')),
+          isFalse);
+    });
+  });
+
+  group('product query failures', () {
+    test('a throwing query ends loading with an error and still reconciles',
+        () async {
+      store.queryThrows = true;
+      SharedPreferences.setMockInitialValues(const {});
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await svc.initialize();
+      expect(svc.loadingProducts, isFalse,
+          reason: 'the paywall spinner must stop');
+      expect(svc.productsError, isTrue);
+      expect(play.calls, 1,
+          reason: 'the launch reconcile acknowledges undelivered purchases');
+    });
+
+    test('Try again loads the plans once the store answers', () async {
+      store.queryThrows = true;
+      SharedPreferences.setMockInitialValues(const {});
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await svc.initialize();
+      expect(svc.productsError, isTrue);
+
+      store
+        ..queryThrows = false
+        ..products = [_offer(monthly, 4.99)];
+      await svc.reloadProducts();
+      expect(svc.productsError, isFalse);
+      expect(svc.loadingProducts, isFalse);
+      expect(svc.monthly?.rawPrice, 4.99);
     });
   });
 }

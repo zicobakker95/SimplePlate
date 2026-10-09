@@ -596,5 +596,25 @@
   "premiumTag": "Premium",
   "@premiumTag": {
     "description": "Short badge on cards whose feature is part of Premium."
+  },
+  "adNotReadyTitle": "No video right now",
+  "@adNotReadyTitle": {
+    "description": "Dialog title when a rewarded ad is requested but none is available."
+  },
+  "adNotReadyPremiumHint": "Premium unlocks this for good, with no ads.",
+  "@adNotReadyPremiumHint": {
+    "description": "Second line of the no-ad dialog: Premium as the alternative."
+  },
+  "shareFailed": "Couldn't share right now. Please try again.",
+  "@shareFailed": {
+    "description": "Snackbar when the share sheet or an export fails."
+  },
+  "reminderPermissionDenied": "Notifications are off for PlateSimple. Turn them on in Settings to get reminders.",
+  "@reminderPermissionDenied": {
+    "description": "Shown when the user turns on reminders but notification permission is denied."
+  },
+  "privacyPolicySubtitle": "How PlateSimple handles your data",
+  "@privacyPolicySubtitle": {
+    "description": "Subtitle of the Privacy Policy row in settings."
   }
 }

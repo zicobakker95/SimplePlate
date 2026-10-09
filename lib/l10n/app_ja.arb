@@ -359,5 +359,10 @@
   "torchTooltip": "ライト",
   "waterAddGlass": "1杯追加",
   "waterRemoveGlass": "1杯減らす",
-  "premiumTag": "プレミアム"
+  "premiumTag": "プレミアム",
+  "adNotReadyTitle": "今は動画がありません",
+  "adNotReadyPremiumHint": "プレミアムなら広告なしでずっと使えます。",
+  "shareFailed": "共有できませんでした。もう一度お試しください。",
+  "reminderPermissionDenied": "PlateSimpleの通知がオフになっています。リマインダーを受け取るには、設定で通知をオンにしてください。",
+  "privacyPolicySubtitle": "PlateSimpleによるデータの取り扱い"
 }

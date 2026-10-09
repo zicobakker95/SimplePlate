@@ -42,8 +42,8 @@ dependencies:
   mobile_scanner: ^7.0.0
 
   # Notifications
-  flutter_local_notifications: ^17.2.3
-  timezone: ^0.9.4
+  flutter_local_notifications: ^22.3.1
+  timezone: ^0.11.1
   flutter_timezone: ^3.0.1
 
   # Utils
@@ -52,6 +52,9 @@ dependencies:
 
   # Ads
   google_mobile_ads: ^9.1.0
+  # iOS App Tracking Transparency prompt, asked after UMP consent and before
+  # the first ad request (ConsentGate).
+  app_tracking_transparency: ^2.0.7
   # AdMob bidding partners (docs/ADMOB_BIDDING_SETUP.md): Unity Ads and
   # Liftoff Monetize. Each adapter release pins one google_mobile_ads major,
   # so bump all three together (same set as the other ZiBa apps).
@@ -69,7 +72,7 @@ dependencies:
   url_launcher: ^6.3.1
 
   # Sharing / export
-  share_plus: ^10.1.2
+  share_plus: ^13.3.1
   path_provider: ^2.1.5
   csv: ^6.0.0
 

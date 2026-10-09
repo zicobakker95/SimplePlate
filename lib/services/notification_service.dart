@@ -31,18 +31,44 @@ class NotificationService {
       requestSoundPermission: false,
     );
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      settings: const InitializationSettings(android: android, iOS: ios),
     );
   }
 
-  Future<void> requestPermissions(BuildContext context) async {
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-    await android?.requestNotificationsPermission();
+  /// Asks for notification permission and returns whether reminders can
+  /// actually be shown. False when the user declined now or earlier (the
+  /// system no longer asks after a refusal), so the caller can keep the
+  /// reminder switch off and point to the system settings instead of
+  /// promising a reminder that will never arrive.
+  ///
+  /// A platform error counts as granted: it says nothing about the user's
+  /// choice, and blocking the switch on it would break reminders outright.
+  Future<bool> requestPermissions(BuildContext context) async {
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      if (android != null) {
+        final granted = await android.requestNotificationsPermission();
+        if (granted != null) return granted;
+        // Below Android 13 there is no runtime prompt; the app-level switch
+        // in the system settings is what counts.
+        return await android.areNotificationsEnabled() ?? true;
+      }
 
-    final ios = _plugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
-    await ios?.requestPermissions(alert: true, badge: true, sound: true);
+      final ios = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      if (ios != null) {
+        return await ios.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            ) ??
+            true;
+      }
+    } catch (e) {
+      debugPrint('[notifications] permission request failed: $e');
+    }
+    return true;
   }
 
   Future<void> scheduleDaily({
@@ -53,7 +79,7 @@ class NotificationService {
     String? channelName,
     String? channelDescription,
   }) async {
-    await _plugin.cancel(_reminderId);
+    await _plugin.cancel(id: _reminderId);
 
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(
@@ -63,11 +89,11 @@ class NotificationService {
     }
 
     await _plugin.zonedSchedule(
-      _reminderId,
-      title ?? 'Time to log your meals 🥗',
-      body ?? 'Keep your streak going — log what you ate today!',
-      scheduled,
-      NotificationDetails(
+      id: _reminderId,
+      title: title ?? 'Time to log your meals 🥗',
+      body: body ?? 'Keep your streak going — log what you ate today!',
+      scheduledDate: scheduled,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
           channelName ?? 'Daily Reminders',
@@ -78,12 +104,12 @@ class NotificationService {
         ),
         iOS: const DarwinNotificationDetails(),
       ),
+      // Inexact on purpose: a meal reminder does not need to the minute, and
+      // inexact alarms need no SCHEDULE_EXACT_ALARM permission.
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
-  Future<void> cancelReminder() => _plugin.cancel(_reminderId);
+  Future<void> cancelReminder() => _plugin.cancel(id: _reminderId);
 }
