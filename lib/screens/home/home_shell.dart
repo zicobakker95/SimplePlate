@@ -32,7 +32,7 @@ class _HomeShellState extends State<HomeShell> {
               offstage: i != _index,
               child: TickerMode(
                 enabled: i == _index,
-                child: _FadeOnShow(visible: i == _index, child: _pages[i]),
+                child: TabFadeIn(visible: i == _index, child: _pages[i]),
               ),
             ),
         ],
@@ -187,27 +187,36 @@ class _NavButton extends StatelessWidget {
 }
 
 /// Fades and lifts a tab in each time it becomes the visible one.
-class _FadeOnShow extends StatefulWidget {
-  const _FadeOnShow({required this.visible, required this.child});
+///
+/// The widget tree above [child] never changes shape: a fade and a
+/// translate that sit at 1 and 0 once the animation is done. Swapping
+/// between the bare child and a wrapped one (as this used to) makes Flutter
+/// unmount and remount the whole tab twice per switch -- its state resets
+/// and it visibly loads twice.
+@visibleForTesting
+class TabFadeIn extends StatefulWidget {
+  const TabFadeIn({super.key, required this.visible, required this.child});
   final bool visible;
   final Widget child;
 
   @override
-  State<_FadeOnShow> createState() => _FadeOnShowState();
+  State<TabFadeIn> createState() => _TabFadeInState();
 }
 
-class _FadeOnShowState extends State<_FadeOnShow>
+class _TabFadeInState extends State<TabFadeIn>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c;
+  late final Animation<double> _t;
 
   @override
   void initState() {
     super.initState();
     _c = AnimationController(vsync: this, duration: Pt.base)..value = 1;
+    _t = CurvedAnimation(parent: _c, curve: Pt.ease);
   }
 
   @override
-  void didUpdateWidget(_FadeOnShow old) {
+  void didUpdateWidget(TabFadeIn old) {
     super.didUpdateWidget(old);
     if (widget.visible && !old.visible && !context.reduceMotion) {
       _c.forward(from: 0);
@@ -222,20 +231,16 @@ class _FadeOnShowState extends State<_FadeOnShow>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      child: widget.child,
-      builder: (context, child) {
-        if (_c.value >= 1) return child!;
-        final t = Pt.ease.transform(_c.value);
-        return Opacity(
-          opacity: t,
-          child: Transform.translate(
-            offset: Offset(0, (1 - t) * 10),
-            child: child,
-          ),
-        );
-      },
+    return FadeTransition(
+      opacity: _t,
+      child: AnimatedBuilder(
+        animation: _t,
+        child: widget.child,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(0, (1 - _t.value) * 10),
+          child: child,
+        ),
+      ),
     );
   }
 }
