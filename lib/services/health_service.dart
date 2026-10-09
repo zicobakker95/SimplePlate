@@ -72,14 +72,20 @@ class HealthService {
   Future<bool> requestPermissions() async {
     try {
       await _health.configure();
+      // One request for reading and writing together. Two back-to-back
+      // requests left iOS unable to present the second Health sheet while
+      // the first was still closing: the call never returned and the switch
+      // spun forever. A single request shows one sheet with both sections
+      // and asks for exactly the same permissions as before.
+      final types = <HealthDataType>{..._readTypes, ..._writeTypes}.toList();
       final granted = await _health.requestAuthorization(
-        _readTypes,
-        permissions: _readTypes.map((_) => HealthDataAccess.READ).toList(),
-      );
-      // Write permissions may partially succeed; ignore result.
-      await _health.requestAuthorization(
-        _writeTypes,
-        permissions: _writeTypes.map((_) => HealthDataAccess.READ_WRITE).toList(),
+        types,
+        permissions: [
+          for (final t in types)
+            _writeTypes.contains(t)
+                ? HealthDataAccess.READ_WRITE
+                : HealthDataAccess.READ,
+        ],
       );
       _authorised = granted;
       return granted;
