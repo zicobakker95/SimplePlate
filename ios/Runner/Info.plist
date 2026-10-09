@@ -8,6 +8,17 @@
 	<string>ca-app-pub-8031424661917979~7684571980</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>de</string>
+		<string>es</string>
+		<string>fr</string>
+		<string>it</string>
+		<string>ja</string>
+		<string>nl</string>
+		<string>pt</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>PlateSimple</string>
 	<key>CFBundleExecutable</key>
@@ -30,8 +41,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>PlateSimple needs camera access to scan food barcodes.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>PlateSimple can read barcodes from photos in your library.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>PlateSimple saves the day card you share to your photo library when you choose Save Image.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>PlateSimple uses this to show you more relevant ads, which keep the app free. Your food log is never used for advertising.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>PlateSimple reads your active calories, steps and weight to show net calories next to what you ate and to bring a scale reading into your weight log.</string>
 	<key>NSHealthUpdateUsageDescription</key>

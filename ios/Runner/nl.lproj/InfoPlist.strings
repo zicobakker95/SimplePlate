@@ -1,0 +1,7 @@
+/* Permission prompts, localized. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "PlateSimple heeft toegang tot de camera nodig om barcodes van voedingsmiddelen te scannen.";
+"NSPhotoLibraryAddUsageDescription" = "PlateSimple bewaart je gedeelde dagkaart in je fotobibliotheek als je 'Bewaar afbeelding' kiest.";
+"NSHealthShareUsageDescription" = "PlateSimple leest je actieve calorieën, stappen en gewicht om netto calorieën naast je eten te tonen en een weegschaalmeting in je gewichtslog te zetten.";
+"NSHealthUpdateUsageDescription" = "PlateSimple kan de calorieën, macro's en het gewicht die je logt naar Apple Gezondheid schrijven, zodat al je gezondheidsgegevens op één plek staan.";
+"NSUserTrackingUsageDescription" = "PlateSimple gebruikt dit om je relevantere advertenties te tonen, waardoor de app gratis blijft. Je eetdagboek wordt nooit voor advertenties gebruikt.";

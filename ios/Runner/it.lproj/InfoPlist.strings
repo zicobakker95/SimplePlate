@@ -1,0 +1,7 @@
+/* Permission prompts, localized. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "PlateSimple ha bisogno dell'accesso alla fotocamera per scansionare i codici a barre degli alimenti.";
+"NSPhotoLibraryAddUsageDescription" = "PlateSimple salva nella tua libreria foto la scheda del giorno che condividi quando scegli «Salva immagine».";
+"NSHealthShareUsageDescription" = "PlateSimple legge le calorie attive, i passi e il peso per mostrare le calorie nette accanto a ciò che mangi e aggiungere la misurazione della bilancia al tuo registro del peso.";
+"NSHealthUpdateUsageDescription" = "PlateSimple può salvare in Salute le calorie, i macro e il peso che registri, così tutti i tuoi dati sulla salute restano in un unico posto.";
+"NSUserTrackingUsageDescription" = "PlateSimple lo usa per mostrarti annunci più pertinenti, che mantengono l'app gratuita. Il tuo diario alimentare non viene mai usato per la pubblicità.";

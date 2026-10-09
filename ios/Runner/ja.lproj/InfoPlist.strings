@@ -1,0 +1,7 @@
+/* Permission prompts, localized. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "食品のバーコードを読み取るためにカメラへのアクセスが必要です。";
+"NSPhotoLibraryAddUsageDescription" = "「画像を保存」を選ぶと、シェアした今日のカードを写真ライブラリに保存します。";
+"NSHealthShareUsageDescription" = "食べたものの横に正味カロリーを表示し、体重計の測定値を体重記録に取り込むために、アクティブカロリー、歩数、体重を読み取ります。";
+"NSHealthUpdateUsageDescription" = "記録したカロリー、栄養素、体重を「ヘルスケア」に書き込み、健康データを一か所にまとめます。";
+"NSUserTrackingUsageDescription" = "より関連性の高い広告を表示するために使用します。広告のおかげでアプリを無料でご利用いただけます。食事の記録が広告に使われることはありません。";

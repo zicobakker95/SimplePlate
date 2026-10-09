@@ -1,0 +1,7 @@
+/* Permission prompts, localized. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "PlateSimple braucht Zugriff auf die Kamera, um Barcodes von Lebensmitteln zu scannen.";
+"NSPhotoLibraryAddUsageDescription" = "PlateSimple speichert die geteilte Tageskarte in deiner Fotomediathek, wenn du „Bild sichern“ wählst.";
+"NSHealthShareUsageDescription" = "PlateSimple liest deine aktiven Kalorien, Schritte und dein Gewicht, um die Nettokalorien neben deinem Essen anzuzeigen und Messwerte deiner Waage in dein Gewichtsprotokoll zu übernehmen.";
+"NSHealthUpdateUsageDescription" = "PlateSimple kann die erfassten Kalorien, Makros und dein Gewicht in Apple Health speichern, damit alle deine Gesundheitsdaten an einem Ort sind.";
+"NSUserTrackingUsageDescription" = "PlateSimple nutzt dies, um dir passendere Werbung zu zeigen, die die App kostenlos hält. Dein Ernährungstagebuch wird nie für Werbung verwendet.";
