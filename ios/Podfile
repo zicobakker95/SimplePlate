@@ -40,6 +40,11 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
+      # google_mobile_ads 9.x (and Firebase) ship non-modular headers inside
+      # framework modules under use_frameworks!; allow them so it compiles.
+      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+    end
+    target.build_configurations.each do |config|
       # Fix: Flutter 3.x incorrectly excludes arm64 from simulator builds.
       # On Apple Silicon Macs the simulator IS arm64, so we only exclude i386.
       config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
