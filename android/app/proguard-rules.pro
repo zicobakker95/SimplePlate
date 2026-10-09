@@ -40,3 +40,10 @@
 -dontwarn com.unity3d.**
 -dontwarn com.google.ar.core.**
 -dontwarn com.ironsource.adapters.unityads.**
+
+# OkHttp (pulled in by the Liftoff/Vungle SDK) references optional TLS
+# providers that are not on Android. Without these, R8 fails the release
+# build with "Missing class" errors (seen in Klack Sort).
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.openjsse.**
