@@ -103,6 +103,10 @@ class _AdBannerState extends State<AdBanner> {
     _requested = true;
 
     final width = MediaQuery.of(context).size.width.truncate();
+    // Deprecated in google_mobile_ads 8+, kept on purpose: the suggested
+    // getLargeAnchoredAdaptiveBannerAdSize returns a taller banner, which
+    // would change the reading screens' layout. Revisit as a separate test.
+    // ignore: deprecated_member_use
     final size = await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
       width,
     );
