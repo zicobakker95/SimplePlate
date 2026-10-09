@@ -129,13 +129,6 @@ class _AdBannerState extends State<AdBanner> {
             _loaded = false;
           });
         },
-        onPaidEvent: (ad, valueMicros, precision, currencyCode) =>
-            AdService.logPaidEvent(
-              ad: ad,
-              format: 'banner',
-              valueMicros: valueMicros,
-              currencyCode: currencyCode,
-            ),
       ),
     );
     _ad = ad;

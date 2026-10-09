@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'ad_config.dart';
-import 'analytics_service.dart';
 import 'subscription_service.dart';
 import 'consent_gate.dart';
 
@@ -159,13 +158,6 @@ class AdService extends ChangeNotifier {
           _interstitialLoading = false;
           _interstitialFailures = 0;
           ad.setImmersiveMode(true);
-          ad.onPaidEvent = (ad, valueMicros, precision, currencyCode) =>
-              logPaidEvent(
-                ad: ad,
-                format: 'interstitial',
-                valueMicros: valueMicros,
-                currencyCode: currencyCode,
-              );
           _interstitial = ad;
           _interstitialLoadedAt = DateTime.now();
         },
@@ -290,13 +282,6 @@ class AdService extends ChangeNotifier {
         onAdLoaded: (ad) {
           _rewardedLoading = false;
           _rewardedFailures = 0;
-          ad.onPaidEvent = (ad, valueMicros, precision, currencyCode) =>
-              logPaidEvent(
-                ad: ad,
-                format: 'rewarded',
-                valueMicros: valueMicros,
-                currencyCode: currencyCode,
-              );
           _rewarded = ad;
           _rewardedLoadedAt = DateTime.now();
           finish(true);
@@ -443,25 +428,10 @@ class AdService extends ChangeNotifier {
   }
 
   // ── Ad revenue ─────────────────────────────────────────────────────────────
-
-  /// Reports one paid impression as GA4's standard `ad_impression` event,
-  /// which Google Ads can use for value-based (tROAS) bidding. Every format
-  /// the app shows calls this from its onPaidEvent.
-  static void logPaidEvent({
-    required Ad ad,
-    required String format,
-    required double valueMicros,
-    required String currencyCode,
-  }) {
-    final source = ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName;
-    unawaited(AnalyticsService.instance.logAdImpression(
-      format: format,
-      adUnitName: ad.adUnitId,
-      adSource: source,
-      valueMicros: valueMicros,
-      currency: currencyCode,
-    ));
-  }
+  // No onPaidEvent logging here on purpose. AdMob is linked to Firebase
+  // (2026-10-09), so the SDK itself logs `ad_impression` with value,
+  // currency and ad source for every mediated network; logging it again
+  // from onPaidEvent would double-count ad revenue in GA4 and Google Ads.
 
   String _dateKey(DateTime dt) =>
       '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';

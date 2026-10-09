@@ -121,49 +121,6 @@ class AnalyticsService {
   @visibleForTesting
   final List<String> debugSales = [];
 
-  /// The parameters of GA4's standard `ad_impression` event for one paid ad
-  /// impression (google_mobile_ads onPaidEvent). [valueMicros] is in
-  /// millionths of [currency]. Pure, so it is testable without Firebase.
-  static Map<String, Object> adImpressionParams({
-    required String format,
-    required String adUnitName,
-    String? adSource,
-    required double valueMicros,
-    required String currency,
-  }) =>
-      <String, Object>{
-        'ad_platform': 'AdMob',
-        if (adSource != null && adSource.isNotEmpty) 'ad_source': adSource,
-        'ad_format': format,
-        'ad_unit_name': adUnitName,
-        'value': valueMicros / 1e6,
-        'currency': currency,
-      };
-
-  /// One paid ad impression, as `ad_impression` (the event GA4 and Google
-  /// Ads read as ad revenue). Not sent from debug builds, which only ever
-  /// show Google's test ads.
-  Future<void> logAdImpression({
-    required String format,
-    required String adUnitName,
-    String? adSource,
-    required double valueMicros,
-    required String currency,
-  }) async {
-    final params = adImpressionParams(
-      format: format,
-      adUnitName: adUnitName,
-      adSource: adSource,
-      valueMicros: valueMicros,
-      currency: currency,
-    );
-    if (kDebugMode) {
-      debugPrint('[analytics] ad_impression $params');
-      return;
-    }
-    await logEvent('ad_impression', params);
-  }
-
   /// The paywall was shown. The denominator for paywall conversion, and a
   /// usable optimisation signal on its own while purchases are still rare.
   Future<void> logPaywallView(String source) =>

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_plate/screens/premium/premium_screen.dart';
 import 'package:simple_plate/services/ad_service.dart';
-import 'package:simple_plate/services/analytics_service.dart';
 
 void main() {
   group('ad load retry', () {
@@ -36,37 +35,6 @@ void main() {
 
     test('no load time means nothing to show', () {
       expect(AdService.isExpired(null, loaded), isTrue);
-    });
-  });
-
-  group('ad revenue event', () {
-    test('carries the GA4 ad_impression parameters', () {
-      final p = AnalyticsService.adImpressionParams(
-        format: 'rewarded',
-        adUnitName: 'ca-app-pub-1/2',
-        adSource: 'Unity Ads',
-        valueMicros: 12345,
-        currency: 'EUR',
-      );
-      expect(p, {
-        'ad_platform': 'AdMob',
-        'ad_source': 'Unity Ads',
-        'ad_format': 'rewarded',
-        'ad_unit_name': 'ca-app-pub-1/2',
-        'value': 0.012345,
-        'currency': 'EUR',
-      });
-    });
-
-    test('leaves ad_source out when the adapter is unknown', () {
-      final p = AnalyticsService.adImpressionParams(
-        format: 'banner',
-        adUnitName: 'u',
-        valueMicros: 0,
-        currency: 'USD',
-      );
-      expect(p.containsKey('ad_source'), isFalse);
-      expect(p['value'], 0);
     });
   });
 

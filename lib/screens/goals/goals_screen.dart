@@ -1,5 +1,6 @@
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,6 +20,17 @@ import '../../utils/weight_math.dart';
 import '../../widgets/health_sync_setting.dart';
 import '../../widgets/weight_card.dart';
 import '../../services/consent_gate.dart';
+
+/// The installed version name (pubspec `version:` without the build
+/// number), read once. Null where the platform cannot say (tests), and the
+/// About text then simply leaves the line out.
+final Future<String?> _appVersion = () async {
+  try {
+    return (await PackageInfo.fromPlatform()).version;
+  } catch (_) {
+    return null;
+  }
+}();
 
 /// PlateSimple's privacy policy, linked from settings and the paywall.
 const privacyPolicyUrl =
@@ -827,13 +839,16 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       style: PtText.label(color: p.textMuted),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Version 1.0.0\n'
-                      'Food data provided by Open Food Facts (openfoodfacts.org) — '
-                      'open database, open data, made by everyone.',
-                      style: PtText.tiny(
-                        color: p.textMuted,
-                      ).copyWith(height: 1.5),
+                    FutureBuilder<String?>(
+                      future: _appVersion,
+                      builder: (context, snap) => Text(
+                        '${snap.data == null ? '' : 'Version ${snap.data}\n'}'
+                        'Food data provided by Open Food Facts (openfoodfacts.org) — '
+                        'open database, open data, made by everyone.',
+                        style: PtText.tiny(
+                          color: p.textMuted,
+                        ).copyWith(height: 1.5),
+                      ),
                     ),
                   ],
                 ),
