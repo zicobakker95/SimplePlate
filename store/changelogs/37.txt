@@ -1,0 +1,63 @@
+<en-US>
+• Videos that unlock the scanner or weekly insights load more reliably. If none is available, you can try again or go Premium.
+• Reminders now tell you when notifications are turned off, with a shortcut to Settings.
+• More reliable sharing and data export.
+• Privacy policy link in Settings.
+• Under-the-hood fixes and updates.
+</en-US>
+
+<de-DE>
+• Videos zum Freischalten von Scanner und Wochenauswertung laden zuverlässiger. Ist keins verfügbar, kannst du es erneut versuchen oder Premium holen.
+• Erinnerungen sagen dir jetzt, wenn Benachrichtigungen aus sind, mit Abkürzung zu den Einstellungen.
+• Zuverlässigeres Teilen und Exportieren.
+• Datenschutzerklärung in den Einstellungen.
+• Fehlerbehebungen und Updates im Hintergrund.
+</de-DE>
+
+<es-ES>
+• Los vídeos que desbloquean el escáner y el resumen semanal cargan mejor. Si no hay ninguno, puedes reintentarlo o pasarte a Premium.
+• Los recordatorios te avisan si las notificaciones están desactivadas, con acceso directo a Ajustes.
+• Compartir y exportar datos es más fiable.
+• Enlace a la política de privacidad en Ajustes.
+• Correcciones y mejoras internas.
+</es-ES>
+
+<fr-FR>
+• Les vidéos qui débloquent le scanner et le bilan hebdo se chargent mieux. Si aucune n'est disponible, vous pouvez réessayer ou passer à Premium.
+• Les rappels vous préviennent si les notifications sont désactivées, avec un raccourci vers les réglages.
+• Partage et export des données plus fiables.
+• Lien vers la politique de confidentialité dans les réglages.
+• Corrections et mises à jour internes.
+</fr-FR>
+
+<it-IT>
+• I video che sbloccano lo scanner e il riepilogo settimanale si caricano meglio. Se non ce ne sono, puoi riprovare o passare a Premium.
+• I promemoria ti avvisano se le notifiche sono disattivate, con una scorciatoia alle Impostazioni.
+• Condivisione ed esportazione dei dati più affidabili.
+• Link all'informativa sulla privacy nelle Impostazioni.
+• Correzioni e aggiornamenti interni.
+</it-IT>
+
+<ja-JP>
+• スキャナーや週間インサイトを解放する動画の読み込みが安定しました。動画がないときは、再試行するかプレミアムを選べます。
+• 通知がオフのときはリマインダー設定でお知らせし、設定画面へすぐ移動できます。
+• 共有とデータのエクスポートがより安定しました。
+• 設定にプライバシーポリシーへのリンクを追加。
+• 内部の修正と更新。
+</ja-JP>
+
+<nl-NL>
+• Video's die de scanner en het weekoverzicht ontgrendelen laden betrouwbaarder. Is er geen beschikbaar, dan kun je het opnieuw proberen of Premium nemen.
+• Herinneringen laten nu weten als meldingen uit staan, met een snelkoppeling naar Instellingen.
+• Betrouwbaarder delen en exporteren.
+• Link naar het privacybeleid in Instellingen.
+• Verbeteringen en updates onder de motorkap.
+</nl-NL>
+
+<pt-BR>
+• Os vídeos que liberam o leitor e o resumo semanal carregam melhor. Se não houver nenhum, você pode tentar de novo ou assinar o Premium.
+• Os lembretes agora avisam quando as notificações estão desativadas, com atalho para as Configurações.
+• Compartilhar e exportar dados ficou mais confiável.
+• Link para a política de privacidade nas Configurações.
+• Correções e atualizações internas.
+</pt-BR>
