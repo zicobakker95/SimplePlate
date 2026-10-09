@@ -31,6 +31,9 @@ dependencies:
 
   # Persistence
   shared_preferences: ^2.3.2
+  # Direct import for SharedPreferencesAsyncAndroidOptions: reading the IAB
+  # consent keys UMP writes to the default prefs file (mediation_consent.dart).
+  shared_preferences_android: ^2.4.0
 
   # Food database (Open Food Facts)
   http: ^1.2.2
@@ -49,6 +52,11 @@ dependencies:
 
   # Ads
   google_mobile_ads: ^5.3.1
+  # AdMob bidding partners (docs/ADMOB_BIDDING_SETUP.md). The last adapter
+  # releases built for google_mobile_ads 5.x; the next minor of each needs
+  # google_mobile_ads 6+, so bump them together with it.
+  gma_mediation_liftoffmonetize: ^1.1.0
+  gma_mediation_unity: ^1.3.0
 
   # IAP
   in_app_purchase: ^3.2.0

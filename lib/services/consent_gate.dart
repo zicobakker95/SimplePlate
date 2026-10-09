@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'mediation_consent.dart';
+
 /// GDPR consent through Google's UMP, before any ad is requested.
 ///
 /// AdMob refuses to serve personalised ads in the EEA, UK and Switzerland
@@ -89,6 +91,9 @@ class ConsentGate {
       if (!done.isCompleted) done.complete();
     }
     await done.future.timeout(const Duration(seconds: 60), onTimeout: () {});
+    // A changed answer reaches the bidding partners that do not read UMP
+    // themselves (see mediation_consent.dart).
+    if (_started) await forwardMediationConsent();
     await _startIfAllowed();
     await _refreshPrivacyOptions();
   }
@@ -104,6 +109,9 @@ class ConsentGate {
     }
     if (!allowed || _started) return;
     _started = true;
+    // Bidding partners initialise inside MobileAds.initialize(); the ones
+    // that do not read UMP themselves get the answer first. Never throws.
+    await forwardMediationConsent();
     try {
       await _onCanRequestAds?.call();
     } catch (e) {

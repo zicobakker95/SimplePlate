@@ -21,3 +21,22 @@
 
 # flutter_local_notifications models (serialised by Gson)
 -keep class com.dexterous.** { *; }
+
+# --- AdMob bidding mediation (Unity Ads, Liftoff Monetize) ----------------
+# The Google Mobile Ads SDK instantiates mediation adapters by class name from
+# the server-side mediation config, so nothing in the app references them
+# directly. If R8 renames or strips one, that network silently never bids in
+# release builds while debug (unshrunk) looks fine. The SDKs ship consumer
+# rules of their own; these are a belt-and-braces backstop.
+-keep class com.google.ads.mediation.** { *; }
+-keep class * implements com.google.android.gms.ads.mediation.MediationAdapter { *; }
+-keep class * extends com.google.android.gms.ads.mediation.Adapter { *; }
+# Liftoff Monetize (Vungle)
+-keep class com.vungle.** { *; }
+-dontwarn com.vungle.**
+# Unity Ads
+-keep class com.unity3d.ads.** { *; }
+-keep class com.unity3d.services.** { *; }
+-dontwarn com.unity3d.**
+-dontwarn com.google.ar.core.**
+-dontwarn com.ironsource.adapters.unityads.**
