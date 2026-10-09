@@ -1,6 +1,8 @@
 PODS:
   - app_settings (5.1.1):
     - Flutter
+  - app_tracking_transparency (0.0.1):
+    - Flutter
   - device_info_plus (0.0.1):
     - Flutter
   - Firebase/CoreOnly (12.17.0):
@@ -92,11 +94,17 @@ PODS:
     - Flutter
   - flutter_timezone (0.0.1):
     - Flutter
-  - Google-Mobile-Ads-SDK (11.13.0):
-    - GoogleUserMessagingPlatform (>= 1.1)
-  - google_mobile_ads (5.3.1):
+  - gma_mediation_liftoffmonetize (1.5.5):
     - Flutter
-    - Google-Mobile-Ads-SDK (~> 11.13.0)
+    - GoogleMobileAdsMediationVungle (~> 7.7.7.0)
+  - gma_mediation_unity (1.11.1):
+    - Flutter
+    - GoogleMobileAdsMediationUnity (~> 4.20.1.0)
+  - Google-Mobile-Ads-SDK (13.11.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - google_mobile_ads (9.1.0):
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 13.7)
     - webview_flutter_wkwebview
   - GoogleAdsOnDeviceConversion (3.6.1):
     - GoogleUtilities/Environment (~> 8.1)
@@ -128,6 +136,12 @@ PODS:
   - GoogleDataTransport (10.1.1):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleMobileAdsMediationUnity (4.20.1.0):
+    - Google-Mobile-Ads-SDK (~> 13.3)
+    - UnityAds (= 4.20.1)
+  - GoogleMobileAdsMediationVungle (7.7.7.0):
+    - Google-Mobile-Ads-SDK (~> 13.3)
+    - VungleAds (= 7.7.7)
   - GoogleUserMessagingPlatform (3.1.0)
   - GoogleUtilities/AppDelegateSwizzler (8.1.4):
     - GoogleUtilities/Environment
@@ -156,7 +170,7 @@ PODS:
   - GoogleUtilities/UserDefaults (8.1.4):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - health (13.3.1):
+  - health (13.3.2):
     - Flutter
   - home_widget (0.0.1):
     - Flutter
@@ -175,6 +189,8 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
+  - package_info_plus (0.4.5):
+    - Flutter
   - PromisesObjC (2.4.1)
   - PromisesSwift (2.4.1):
     - PromisesObjC (= 2.4.1)
@@ -208,14 +224,19 @@ PODS:
     - sqlite3/perf-threadsafe
     - sqlite3/rtree
     - sqlite3/session
+  - UnityAds (4.20.1):
+    - UnityCoherenceLib (= 0.1.0)
+  - UnityCoherenceLib (0.1.0)
   - url_launcher_ios (0.0.1):
     - Flutter
+  - VungleAds (7.7.7)
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
 
 DEPENDENCIES:
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
+  - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -224,6 +245,8 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
+  - gma_mediation_liftoffmonetize (from `.symlinks/plugins/gma_mediation_liftoffmonetize/ios`)
+  - gma_mediation_unity (from `.symlinks/plugins/gma_mediation_unity/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - health (from `.symlinks/plugins/health/ios`)
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
@@ -231,6 +254,7 @@ DEPENDENCIES:
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
@@ -255,16 +279,23 @@ SPEC REPOS:
     - GoogleAdsOnDeviceConversion
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleMobileAdsMediationUnity
+    - GoogleMobileAdsMediationVungle
     - GoogleUserMessagingPlatform
     - GoogleUtilities
     - nanopb
     - PromisesObjC
     - PromisesSwift
     - sqlite3
+    - UnityAds
+    - UnityCoherenceLib
+    - VungleAds
 
 EXTERNAL SOURCES:
   app_settings:
     :path: ".symlinks/plugins/app_settings/ios"
+  app_tracking_transparency:
+    :path: ".symlinks/plugins/app_tracking_transparency/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   firebase_analytics:
@@ -281,6 +312,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   flutter_timezone:
     :path: ".symlinks/plugins/flutter_timezone/ios"
+  gma_mediation_liftoffmonetize:
+    :path: ".symlinks/plugins/gma_mediation_liftoffmonetize/ios"
+  gma_mediation_unity:
+    :path: ".symlinks/plugins/gma_mediation_unity/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   health:
@@ -295,6 +330,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
   mobile_scanner:
     :path: ".symlinks/plugins/mobile_scanner/darwin"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
@@ -308,6 +345,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   app_settings: 3507c575c2b18a462c99948f61d5de21d4420999
+  app_tracking_transparency: 3d84f147f67ca82d3c15355c36b1fa6b66ca7c92
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Firebase: e8400c058702940d53f31fc0653e4e7a06332326
   firebase_analytics: 4dc4986181e6f58d24f879716f175a53e837c914
@@ -326,31 +364,39 @@ SPEC CHECKSUMS:
   FirebaseSessions: 83cf567ddcef20303eb85e003dfdbe030343ef8d
   FirebaseSharedSwift: 983820e9aa55d2acd6af77f9a1f252ba0afb3150
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
+  flutter_local_notifications: 643a3eda1ce1c0599413ca31672536d423dee214
   flutter_timezone: ee50ce7786b5fde27e2fe5375bbc8c9661ffc13f
-  Google-Mobile-Ads-SDK: 14f57f2dc33532a24db288897e26494640810407
-  google_mobile_ads: 16ad301354fa6a7ea55770c6254bd4339bf8558b
+  gma_mediation_liftoffmonetize: c9c87c0e168bd45ab8f6f207bf2470080467f91b
+  gma_mediation_unity: 07079ce0bc50b081dc22c386db7270069dad6257
+  Google-Mobile-Ads-SDK: 09d0868abe43b9f851b7b340a245679f0eafc96c
+  google_mobile_ads: 6b1c16497394528f4a59e76e2fc947cb32b101e2
   GoogleAdsOnDeviceConversion: e3b71da24ff4cf01cf520756ac1c2b93c07b86ff
   GoogleAppMeasurement: 2234668e2451f9da37b93dad7830e457600c008f
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
+  GoogleMobileAdsMediationUnity: cf8c4104b642d1829ce5ad7fd70184b9599bfc50
+  GoogleMobileAdsMediationVungle: 06d54366214d5cab1d16acd3783cc28640837ee7
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: db34c1c11c6f2eccb6fab2340cb8ceb1451299dc
-  health: 4decf5d74e8f54c58a8c07a385fc72f629a831d9
+  health: 72947bca89ee7906256d6f650db061ca4b2f92c7
   home_widget: f169fc41fd807b4d46ab6615dc44d62adbf9f64f
   in_app_purchase_storekit: 22cca7d08eebca9babdf4d07d0baccb73325d3c8
   in_app_review: 7dd1ea365263f834b8464673f9df72c80c17c937
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   PromisesSwift: 217dea0fd5d2ad65222a109c48698add13cc1c5b
-  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  share_plus: eccd7beb7cea61271aeed1800e8ccb2b952c0c7f
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqlite3: a51c07cf16e023d6c48abd5e5791a61a47354921
   sqlite3_flutter_libs: b3e120efe9a82017e5552a620f696589ed4f62ab
+  UnityAds: 70ddc29f85c2e26967afca937e5379118f435747
+  UnityCoherenceLib: d9be08c5b9c2880cb220c7ecd643f97ebda422b7
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
+  VungleAds: eb9e96673ce5699a38458e61ee70a997228af88a
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 3f5c00702897a6aab1f1b9f4705f7b3d3e58dda6
+PODFILE CHECKSUM: 1d4c021793ece972becef964a5aba9c9bf327f95
 
 COCOAPODS: 1.16.2
