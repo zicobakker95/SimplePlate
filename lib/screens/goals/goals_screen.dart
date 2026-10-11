@@ -834,7 +834,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
           const SizedBox(height: 28),
           MoreFromZiba(
             selfId: 'platesimple',
-            group: ZibaGroup.wellness,
             title: 'More from ZiBa',
             textColor: p.text,
             mutedColor: p.textMuted,
