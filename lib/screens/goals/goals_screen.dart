@@ -655,6 +655,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               child: Column(
                 children: [
                   PtTile(
+                    key: const Key('settings_feedback'),
                     leading: IconBadge(
                       Icons.feedback_rounded,
                       color: p.primary,
@@ -670,10 +671,27 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       size: 18,
                       color: p.textMuted,
                     ),
-                    onTap: () => launchUrl(
-                      Uri.parse('https://zibaentertainment.com/feedback/'),
-                      mode: LaunchMode.externalApplication,
+                    onTap: () => openZibaLink(kFeedbackUri),
+                  ),
+                  const PtDivider(indent: 70),
+                  PtTile(
+                    key: const Key('settings_rate'),
+                    leading: IconBadge(
+                      Icons.star_rounded,
+                      color: p.carbs,
+                      size: 40,
                     ),
+                    title: l10n.rateApp,
+                    titleStyle: PtText.tile(
+                      color: p.text,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                    subtitle: l10n.rateAppSub,
+                    trailing: Icon(
+                      Icons.open_in_new_rounded,
+                      size: 18,
+                      color: p.textMuted,
+                    ),
+                    onTap: () => openSelfStoreListing(),
                   ),
                   const PtDivider(indent: 70),
                   PtTile(

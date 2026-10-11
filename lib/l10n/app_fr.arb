@@ -72,6 +72,8 @@
   "feedbackTitle": "Avis",
   "feedbackBody": "Je suis un développeur indépendant et votre avis aide à améliorer PlateSimple. Moins d'une minute !",
   "feedbackShare": "Partager un avis",
+  "rateApp": "Noter PlateSimple",
+  "rateAppSub": "Un avis aide d’autres personnes à trouver PlateSimple",
   "dataExportTitle": "Export des données",
   "dataExportSubtitle": "Exportez votre journal alimentaire, votre poids et vos activités.",
   "exportCsv": "Exporter en CSV",

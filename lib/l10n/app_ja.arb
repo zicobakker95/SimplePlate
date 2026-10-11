@@ -72,6 +72,8 @@
   "feedbackTitle": "フィードバック",
   "feedbackBody": "個人開発者です。あなたのフィードバックがPlateSimpleの改善に役立ちます。1分もかかりません！",
   "feedbackShare": "フィードバックを送る",
+  "rateApp": "PlateSimple を評価",
+  "rateAppSub": "レビューは他の方が PlateSimple を見つける助けになります",
   "dataExportTitle": "データのエクスポート",
   "dataExportSubtitle": "食事ログ・体重・アクティビティをエクスポートします。",
   "exportCsv": "CSVでエクスポート",

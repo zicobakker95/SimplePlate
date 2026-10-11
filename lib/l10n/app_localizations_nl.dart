@@ -243,6 +243,12 @@ class AppLocalizationsNl extends AppLocalizations {
   String get feedbackShare => 'Feedback delen';
 
   @override
+  String get rateApp => 'Beoordeel PlateSimple';
+
+  @override
+  String get rateAppSub => 'Een review helpt anderen PlateSimple te vinden';
+
+  @override
   String get dataExportTitle => 'Gegevens exporteren';
 
   @override

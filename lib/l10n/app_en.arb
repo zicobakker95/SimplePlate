@@ -110,6 +110,14 @@
   "feedbackTitle": "Feedback",
   "feedbackBody": "I'm a solo developer and your feedback helps make PlateSimple better. Takes less than a minute!",
   "feedbackShare": "Share feedback",
+  "rateApp": "Rate PlateSimple",
+  "@rateApp": {
+    "description": "Settings row that opens PlateSimple's store page to leave a rating and review."
+  },
+  "rateAppSub": "A review helps others find PlateSimple",
+  "@rateAppSub": {
+    "description": "Subtitle of the Rate PlateSimple row in settings."
+  },
   "dataExportTitle": "Data export",
   "dataExportSubtitle": "Export your food log, weight, and activity data.",
   "exportCsv": "Export as CSV",

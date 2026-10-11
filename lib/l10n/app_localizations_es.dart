@@ -245,6 +245,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get feedbackShare => 'Compartir opinión';
 
   @override
+  String get rateApp => 'Valorar PlateSimple';
+
+  @override
+  String get rateAppSub => 'Una reseña ayuda a otros a encontrar PlateSimple';
+
+  @override
   String get dataExportTitle => 'Exportar datos';
 
   @override

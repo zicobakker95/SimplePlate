@@ -72,6 +72,8 @@
   "feedbackTitle": "Feedback",
   "feedbackBody": "Ik ben een soloontwikkelaar en jouw feedback helpt PlateSimple beter te maken. Kost minder dan een minuut!",
   "feedbackShare": "Feedback delen",
+  "rateApp": "Beoordeel PlateSimple",
+  "rateAppSub": "Een review helpt anderen PlateSimple te vinden",
   "dataExportTitle": "Gegevens exporteren",
   "dataExportSubtitle": "Exporteer je voedingslog, gewicht en activiteiten.",
   "exportCsv": "Exporteren als CSV",

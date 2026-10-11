@@ -242,6 +242,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackShare => 'Share feedback';
 
   @override
+  String get rateApp => 'Rate PlateSimple';
+
+  @override
+  String get rateAppSub => 'A review helps others find PlateSimple';
+
+  @override
   String get dataExportTitle => 'Data export';
 
   @override

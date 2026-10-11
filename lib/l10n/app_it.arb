@@ -72,6 +72,8 @@
   "feedbackTitle": "Feedback",
   "feedbackBody": "Sono uno sviluppatore indipendente e il tuo feedback aiuta a migliorare PlateSimple. Meno di un minuto!",
   "feedbackShare": "Condividi feedback",
+  "rateApp": "Valuta PlateSimple",
+  "rateAppSub": "Una recensione aiuta altri a trovare PlateSimple",
   "dataExportTitle": "Esporta dati",
   "dataExportSubtitle": "Esporta il tuo diario alimentare, il peso e le attività.",
   "exportCsv": "Esporta come CSV",

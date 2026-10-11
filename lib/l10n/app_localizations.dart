@@ -542,6 +542,18 @@ abstract class AppLocalizations {
   /// **'Share feedback'**
   String get feedbackShare;
 
+  /// Settings row that opens PlateSimple's store page to leave a rating and review.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate PlateSimple'**
+  String get rateApp;
+
+  /// Subtitle of the Rate PlateSimple row in settings.
+  ///
+  /// In en, this message translates to:
+  /// **'A review helps others find PlateSimple'**
+  String get rateAppSub;
+
   /// No description provided for @dataExportTitle.
   ///
   /// In en, this message translates to:

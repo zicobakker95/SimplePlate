@@ -236,6 +236,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get feedbackShare => 'フィードバックを送る';
 
   @override
+  String get rateApp => 'PlateSimple を評価';
+
+  @override
+  String get rateAppSub => 'レビューは他の方が PlateSimple を見つける助けになります';
+
+  @override
   String get dataExportTitle => 'データのエクスポート';
 
   @override
