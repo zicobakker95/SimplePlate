@@ -22,8 +22,8 @@ void main() {
     'the catalogue lists the published apps, La Famiglia in, Sip Sip Hooray out',
     () {
       expect(kZibaApps.map((a) => a.id).toList(), [
-        'deadlight',
         'lafamiglia',
+        'deadlight',
         'klacksort',
         'klack',
         'streaks',
@@ -33,7 +33,7 @@ void main() {
       ]);
       final lf = kZibaApps.firstWhere((a) => a.id == 'lafamiglia');
       expect(lf.androidId, 'com.zibagames.la_famiglia_mobile');
-      expect(lf.appleId, isEmpty);
+      expect(lf.appleId, '6785994837');
       expect(
         kZibaApps.firstWhere((a) => a.id == 'platesimple').appleId,
         kSelfAppleId,
@@ -60,7 +60,7 @@ void main() {
         platform: TargetPlatform.iOS,
       );
       expect(android.map((a) => a.id), contains('lafamiglia'));
-      expect(ios.map((a) => a.id), isNot(contains('lafamiglia')));
+      expect(ios.map((a) => a.id), contains('lafamiglia'));
       expect(ios.every((a) => a.appleId.isNotEmpty), isTrue);
       expect(android.map((a) => a.id), isNot(contains('platesimple')));
     },

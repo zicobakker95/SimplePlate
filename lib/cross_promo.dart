@@ -41,12 +41,13 @@ final kFeedbackUri =
 /// The full ZiBa catalogue. Keep in sync across apps.
 const List<ZibaApp> kZibaApps = [
   // Games
+  // La Famiglia first: the newest game, and now on both stores.
+  ZibaApp('lafamiglia', 'La Famiglia', 'Mafia family saga', '6785994837',
+      'com.zibagames.la_famiglia_mobile', Icons.local_bar_rounded,
+      Color(0xFF8E1F1F), ZibaGroup.games),
   ZibaApp('deadlight', 'Deadlight', 'Zombie survival', '6780618209',
       'com.deadlight.zibaentertainment', Icons.dark_mode_rounded,
       Color(0xFFB83232), ZibaGroup.games),
-  ZibaApp('lafamiglia', 'La Famiglia', 'Mafia family saga', '',
-      'com.zibagames.la_famiglia_mobile', Icons.local_bar_rounded,
-      Color(0xFF8E1F1F), ZibaGroup.games),
   ZibaApp('klacksort', 'Klack Sort', 'Color-sort puzzle', '6786612509',
       'com.zibagames.klack_sort', Icons.view_week_rounded, Color(0xFF8B6BEA),
       ZibaGroup.games),
