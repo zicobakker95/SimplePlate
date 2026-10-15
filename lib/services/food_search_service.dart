@@ -95,7 +95,12 @@ class FoodSearchService {
       yield FoodSearchResult(cached, fromCache: true, offline: true);
       return;
     }
-    throw liveError!;
+    // Not `throw`: a listener that cancelled while the request was in flight
+    // (a new query typed, the screen closed) would have the error delivered
+    // to its cancel() future instead, which nobody awaits, and it would land
+    // in Crashlytics as a fatal. After a cancel, `yield*` just ends the
+    // stream; a listener still listening gets the error as before.
+    yield* Stream<FoodSearchResult>.error(liveError!);
   }
 
   /// Barcode lookup, cache first: a product scanned in the last month comes

@@ -97,8 +97,12 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     if (q == _searchedQuery && !_loading && _error == null) return;
 
     final locale = Localizations.localeOf(context);
-    await _sub?.cancel();
-    if (!mounted) return;
+    // Not awaited: cancelling a search waits for its request to finish, up
+    // to the whole time budget, and the new query should not wait on the old
+    // one. Results for an old query are dropped by the `_searchedQuery`
+    // checks below.
+    unawaited(_sub?.cancel());
+    _sub = null;
     setState(() {
       _searchedQuery = q;
       _loading = true;

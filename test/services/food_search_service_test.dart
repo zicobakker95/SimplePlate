@@ -1,4 +1,6 @@
 // Cache and live search combined, as the screen sees it.
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -80,6 +82,40 @@ void main() {
     final svc = service(MockClient((_) async => http.Response('', 503)));
     expect(svc.search('apple').toList(),
         throwsA(isA<OpenFoodFactsException>()));
+  });
+
+  // Crashlytics, 2.1.0 (39): a fatal FlutterError "Request timed out" at
+  // FoodSearchService.search. The add-food screen cancels a search when a new
+  // query is typed or the screen closes; when the cancelled search's request
+  // then failed with nothing cached, the error went to the unawaited cancel()
+  // future and surfaced as an uncaught error.
+  test('a search cancelled before its request fails ends quietly', () async {
+    final failing = Completer<void>();
+    final svc = service(MockClient((_) async {
+      await failing.future;
+      throw http.ClientException('Request timed out');
+    }));
+
+    final sub = svc.search('apple').listen((_) {}, onError: (_) {});
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    // The screen does not await this; nothing would catch an error on it.
+    final cancelled = sub.cancel();
+    failing.complete();
+    Object? cancelError;
+    await cancelled.catchError((Object e) => cancelError = e);
+
+    expect(cancelError, isNull,
+        reason: 'the failed request reached the cancel() future');
+  });
+
+  test('a search still listened to gets the error, then done', () async {
+    final svc = service(MockClient((_) async => http.Response('', 503)));
+    final errors = <Object>[];
+    final done = Completer<void>();
+    svc.search('apple').listen((_) {},
+        onError: errors.add, onDone: done.complete);
+    await done.future;
+    expect(errors.single, isA<OpenFoodFactsException>());
   });
 
   test('barcode: cache first, network only on a miss', () async {
