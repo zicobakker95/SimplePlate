@@ -1,0 +1,55 @@
+<en-US>
+• Fixed a crash when you changed or left a food search while it was still loading.
+• Rate PlateSimple and send feedback from Settings.
+• More from ZiBa now shows all our apps.
+• Under-the-hood fixes and updates.
+</en-US>
+
+<de-DE>
+• Absturz behoben, wenn du eine Lebensmittelsuche während des Ladens geändert oder verlassen hast.
+• PlateSimple bewerten und Feedback senden in den Einstellungen.
+• „Mehr von ZiBa“ zeigt jetzt alle unsere Apps.
+• Fehlerbehebungen und Updates im Hintergrund.
+</de-DE>
+
+<es-ES>
+• Corregido un cierre inesperado al cambiar o salir de una búsqueda de alimentos mientras cargaba.
+• Valora PlateSimple y envía comentarios desde Ajustes.
+• «Más de ZiBa» ahora muestra todas nuestras apps.
+• Correcciones y mejoras internas.
+</es-ES>
+
+<fr-FR>
+• Correction d'un plantage quand vous modifiiez ou quittiez une recherche d'aliment en cours de chargement.
+• Notez PlateSimple et envoyez vos remarques depuis les réglages.
+• « Plus de ZiBa » affiche maintenant toutes nos applis.
+• Corrections et mises à jour internes.
+</fr-FR>
+
+<it-IT>
+• Risolto un arresto anomalo quando cambiavi o lasciavi una ricerca di alimenti ancora in caricamento.
+• Valuta PlateSimple e invia un feedback dalle Impostazioni.
+• «Altro da ZiBa» ora mostra tutte le nostre app.
+• Correzioni e aggiornamenti interni.
+</it-IT>
+
+<ja-JP>
+• 食品検索の読み込み中に検索を変更したり画面を離れたりするとアプリが落ちる問題を修正しました。
+• 設定からPlateSimpleの評価とフィードバック送信ができます。
+• 「ZiBaのその他のアプリ」にすべてのアプリを表示します。
+• 内部の修正と更新。
+</ja-JP>
+
+<nl-NL>
+• Crash opgelost bij het wijzigen of verlaten van een voedingszoekopdracht die nog laadde.
+• Beoordeel PlateSimple en stuur feedback vanuit Instellingen.
+• 'Meer van ZiBa' toont nu al onze apps.
+• Verbeteringen en updates onder de motorkap.
+</nl-NL>
+
+<pt-BR>
+• Corrigido um travamento ao mudar ou sair de uma busca de alimentos enquanto ela carregava.
+• Avalie o PlateSimple e envie feedback pelas Configurações.
+• "Mais da ZiBa" agora mostra todos os nossos apps.
+• Correções e atualizações internas.
+</pt-BR>
