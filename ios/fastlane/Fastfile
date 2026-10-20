@@ -40,15 +40,13 @@ platform :ios do
     ipa = Dir[File.join(root, "build/ios/ipa/*.ipa")].max_by { |f| File.mtime(f) }
     UI.user_error!("No .ipa produced — check Xcode signing/export on this Mac.") unless ipa
 
-    upload_to_app_store(
+    # TestFlight upload only. upload_to_app_store would adopt the editable store version,
+    # even one Waiting for Review, and try to rename it.
+    upload_to_testflight(
       api_key: api_key,
       ipa: ipa,
       app_identifier: APP_ID,
-      skip_screenshots: true,        # screenshots/metadata are managed in the browser
-      skip_metadata: true,
-      run_precheck_before_submit: false,
-      submit_for_review: false,      # just uploads the build; you submit when ready
-      force: true                    # no interactive HTML preview confirmation
+      skip_waiting_for_build_processing: true
     )
   end
   desc "Push file-managed App Store metadata only (no binary, no screenshots, no auto-submit)"
