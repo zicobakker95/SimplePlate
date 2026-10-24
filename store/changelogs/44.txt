@@ -1,0 +1,39 @@
+<en-US>
+• Made for tablets and foldables: uses the whole big screen.
+• Small fixes and improvements.
+</en-US>
+
+<de-DE>
+• Für Tablets und Foldables gemacht: nutzt den ganzen großen Bildschirm.
+• Kleine Korrekturen und Verbesserungen.
+</de-DE>
+
+<es-ES>
+• Pensada para tablets y plegables: aprovecha toda la pantalla grande.
+• Pequeñas correcciones y mejoras.
+</es-ES>
+
+<fr-FR>
+• Conçue pour les tablettes et les pliables : utilise tout le grand écran.
+• Petites corrections et améliorations.
+</fr-FR>
+
+<it-IT>
+• Pensata per tablet e pieghevoli: usa tutto lo schermo grande.
+• Piccole correzioni e miglioramenti.
+</it-IT>
+
+<ja-JP>
+• タブレットと折りたたみスマホに対応：大きな画面を全面に使います。
+• 細かな修正と改善。
+</ja-JP>
+
+<nl-NL>
+• Gemaakt voor tablets en vouwbare telefoons: gebruikt het hele grote scherm.
+• Kleine verbeteringen en oplossingen.
+</nl-NL>
+
+<pt-BR>
+• Feito para tablets e dobráveis: usa toda a tela grande.
+• Pequenas correções e melhorias.
+</pt-BR>
