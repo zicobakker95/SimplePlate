@@ -39,6 +39,13 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # Xcode 27 only accepts iOS 15.0+ deployment targets; several pods still
+    # declare 9.0-13.0, which is now a hard error. 15.0 is the app's own minimum.
+    target.build_configurations.each do |config|
+      if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
     target.build_configurations.each do |config|
       # google_mobile_ads 9.x (and Firebase) ship non-modular headers inside
       # framework modules under use_frameworks!; allow them so it compiles.
