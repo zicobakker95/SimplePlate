@@ -368,7 +368,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
     return Scaffold(
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32).capped(context),
         children: [
           SafeArea(
             bottom: false,

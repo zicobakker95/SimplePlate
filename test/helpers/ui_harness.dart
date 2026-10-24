@@ -59,6 +59,27 @@ Future<void> usePhoneSurface(WidgetTester tester) async {
   addTearDown(tester.view.reset);
 }
 
+/// `--dart-define=UI_SHOTS_DEVICE=duo_inner | duo_inner_land | duo_outer`
+/// renders the iPhone Duo's displays (their App Store screenshot sizes, at
+/// 3x) to `build/ui_shots_<device>/`; the default, phone, is unchanged.
+const String kShotsDevice = String.fromEnvironment(
+  'UI_SHOTS_DEVICE',
+  defaultValue: 'phone',
+);
+const _shotsDevices = <String, Size>{
+  'phone': Size(1170, 2532),
+  'duo_inner': Size(2007, 2853),
+  'duo_inner_land': Size(2853, 2007),
+  'duo_outer': Size(1398, 2034),
+};
+
+/// The surface for [kShotsDevice] (the phone one by default).
+Future<void> useShotsSurface(WidgetTester tester) async {
+  tester.view.physicalSize = _shotsDevices[kShotsDevice]!;
+  tester.view.devicePixelRatio = 3;
+  addTearDown(tester.view.reset);
+}
+
 /// Mocks the platform channels the screens touch (ads, analytics,
 /// notifications, the home widget, in-app review) with polite no-ops.
 void mockPlugins() {
@@ -87,15 +108,18 @@ Future<void> settle(WidgetTester tester, {int frames = 14}) async {
 }
 
 /// Captures the first RepaintBoundary (the app) to build/ui_shots/[name].png
-/// when [kWriteShots] is set.
+/// (`build/ui_shots_<device>/` at full size for a Duo [kShotsDevice]) when
+/// [kWriteShots] is set.
 Future<void> shot(WidgetTester tester, String name) async {
   if (!kWriteShots) return;
   final target = find.byKey(shotKey);
   final boundary = tester.renderObject(target) as RenderRepaintBoundary;
   await tester.runAsync(() async {
-    final image = await boundary.toImage(pixelRatio: 1.5);
+    final phone = kShotsDevice == 'phone';
+    final image = await boundary.toImage(pixelRatio: phone ? 1.5 : 3);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    final out = File('build/ui_shots/$name.png');
+    final dir = phone ? 'build/ui_shots' : 'build/ui_shots_$kShotsDevice';
+    final out = File('$dir/$name.png');
     await out.parent.create(recursive: true);
     await out.writeAsBytes(data!.buffer.asUint8List());
   });

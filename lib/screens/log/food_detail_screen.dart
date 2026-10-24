@@ -107,7 +107,12 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Pt.gutter, 4, Pt.gutter, 24),
+        padding: const EdgeInsets.fromLTRB(
+          Pt.gutter,
+          4,
+          Pt.gutter,
+          24,
+        ).capped(context),
         children: [
           // Hero: where the calories come from, and what this amount costs.
           enter(
@@ -247,7 +252,12 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(Pt.gutter, 8, Pt.gutter, 12),
+          padding: const EdgeInsets.fromLTRB(
+            Pt.gutter,
+            8,
+            Pt.gutter,
+            12,
+          ).capped(context),
           child: PtButton(
             label: l10n.addToMeal(_meal.localizedLabel(l10n)),
             icon: Icons.add_rounded,

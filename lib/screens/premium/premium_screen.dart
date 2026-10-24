@@ -215,7 +215,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(Pt.gutter, 8, Pt.gutter, 20),
+              padding: const EdgeInsets.fromLTRB(
+                Pt.gutter,
+                8,
+                Pt.gutter,
+                20,
+              ).capped(context),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

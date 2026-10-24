@@ -1,6 +1,7 @@
 /// The PlateSimple design kit: one import for tokens, widgets and Sprout.
 library;
 
+export 'layout.dart';
 export 'mascot/sprout.dart';
 export 'theme/plate_theme.dart';
 export 'widgets/confetti.dart';
