@@ -265,7 +265,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8).capped(context),
             child: Container(
               height: 46,
               padding: const EdgeInsets.all(4),
@@ -301,7 +301,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                padding: const EdgeInsets.fromLTRB(16, 8, 8, 8).capped(context),
                 child: Row(
                   children: [
                     Expanded(
@@ -347,7 +347,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
 
           // ── Recent & Favourites / My Foods tab ──────────────────────────
           ListView(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.only(bottom: 24).capped(context),
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -423,7 +423,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
       }
       return ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 24).capped(context),
         children: [
           _FoodGroup(
             title: l10n.sectionRecent,
@@ -521,7 +521,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
 
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 24).capped(context),
       children: children,
     );
   }
@@ -659,7 +659,7 @@ class _RecipesTab extends StatelessWidget {
     final store = context.watch<FoodStore>();
     final l10n = context.l10n;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24).capped(context),
       children: [
         PtButton(
           label: l10n.createNewRecipe,

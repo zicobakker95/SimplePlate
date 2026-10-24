@@ -1,7 +1,9 @@
 // Builds every redesigned screen, sheet and dialog with realistic local data,
 // in light and dark (plus 1.3x text on a few). A smoke test on its own; with
 //   flutter test --dart-define=UI_SHOTS=true test/ui_shots_test.dart
-// it also writes build/ui_shots/*.png (see tool/ui_contact_sheet.py).
+// it also writes build/ui_shots/*.png (see tool/ui_contact_sheet.py). Add
+//   --dart-define=UI_SHOTS_DEVICE=duo_inner | duo_inner_land | duo_outer
+// for the iPhone Duo's displays (build/ui_shots_<device>/).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -67,7 +69,7 @@ void main() {
     double textScale = 1,
     bool reduceMotion = false,
   }) async {
-    await usePhoneSurface(tester);
+    await useShotsSurface(tester);
     SharedPreferences.setMockInitialValues(
       fresh ? {} : seededPrefs(emptyToday: emptyToday),
     );

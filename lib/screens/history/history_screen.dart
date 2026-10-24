@@ -40,7 +40,12 @@ class HistoryScreen extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(Pt.gutter, 16, Pt.gutter, 8),
+                padding: const EdgeInsets.fromLTRB(
+                  Pt.gutter,
+                  16,
+                  Pt.gutter,
+                  8,
+                ).capped(context),
                 child: Text(
                   l10n.historyTitle,
                   style: PtText.title(color: p.text),
@@ -49,7 +54,7 @@ class HistoryScreen extends StatelessWidget {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0).capped(context),
             sliver: SliverToBoxAdapter(
               child: Column(
                 children: [
@@ -111,7 +116,7 @@ class HistoryScreen extends StatelessWidget {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24).capped(context),
               sliver: SliverList.separated(
                 itemCount: dates.length,
                 separatorBuilder: (context, index) =>

@@ -175,7 +175,12 @@ class _TodayScreenState extends State<TodayScreen> {
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 110),
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  4,
+                  16,
+                  110,
+                ).capped(context),
                 sliver: SliverList.list(
                   children: [
                     enter(
@@ -327,7 +332,7 @@ class _Header extends StatelessWidget {
     final date = DateFormat('EEEE, MMM d', locale).format(now);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Pt.gutter, 12, 8, 8),
+      padding: const EdgeInsets.fromLTRB(Pt.gutter, 12, 8, 8).capped(context),
       child: Row(
         children: [
           Expanded(
@@ -431,6 +436,10 @@ class _PlateCard extends StatelessWidget {
     final onTarget = _TodayScreenState.onTarget(net, goal);
     final width = MediaQuery.sizeOf(context).width;
     final ringSize = (width * 0.56).clamp(180.0, 240.0);
+    // On a wide window (the unfolded Duo, an iPad) the macros sit beside the
+    // ring instead of under it. A Flex either way, so folding never rebuilds
+    // the rings or replays their counts.
+    final wide = widthBandOf(context) != WidthBand.phone;
 
     final mood = entryCount == 0
         ? SproutMood.sleepy
@@ -441,7 +450,8 @@ class _PlateCard extends StatelessWidget {
     return PtCard(
       radius: Pt.rLg,
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
-      child: Column(
+      child: Flex(
+        direction: wide ? Axis.horizontal : Axis.vertical,
         children: [
           Stack(
             clipBehavior: Clip.none,
@@ -513,37 +523,40 @@ class _PlateCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _MacroBowl(
-                  label: l10n.macroProtein,
-                  value: protein,
-                  goal: proteinGoal,
-                  color: p.protein,
-                  ink: p.proteinInk,
+          SizedBox(width: wide ? 20 : 0, height: wide ? 0 : 20),
+          Flexible(
+            flex: wide ? 1 : 0,
+            child: Row(
+              children: [
+                Expanded(
+                  child: _MacroBowl(
+                    label: l10n.macroProtein,
+                    value: protein,
+                    goal: proteinGoal,
+                    color: p.protein,
+                    ink: p.proteinInk,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _MacroBowl(
-                  label: l10n.macroCarbs,
-                  value: carbs,
-                  goal: carbsGoal,
-                  color: p.carbs,
-                  ink: p.carbsInk,
+                Expanded(
+                  child: _MacroBowl(
+                    label: l10n.macroCarbs,
+                    value: carbs,
+                    goal: carbsGoal,
+                    color: p.carbs,
+                    ink: p.carbsInk,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _MacroBowl(
-                  label: l10n.macroFat,
-                  value: fat,
-                  goal: fatGoal,
-                  color: p.fat,
-                  ink: p.fatInk,
+                Expanded(
+                  child: _MacroBowl(
+                    label: l10n.macroFat,
+                    value: fat,
+                    goal: fatGoal,
+                    color: p.fat,
+                    ink: p.fatInk,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

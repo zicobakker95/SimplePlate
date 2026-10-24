@@ -156,7 +156,12 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Pt.gutter, 4, Pt.gutter, 24),
+          padding: const EdgeInsets.fromLTRB(
+            Pt.gutter,
+            4,
+            Pt.gutter,
+            24,
+          ).capped(context),
           children: [
             FadeSlideIn(
               child: PtCard(
@@ -266,7 +271,12 @@ class _CreateCustomFoodScreenState extends State<CreateCustomFoodScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(Pt.gutter, 8, Pt.gutter, 12),
+          padding: const EdgeInsets.fromLTRB(
+            Pt.gutter,
+            8,
+            Pt.gutter,
+            12,
+          ).capped(context),
           child: PtButton(
             label: l10n.saveAndLog,
             icon: Icons.check_rounded,
