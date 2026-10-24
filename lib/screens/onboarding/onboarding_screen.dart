@@ -131,7 +131,7 @@ class _WelcomePage extends StatelessWidget {
     final p = context.pal;
     return LayoutBuilder(
       builder: (context, box) => SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 28).capped(context),
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: box.maxHeight),
           child: Column(
@@ -442,7 +442,10 @@ class _GoalsPageState extends State<_GoalsPage> {
     final p = context.pal;
     final (cal, pro, carb, fat) = _values;
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 16,
+      ).capped(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -598,7 +601,7 @@ class _PermissionsPage extends StatelessWidget {
     final p = context.pal;
     return LayoutBuilder(
       builder: (context, box) => SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 28).capped(context),
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: box.maxHeight),
           child: Column(

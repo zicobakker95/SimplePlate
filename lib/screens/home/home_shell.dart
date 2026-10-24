@@ -101,7 +101,7 @@ class _PlateNavBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8).capped(context),
           child: Row(
             children: [
               for (var i = 0; i < items.length; i++)

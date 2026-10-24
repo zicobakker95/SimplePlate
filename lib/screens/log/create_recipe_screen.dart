@@ -148,7 +148,12 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Pt.gutter, 4, Pt.gutter, 24),
+        padding: const EdgeInsets.fromLTRB(
+          Pt.gutter,
+          4,
+          Pt.gutter,
+          24,
+        ).capped(context),
         children: [
           FadeSlideIn(
             child: PtCard(
@@ -297,7 +302,12 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(Pt.gutter, 8, Pt.gutter, 12),
+          padding: const EdgeInsets.fromLTRB(
+            Pt.gutter,
+            8,
+            Pt.gutter,
+            12,
+          ).capped(context),
           child: PtButton(
             label: l10n.save,
             icon: Icons.check_rounded,
