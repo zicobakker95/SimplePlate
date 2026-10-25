@@ -1,0 +1,55 @@
+<en-US>
+• Looks better on tablets and foldables: content is centered and the calorie ring sits beside your macros.
+• La Famiglia, our newest game, now leads More from ZiBa.
+• Privacy options stay available in Settings, even when you are offline.
+• Under-the-hood fixes and updates.
+</en-US>
+
+<de-DE>
+• Besser auf Tablets und Foldables: Der Inhalt ist zentriert und der Kalorienring steht neben deinen Makros.
+• La Famiglia, unser neuestes Spiel, steht jetzt ganz oben bei „Mehr von ZiBa“.
+• Die Datenschutzoptionen bleiben in den Einstellungen verfügbar, auch offline.
+• Fehlerbehebungen und Updates im Hintergrund.
+</de-DE>
+
+<es-ES>
+• Se ve mejor en tablets y plegables: el contenido está centrado y el anillo de calorías queda junto a tus macros.
+• La Famiglia, nuestro juego más reciente, encabeza ahora «Más de ZiBa».
+• Las opciones de privacidad siguen disponibles en Ajustes, incluso sin conexión.
+• Correcciones y mejoras internas.
+</es-ES>
+
+<fr-FR>
+• Meilleur rendu sur tablettes et pliables : le contenu est centré et l'anneau de calories se place à côté de vos macros.
+• La Famiglia, notre jeu le plus récent, ouvre désormais « Plus de ZiBa ».
+• Les options de confidentialité restent disponibles dans les réglages, même hors ligne.
+• Corrections et mises à jour internes.
+</fr-FR>
+
+<it-IT>
+• Più bello su tablet e pieghevoli: il contenuto è centrato e l'anello delle calorie sta accanto ai tuoi macro.
+• La Famiglia, il nostro gioco più recente, apre ora «Altro da ZiBa».
+• Le opzioni sulla privacy restano disponibili nelle Impostazioni, anche offline.
+• Correzioni e aggiornamenti interni.
+</it-IT>
+
+<ja-JP>
+• タブレットや折りたたみ端末での表示を改善。内容が中央に揃い、カロリーリングが栄養素の横に並びます。
+• 最新ゲーム「La Famiglia」が「ZiBaのその他のアプリ」の先頭に表示されます。
+• オフラインでも、設定でプライバシーオプションを利用できます。
+• 内部の修正と更新。
+</ja-JP>
+
+<nl-NL>
+• Mooier op tablets en vouwbare telefoons: de inhoud staat gecentreerd en de calorieënring staat naast je macro's.
+• La Famiglia, onze nieuwste game, staat nu bovenaan bij 'Meer van ZiBa'.
+• Privacyopties blijven beschikbaar in Instellingen, ook als je offline bent.
+• Verbeteringen en updates onder de motorkap.
+</nl-NL>
+
+<pt-BR>
+• Visual melhor em tablets e dobráveis: o conteúdo fica centralizado e o anel de calorias fica ao lado dos seus macros.
+• La Famiglia, nosso jogo mais novo, agora abre "Mais da ZiBa".
+• As opções de privacidade continuam disponíveis em Configurações, mesmo offline.
+• Correções e atualizações internas.
+</pt-BR>
