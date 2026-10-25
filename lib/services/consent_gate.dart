@@ -70,6 +70,9 @@ class ConsentGate {
           // Offline, say. A stored answer still counts; no answer means no ads.
           debugPrint('[consent] update: ${error.errorCode} ${error.message}');
           await _startIfAllowed();
+          // A stored answer still knows whether the form is required, so the
+          // settings screen keeps its "Privacy options" row even offline.
+          await _refreshPrivacyOptions();
           finish();
         },
       );
