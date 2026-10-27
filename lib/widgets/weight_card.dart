@@ -38,7 +38,7 @@ class _WeightCardState extends State<WeightCard> {
         logged.day == today.day;
     final weight = unit.format(entry.kg);
     if (isToday) return l10n.weightSubtitleToday(weight);
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     return l10n.weightSubtitleDate(
       weight,
       DateFormat('MMM d', locale).format(logged),

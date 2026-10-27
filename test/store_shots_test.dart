@@ -121,6 +121,25 @@ const _names = <String, List<String>>{
     'Leite de coco', 'Tomate picado', 'Salmão com legumes', 'Ciclismo',
     'Mingau de aveia', 'Macarrão ao sugo', 'Cappuccino',
   ],
+  'tr': [
+    'Yunan yoğurdu', 'Yaban mersini', 'Ev yapımı granola',
+    'Izgara tavuk göğsü', 'Esmer pirinç', 'Avokado', 'Badem', 'Muz',
+    'Avokadolu tost', 'Mercimek köri', 'Hafta içi favorim', 'Kırmızı mercimek',
+    'Hindistan cevizi sütü', 'Doğranmış domates', 'Yeşilliklerle somon',
+    'Bisiklet', 'Yulaf lapası', 'Domatesli makarna', 'Kapuçino',
+  ],
+  'pl': [
+    'Jogurt grecki', 'Borówki', 'Domowa granola', 'Grillowana pierś z kurczaka',
+    'Brązowy ryż', 'Awokado', 'Migdały', 'Banan', 'Tost z awokado',
+    'Curry z soczewicy', 'Mój hit na co dzień', 'Czerwona soczewica',
+    'Mleczko kokosowe', 'Krojone pomidory', 'Łosoś z warzywami', 'Rower',
+    'Owsianka', 'Makaron pomodoro', 'Cappuccino',
+  ],
+  'zh-Hant': [
+    '希臘優格', '藍莓', '自製穀麥片', '香煎雞胸肉', '糙米', '酪梨', '杏仁', '香蕉',
+    '酪梨吐司', '扁豆咖哩', '平日愛用食譜', '紅扁豆', '椰奶', '切塊番茄', '鮭魚佐青菜',
+    '騎腳踏車', '燕麥粥', '番茄義大利麵', '卡布奇諾',
+  ],
   'ja': [
     'ギリシャヨーグルト', 'ブルーベリー', '自家製グラノーラ', 'グリルチキン', '玄米',
     'アボカド', 'アーモンド', 'バナナ', 'アボカドトースト', 'レンズ豆のカレー', '平日の定番',
@@ -314,8 +333,8 @@ Map<String, Object> storeSeed(String loc, {bool dinner = false, int water = 5}) 
 
 void main() {
   final locales = kLocales.split(',').where((l) => l.isNotEmpty).toList();
-  final cjk = locales.contains('ja');
-  assert(!cjk || locales.length == 1, 'Run LOCALES=ja on its own');
+  final cjk = locales.contains('ja') || locales.contains('zh-Hant');
+  assert(!cjk || locales.length == 1, 'Run LOCALES=ja or zh-Hant on its own');
 
   setUpAll(() async {
     await loadUiFonts();
@@ -323,9 +342,10 @@ void main() {
     Future<ByteData> read(String path) async =>
         ByteData.view((await File(path).readAsBytes()).buffer);
     if (cjk) {
+      final zh = locales.contains('zh-Hant');
       final ja = FontLoader('CjkFallback')
-        ..addFont(read('C:/Windows/Fonts/YuGothM.ttc'))
-        ..addFont(read('C:/Windows/Fonts/YuGothB.ttc'));
+        ..addFont(read(zh ? 'C:/Windows/Fonts/msjh.ttc' : 'C:/Windows/Fonts/YuGothM.ttc'))
+        ..addFont(read(zh ? 'C:/Windows/Fonts/msjhbd.ttc' : 'C:/Windows/Fonts/YuGothB.ttc'));
       await ja.load();
       PtText.debugFontFallback = ['CjkFallback', ...?PtText.debugFontFallback];
     }
@@ -376,7 +396,9 @@ void main() {
           child: MaterialApp(
             navigatorKey: _navKey,
             debugShowCheckedModeBanner: false,
-            locale: Locale(loc),
+            locale: loc == 'zh-Hant'
+                ? Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+                : Locale(loc),
             theme: buildPlateTheme(Brightness.light),
             darkTheme: buildPlateTheme(Brightness.dark),
             themeMode: dark ? ThemeMode.dark : ThemeMode.light,

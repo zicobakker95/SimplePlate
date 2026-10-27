@@ -284,7 +284,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ]
                   else ...[
                     Text(
-                      l10n.choosePlan.toUpperCase(),
+                      l10n.choosePlan.upperFor(context),
                       style: PtText.label(color: p.textMuted),
                     ),
                     const SizedBox(height: 10),

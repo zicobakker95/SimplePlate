@@ -28,6 +28,7 @@ import 'helpers/ui_harness.dart';
 /// Logical sizes (pt). The Duo's are derived from its pixel specs at 3x.
 const _sizes = <String, Size>{
   'phone': Size(390, 844),
+  'small phone 360dp': Size(360, 740),
   'duo outer': Size(466, 678),
   'duo inner': Size(669, 951),
   'duo inner landscape': Size(951, 669),
@@ -74,6 +75,7 @@ Future<FoodStore> _pump(
       ],
       child: MaterialApp(
         theme: buildPlateTheme(Brightness.light),
+        locale: testLocale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: home,
@@ -137,7 +139,7 @@ void main() {
   });
 
   testWidgets('the macros sit beside the ring on the inner display', (t) async {
-    final en = lookupAppLocalizations(const Locale('en'));
+    final en = lookupAppLocalizations(testLocale ?? const Locale('en'));
     Future<(Rect, Rect)> ringAndProtein(Size size) async {
       await _pump(t, size, const HomeShell());
       return (

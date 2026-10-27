@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-import 'l10n/app_localizations.dart';
+import 'l10n/l10n.dart';
 import 'screens/home/home_shell.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'services/ad_config.dart';
@@ -115,6 +115,7 @@ class SimplePlateApp extends StatelessWidget {
           themeMode: appearance.value,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          localeResolutionCallback: resolveAppLocale,
           // Null when Firebase is unavailable — the app still runs, it just
           // stops reporting screen views.
           navigatorObservers: [

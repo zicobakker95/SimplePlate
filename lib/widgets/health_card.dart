@@ -242,7 +242,7 @@ class _HealthSyncCardState extends State<HealthSyncCard> {
     // Offer the Health reading only when that day has nothing in the log —
     // otherwise it is usually the app's own write coming back.
     final offerImport = hw != null && !store.hasWeightOn(hw.at);
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

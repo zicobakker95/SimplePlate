@@ -389,7 +389,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get todayCopyTooltip => 'Copia i pasti di ieri';
 
   @override
-  String get logFood => 'Registra cibo';
+  String get logFood => 'Registra alimento';
 
   @override
   String get emptyTodayTitle => 'Ancora niente registrato oggi';
@@ -611,7 +611,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get servingSizeLabel => 'Dimensione porzione';
 
   @override
-  String get addFoodTitle => 'Aggiungi cibo';
+  String get addFoodTitle => 'Aggiungi alimento';
 
   @override
   String get pickIngredientTitle => 'Scegli ingrediente';
@@ -626,16 +626,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tabRecipes => 'Ricette';
 
   @override
-  String get tabMyFoods => 'I miei cibi';
+  String get tabMyFoods => 'I miei alimenti';
 
   @override
-  String get searchHint => 'Cerca cibi…';
+  String get searchHint => 'Cerca alimenti…';
 
   @override
   String get scanTooltip => 'Scansiona codice a barre';
 
   @override
-  String get createCustomFood => 'Crea cibo personalizzato';
+  String get createCustomFood => 'Crea alimento personalizzato';
 
   @override
   String get sectionFavourites => 'Preferiti ⭐';
@@ -644,7 +644,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get sectionRecent => 'Recenti';
 
   @override
-  String get noFoodsYet => 'Ancora nessun cibo.';
+  String get noFoodsYet => 'Ancora nessun alimento.';
 
   @override
   String get unlockScannerTitle => 'Sblocca lo scanner di codici a barre';
@@ -731,22 +731,22 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get createCustomFoodTitle => 'Crea cibo personalizzato';
+  String get createCustomFoodTitle => 'Crea alimento personalizzato';
 
   @override
-  String get foodDetailsSection => 'Dettagli del cibo';
+  String get foodDetailsSection => 'Dettagli dell\'alimento';
 
   @override
   String get valuesPer100 => 'I valori sono per 100 g / 100 ml.';
 
   @override
-  String get foodNameLabel => 'Nome del cibo';
+  String get foodNameLabel => 'Nome dell\'alimento';
 
   @override
   String get brandOptional => 'Marca (facoltativa)';
 
   @override
-  String get nutritionPer100 => 'Nutrizione per 100 g';
+  String get nutritionPer100 => 'Valori nutrizionali per 100 g';
 
   @override
   String get fieldRequired => 'Obbligatorio';
@@ -834,11 +834,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String kcalAvg(int n) {
-    return '$n kcal media';
+    return '$n kcal in media';
   }
 
   @override
-  String get kcalAvgEmpty => '— kcal media';
+  String get kcalAvgEmpty => '— kcal in media';
 
   @override
   String get weightTrend => 'Andamento del peso';
@@ -929,7 +929,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get restorePurchases => 'Ripristina acquisti';
 
   @override
-  String get privacyPolicy => 'Privacy';
+  String get privacyPolicy => 'Informativa sulla privacy';
 
   @override
   String get termsOfUse => 'Termini d\'uso';
@@ -955,7 +955,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get planMonthly => 'Mensile';
 
   @override
-  String get bestValue => 'MIGLIOR VALORE';
+  String get bestValue => 'MIGLIOR OFFERTA';
 
   @override
   String get billedYearly => 'Addebitato una volta all\'anno';
@@ -1082,7 +1082,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get weightTrendNoChange =>
-      'Registralo di nuovo tra qualche giorno per vedere la variazione.';
+      'Registra di nuovo il peso tra qualche giorno per vedere la variazione.';
 
   @override
   String get weightTrendNeedMore =>

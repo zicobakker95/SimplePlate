@@ -95,7 +95,7 @@ class _TrendBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final p = context.pal;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     final latest = trend.latestKg;
     final change = trend.changeKg;
 

@@ -323,7 +323,7 @@ class _Header extends StatelessWidget {
     final p = context.pal;
     final l10n = context.l10n;
     final now = DateTime.now();
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     final greeting = now.hour < 12
         ? l10n.greetingMorning
         : now.hour < 18

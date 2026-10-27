@@ -79,7 +79,9 @@ void main() {
       final l = lookupAppLocalizations(locale);
       expect(l.rateApp, contains('PlateSimple'), reason: '$locale');
       expect(l.rateAppSub, isNotEmpty, reason: '$locale');
-      if (locale.languageCode != 'en') {
+      // Plain `zh` is an empty fallback stub (Simplified is not shipped).
+      final isStub = locale.languageCode == 'zh' && locale.scriptCode == null;
+      if (locale.languageCode != 'en' && !isStub) {
         expect(l.rateApp, isNot(en.rateApp), reason: '$locale is English');
       }
     }

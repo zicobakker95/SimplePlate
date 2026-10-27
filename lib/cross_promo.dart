@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -138,7 +139,7 @@ class MoreFromZiba extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
-          child: Text(title.toUpperCase(),
+          child: Text(title.upperFor(context),
               style: TextStyle(
                   color: mutedColor,
                   fontSize: 12,

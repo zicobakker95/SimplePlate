@@ -13,6 +13,17 @@ import 'package:simple_plate/ui/kit.dart';
 /// and pumped (a smoke test), just not saved.
 const bool kWriteShots = bool.fromEnvironment('UI_SHOTS');
 
+/// `--dart-define=TEST_LANG=tr|pl|zh_Hant|it|...` runs the layout tests in
+/// that language (default: the framework default, English).
+const String kTestLang = String.fromEnvironment('TEST_LANG');
+
+/// The [Locale] for [kTestLang], or null for the default.
+Locale? get testLocale => kTestLang.isEmpty
+    ? null
+    : kTestLang == 'zh_Hant'
+        ? Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+        : Locale(kTestLang);
+
 bool _fontsLoaded = false;
 
 /// Loads real fonts so text renders as text instead of test boxes: the

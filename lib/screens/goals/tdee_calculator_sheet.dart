@@ -234,7 +234,7 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
 
           const SizedBox(height: 8),
           Text(
-            l10n.goalLabel.toUpperCase(),
+            l10n.goalLabel.upperFor(context),
             style: PtText.label(color: p.textMuted),
           ),
           const SizedBox(height: 8),
@@ -273,7 +273,7 @@ class _TdeeCalculatorSheetState extends State<TdeeCalculatorSheet> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            l10n.yourResults.toUpperCase(),
+                            l10n.yourResults.upperFor(context),
                             style: PtText.label(color: p.textMuted),
                           ),
                           const SizedBox(height: 8),

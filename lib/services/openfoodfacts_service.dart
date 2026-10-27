@@ -76,6 +76,9 @@ class OpenFoodFactsService {
     'es': 'es',
     'it': 'it',
     'ja': 'jp',
+    'tr': 'tr',
+    'pl': 'pl',
+    'zh': 'tw',
     'pt': 'br',
   };
 

@@ -150,7 +150,7 @@ class _DayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final p = context.pal;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     final entries = store.entriesForDay(date);
     final cals = entries.fold<double>(0, (s, e) => s + e.calories);
     final goal = goals.dailyCalories.toDouble();
@@ -246,7 +246,7 @@ class _DaySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final p = context.pal;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
 
     // Watching the store keeps the list and the totals below in sync after an
     // edit or a delete without the sheet having to be reopened.
@@ -517,7 +517,7 @@ class _WeeklySummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final p = context.pal;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     final now = DateTime.now();
     final days = List.generate(7, (i) {
       final d = now.subtract(Duration(days: 6 - i));
@@ -689,7 +689,7 @@ class _CalendarHeatmapState extends State<_CalendarHeatmap> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final p = context.pal;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     final daysInMonth = DateUtils.getDaysInMonth(_month.year, _month.month);
     final startWeekday = _month.weekday % 7; // 0=Sun, 1=Mon…
     final goal = widget.goals.dailyCalories.toDouble();

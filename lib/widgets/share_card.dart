@@ -73,7 +73,7 @@ class ShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = dateLocaleOf(context);
     final goalMet =
         calories >= goalCalories * 0.85 && calories <= goalCalories * 1.1;
     final dateLabel = DateFormat('EEEE, MMM d', locale).format(date);

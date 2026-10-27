@@ -56,3 +56,43 @@ String localizedBmiCategory(AppLocalizations l, double bmi) {
   if (bmi < 30.0) return l.bmiOverweight;
   return l.bmiObese;
 }
+
+/// App locales whose resolution needs more than the language code: Chinese
+/// maps to Traditional (`zh_Hant`) for zh_TW/HK/MO or script Hant; Simplified
+/// (zh_CN/SG, script Hans) is not shipped and falls back to English.
+Locale? resolveAppLocale(Locale? device, Iterable<Locale> supported) {
+  if (device == null) return const Locale('en');
+  if (device.languageCode == 'zh') {
+    final script = device.scriptCode;
+    final country = device.countryCode?.toUpperCase();
+    final traditional = script == 'Hant' ||
+        (script == null && const {'TW', 'HK', 'MO'}.contains(country));
+    return traditional
+        ? Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+        : const Locale('en');
+  }
+  for (final l in supported) {
+    if (l.languageCode == device.languageCode) return l;
+  }
+  return const Locale('en');
+}
+
+/// Locale name for `intl` date formatting: package:intl has no `zh_Hant`,
+/// so Traditional Chinese formats as `zh_TW`.
+String dateLocaleOf(BuildContext context) {
+  final l = Localizations.localeOf(context);
+  if (l.languageCode == 'zh' && l.scriptCode == 'Hant') return 'zh_TW';
+  return l.toString();
+}
+
+extension LocaleUpperX on String {
+  /// Upper-case for display in the active locale: Turkish maps i -> İ and
+  /// ı -> I (Dart's toUpperCase is locale-blind). Not for ids or enum names.
+  String upperFor(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
+    if (lang == 'tr' || lang == 'az') {
+      return replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+    }
+    return toUpperCase();
+  }
+}

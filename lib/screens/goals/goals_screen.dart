@@ -852,7 +852,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.aboutTitle.toUpperCase(),
+                      l10n.aboutTitle.upperFor(context),
                       style: PtText.label(color: p.textMuted),
                     ),
                     const SizedBox(height: 4),

@@ -141,7 +141,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
         ),
         const SizedBox(height: 16),
         Text(
-          l10n.optionalMacros.toUpperCase(),
+          l10n.optionalMacros.upperFor(context),
           style: PtText.label(color: p.textMuted),
         ),
         const SizedBox(height: 8),

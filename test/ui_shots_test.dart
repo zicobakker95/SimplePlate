@@ -35,7 +35,7 @@ import 'helpers/ui_harness.dart';
 
 void main() {
   final navKey = GlobalKey<NavigatorState>();
-  final en = lookupAppLocalizations(const Locale('en'));
+  final en = lookupAppLocalizations(testLocale ?? const Locale('en'));
   BuildContext ctx() => navKey.currentContext!;
 
   Future<void> push(WidgetTester tester, Widget screen) async {
@@ -89,6 +89,7 @@ void main() {
             theme: buildPlateTheme(Brightness.light),
             darkTheme: buildPlateTheme(Brightness.dark),
             themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+            locale: testLocale,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(

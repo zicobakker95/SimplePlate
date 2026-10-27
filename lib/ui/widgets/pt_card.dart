@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 
 import '../theme/plate_theme.dart';
 import 'pressable.dart';
@@ -118,7 +119,7 @@ class PtSectionHeader extends StatelessWidget {
                 Semantics(
                   header: true,
                   child: Text(
-                    label.toUpperCase(),
+                    label.upperFor(context),
                     style: PtText.label(color: p.textMuted),
                   ),
                 ),
