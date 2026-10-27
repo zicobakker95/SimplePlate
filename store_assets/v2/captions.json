@@ -78,5 +78,35 @@
     "06_celebrate": "目標達成を\nSproutがお祝い",
     "07_history": "体重の変化も\nグラフで実感",
     "08_dark": "夜にやさしい\nダークモード"
+  },
+  "zh-Hant": {
+    "01_today": "一整天，一盤看完",
+    "02_log": "幾秒鐘就能記錄飲食",
+    "03_scan": "掃描條碼就搞定",
+    "04_detail": "每種營養素一目瞭然",
+    "05_recipes": "食譜卡路里自動算好",
+    "06_celebrate": "Sprout 為你的成就喝采",
+    "07_history": "看見你的進步與成長",
+    "08_dark": "夜貓族專屬深色模式"
+  },
+  "tr": {
+    "01_today": "Tüm günün tek tabakta",
+    "02_log": "Saniyeler içinde kaydet",
+    "03_scan": "Barkodu tara, bitti",
+    "04_detail": "Her makro net ve açık",
+    "05_recipes": "Tarifler senin için hesaplanır",
+    "06_celebrate": "Sprout her başarıyı kutlar",
+    "07_history": "İlerlemenin büyümesini izle",
+    "08_dark": "Gece kuşları için koyu mod"
+  },
+  "pl": {
+    "01_today": "Cały dzień na jednym talerzu",
+    "02_log": "Zapisuj posiłki w sekundy",
+    "03_scan": "Zeskanuj kod i gotowe",
+    "04_detail": "Każde makro w pełnej jasności",
+    "05_recipes": "Przepisy liczą się same",
+    "06_celebrate": "Sprout cieszy się z sukcesów",
+    "07_history": "Zobacz swoje postępy",
+    "08_dark": "Tryb ciemny dla nocnych marków"
   }
 }

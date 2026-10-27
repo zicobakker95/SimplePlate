@@ -21,6 +21,9 @@ written per language and optimised for ASO.
 | [`it.md`](it.md)    | Italian             | `it`    | `it-IT` |
 | [`pt-BR.md`](pt-BR.md) | Portuguese (Brazil) | `pt-BR` | `pt-BR` |
 | [`ja.md`](ja.md)    | Japanese            | `ja`    | `ja-JP` |
+| [`tr.md`](tr.md)    | Turkish             | `tr`    | `tr-TR` |
+| [`pl.md`](pl.md)    | Polish              | `pl`    | `pl-PL` |
+| [`zh-Hant.md`](zh-Hant.md) | Traditional Chinese (Taiwan/HK) | `zh-Hant` | `zh-TW` |
 
 > ⚠️ **The app UI is currently English-only.** These localized listings improve
 > store discovery, but until the app itself is localized (`flutter_localizations`

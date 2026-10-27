@@ -46,6 +46,7 @@ CAPS = json.loads((HERE / 'captions.json').read_text(encoding='utf-8'))
 F_LATIN = (str(REPO / 'assets' / 'fonts' / 'Rubik-Bold.ttf'), 0)
 F_LATIN_MED = (str(REPO / 'assets' / 'fonts' / 'Rubik-Medium.ttf'), 0)
 F_JA = ('C:/Windows/Fonts/YuGothB.ttc', 0)
+F_ZH = ('C:/Windows/Fonts/msjhbd.ttc', 0)
 
 # Palette (lib/ui/theme/plate_theme.dart).
 LINEN = (246, 241, 231)
@@ -92,13 +93,13 @@ SLOTS = {
 }
 # Logical width of each raw capture (test/store_shots_test.dart).
 LOGICAL_W = {'phone': 390, 'tablet': 600, 'ipad': 512}
-LOCALES = ['en', 'nl', 'de', 'fr', 'es', 'it', 'pt', 'ja']
+LOCALES = ['en', 'nl', 'de', 'fr', 'es', 'it', 'pt', 'ja', 'tr', 'pl', 'zh-Hant']
 
 shrunk = []
 
 
 def font_for(loc):
-    return F_JA if loc == 'ja' else F_LATIN
+    return F_JA if loc == 'ja' else F_ZH if loc == 'zh-Hant' else F_LATIN
 
 
 def gradient(size, top, bottom):
@@ -217,7 +218,7 @@ def text_block(text, loc, max_w, base_px, color, max_lines=2):
     px = min(base_px, int(max_w * upem / widest))
     imgs = [fl.render_line(line, fp, idx, px, color) for line in lines]
     w = max(i.width for i in imgs)
-    gap = int(px * (0.1 if loc == 'ja' else -0.04))
+    gap = int(px * (0.1 if loc in ('ja', 'zh-Hant') else -0.04))
     h = sum(i.height for i in imgs) + gap * (len(imgs) - 1)
     block = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     y = 0
