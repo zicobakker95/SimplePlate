@@ -1,0 +1,65 @@
+<en-US>
+• New languages: Turkish, Polish and Traditional Chinese.
+• Italian wording reviewed, with clearer food terms.
+• Small fixes and improvements.
+</en-US>
+
+<de-DE>
+• Neue Sprachen: Türkisch, Polnisch und Traditionelles Chinesisch.
+• Italienische Texte überarbeitet, mit klareren Lebensmittelbegriffen.
+• Kleine Korrekturen und Verbesserungen.
+</de-DE>
+
+<es-ES>
+• Nuevos idiomas: turco, polaco y chino tradicional.
+• Textos en italiano revisados, con términos de alimentos más claros.
+• Pequeñas correcciones y mejoras.
+</es-ES>
+
+<fr-FR>
+• Nouvelles langues : turc, polonais et chinois traditionnel.
+• Textes italiens relus, avec des termes alimentaires plus clairs.
+• Petites corrections et améliorations.
+</fr-FR>
+
+<it-IT>
+• Nuove lingue: turco, polacco e cinese tradizionale.
+• Testi italiani rivisti, con termini alimentari più chiari.
+• Piccole correzioni e miglioramenti.
+</it-IT>
+
+<ja-JP>
+• 新言語：トルコ語、ポーランド語、繁体字中国語に対応。
+• イタリア語の文言を見直し、食品の用語をより分かりやすくしました。
+• 細かな修正と改善。
+</ja-JP>
+
+<nl-NL>
+• Nieuwe talen: Turks, Pools en Traditioneel Chinees.
+• Italiaanse teksten gecontroleerd, met duidelijkere voedingstermen.
+• Kleine fixes en verbeteringen.
+</nl-NL>
+
+<pt-BR>
+• Novos idiomas: turco, polonês e chinês tradicional.
+• Textos em italiano revisados, com termos de alimentos mais claros.
+• Pequenas correções e melhorias.
+</pt-BR>
+
+<tr-TR>
+• Yeni diller: Türkçe, Lehçe ve Geleneksel Çince.
+• İtalyanca ifadeler gözden geçirildi; yiyecek terimleri daha net.
+• Küçük düzeltmeler ve iyileştirmeler.
+</tr-TR>
+
+<pl-PL>
+• Nowe języki: turecki, polski i chiński tradycyjny.
+• Sprawdzono włoskie teksty; jaśniejsze nazewnictwo produktów.
+• Drobne poprawki i ulepszenia.
+</pl-PL>
+
+<zh-TW>
+• 新增語言：土耳其文、波蘭文和繁體中文。
+• 校對了義大利文文字，食品用語更清楚。
+• 小幅修正與改進。
+</zh-TW>
