@@ -18,6 +18,9 @@
 		<string>ja</string>
 		<string>nl</string>
 		<string>pt</string>
+		<string>tr</string>
+		<string>pl</string>
+		<string>zh-Hant</string>
 	</array>
 	<key>CFBundleDisplayName</key>
 	<string>PlateSimple</string>
