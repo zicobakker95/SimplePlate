@@ -56,7 +56,9 @@ const List<ZibaApp> kZibaApps = [
       'com.klack.klack', Icons.blur_on_rounded, Color(0xFFF5C518),
       ZibaGroup.games),
   // Wellness / self-help
-  ZibaApp('streaks', 'Streaks', 'Habit & goal tracker', '6780628137',
+  // ZiBa Habits (formerly "Streaks"; renamed after a trademark claim). The
+  // id, store ids and icon file stay as they were: they are internal.
+  ZibaApp('streaks', 'ZiBa Habits', 'Habit & goal tracker', '6780628137',
       'com.streaks.zibaentertainment', Icons.local_fire_department_rounded,
       Color(0xFFFF8A34), ZibaGroup.wellness),
   ZibaApp('platesimple', 'PlateSimple', 'Calorie counter', '6781796015',
