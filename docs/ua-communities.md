@@ -42,7 +42,7 @@ database is genuinely good, which is where your paid campaigns point anyway.
 | r/loseit | very large, ~4M | Strict; app promotion generally not allowed | Read the rules before anything. Where tool questions are permitted, answer them, disclosed. Do not top-level post a launch. |
 | r/CICO | mid | More tolerant, tool-focused by nature | Better odds than r/loseit and the audience is identical. |
 | r/1200isplenty, r/volumeeating | mid | Recipe-led communities | Not a place to pitch software. Be present; the occasional honest tool answer is fine. |
-| r/intermittentfasting | large | Tolerant of tools | Overlaps with Streaks. Lead with the speed of logging, not fasting. |
+| r/intermittentfasting | large | Tolerant of tools | Overlaps with ZiBa Habits. Lead with the speed of logging, not fasting. |
 | r/keto, r/ketogains | large | Macro-obsessed | Macro tracking is the pitch; they care about protein, carbs and fat specifically. |
 | r/xxfitness | large | Friendly, strict on promo | Comment-level only unless the rules say otherwise. |
 | r/nutrition | large | Academic, hostile to apps | Skip it. |
